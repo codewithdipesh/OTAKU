@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MangaReader</string>
+    <string name="suggestion">SUGGESTIONS</string>
+    <string name="top_10">TOP-10</string>
+    <string name="all_manga">ALL MANGA</string>
+    <string name="search">Search</string>
+
+</resources>
