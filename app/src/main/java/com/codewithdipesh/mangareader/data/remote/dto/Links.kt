@@ -1,4 +1,4 @@
-package com.codewithdipesh.mangareader.data.repository.dto
+package com.codewithdipesh.mangareader.data.remote.dto
 
 data class Links(
     val al: String,

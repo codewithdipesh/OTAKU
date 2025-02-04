@@ -1,4 +1,4 @@
-package com.codewithdipesh.mangareader.data.repository.dto
+package com.codewithdipesh.mangareader.data.remote.dto
 
 data class Tag(
     val attributes: AttributesX,
