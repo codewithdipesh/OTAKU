@@ -2,12 +2,11 @@ package com.codewithdipesh.mangareader.data.mappers
 
 import com.codewithdipesh.mangareader.data.remote.dto.Data
 import com.codewithdipesh.mangareader.data.remote.dto.MangaResponse
-import com.codewithdipesh.mangareader.domain.model.AltTitle
 import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.domain.model.Rating
 import com.codewithdipesh.mangareader.domain.model.Status
 
-fun Data.toManga():Manga{
+fun Data.toManga(coverImage : String):Manga{
     val genres : List<String> = attributes.tags
         .filter{ it.attributes.group == "genre"}
         .map { it.attributes.name.en ?: "Unknown"}
@@ -29,6 +28,8 @@ fun Data.toManga():Manga{
        contentRating = Rating.fromString(attributes.contentRating),
        status = Status.fromString(attributes.status),
        isFavourite = false,
-       altTitle = japaneseTitle
+       altTitle = japaneseTitle,
+       coverImage = if(coverImage != "") "https://uploads.mangadex.org/covers/${id}/${coverImage}"
+                    else  null
     )
 }

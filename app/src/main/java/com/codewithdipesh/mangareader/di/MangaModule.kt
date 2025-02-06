@@ -19,7 +19,7 @@ object MangaModule {
     @Singleton
     fun provideApiService(): MangaApi {
         return Retrofit.Builder()
-            .baseUrl("")
+            .baseUrl("https://api.mangadex.org/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(MangaApi::class.java)

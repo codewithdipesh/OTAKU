@@ -2,8 +2,8 @@ package com.codewithdipesh.mangareader.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class MangaResponse(
-    val data: List<Data>,
+data class coverImageResponse(
+    val data: List<DataX>,
     val limit: Int,
     val offset: Int,
     val response: String,
