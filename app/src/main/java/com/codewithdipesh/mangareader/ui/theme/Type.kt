@@ -11,7 +11,8 @@ import androidx.compose.ui.unit.sp
 // Set of Material typography styles to start with
 
 val regular = FontFamily(
-    Font(R.font.regular, FontWeight.Normal)
+    Font(R.font.regular, FontWeight.Normal),
+    Font(R.font.regular_bold, FontWeight.Bold)
 )
 
 val japanese = FontFamily(

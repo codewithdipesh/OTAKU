@@ -4,6 +4,7 @@ plugins {
     id("kotlin-kapt")
     alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.devtools.ksp)
 }
 
 android {
@@ -90,6 +91,15 @@ dependencies {
 
     //serialize
     runtimeOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+
+
+    //local storage - room db
+    val room_version = "2.6.1"
+
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    implementation("androidx.room:room-paging:$room_version")
 
 
 
