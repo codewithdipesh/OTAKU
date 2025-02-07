@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -45,6 +46,7 @@ import coil3.compose.AsyncImage
 import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.ui.theme.japanese
 import com.codewithdipesh.mangareader.ui.theme.regular
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -61,6 +63,7 @@ fun SwipingCardAnimation(
         cards.clear()
         cards.addAll(mangaList)
     }
+
 
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -95,7 +98,8 @@ fun SwipingCardAnimation(
                                         animatedOffsetX.snapTo(0f)
                                     }
                                     animatedOffsetX.value < -300 -> { // Swipe Left
-                                        val firstCard = cards.removeAt(cards.indexOfFirst { it == card })
+                                         val firstCardIndex = cards.indexOfFirst { it == card }
+                                        val firstCard = cards.removeAt(firstCardIndex)
                                         cards.add(firstCard)
                                         animatedOffsetX.snapTo(0f)
                                     }

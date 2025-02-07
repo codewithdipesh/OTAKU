@@ -1,6 +1,5 @@
 package com.codewithdipesh.mangareader.data.repository
 
-import android.util.Log
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
@@ -21,12 +20,9 @@ class MangaRepositoryImpl(
     override suspend fun getTopMangas(): Result<List<Manga>> {
 
         //got in local db
-        Log.d("MangaRepositoryImpl", "getTopMangas: ")
-        val cachedMangas = dao.getCachedMangas()
-        Log.d("MangaRepositoryImpl", "getCachedMangas: ")
+        val cachedMangas = dao.getCachedTopMangas()
         val isCacheValid = cachedMangas.isNotEmpty() &&
-                (System.currentTimeMillis() - cachedMangas.first().lastUpdated < 12 * 60 * 60 * 1000)
-        Log.d("MangaRepositoryImpl", "CacheValid : $isCacheValid")
+                (System.currentTimeMillis() - cachedMangas.first().lastUpdated < 6 * 60 * 60 * 1000)
         return if(isCacheValid){
             val mangaList = cachedMangas.map {
                 val genres = dao.getGenresForManga(it.id)
@@ -38,7 +34,6 @@ class MangaRepositoryImpl(
         }else{
             //fetch api call and update local db
             return try {
-                Log.d("MangaRepositoryImpl", "Api FeTCHING: ")
                 val response = api.getTopManga()
 
                 if (response.isSuccessful) {
@@ -58,8 +53,7 @@ class MangaRepositoryImpl(
                         mangaData.toManga(coverImage)
                     }
                     //add manga theme and genre to locally then return
-                    Log.d("MangaRepositoryImpl", "Saving in local: ")
-                    dao.insertMangas(resultMangaList.map { it.toEntity() })
+                    dao.insertMangas(resultMangaList.map { it.toEntity(isTopManga = true) })
                     dao.insertGenre(resultMangaList.flatMap {
                         it.genres.map { genre ->
                             GenreEntity(mangaId = it.id, name = genre)
@@ -87,35 +81,62 @@ class MangaRepositoryImpl(
 
     //TODO Same as above but with pagination
     override suspend fun getAllMangas(): Result<List<Manga>> {
-        return try{
-            val response = api.getAllManga()
-            var resultMangaList : List<Manga> = emptyList()
+        val cachedMangas = dao.getCachedAllMangas()
+        val isCacheValid = cachedMangas.isNotEmpty() &&
+                (System.currentTimeMillis() - cachedMangas.first().lastUpdated < 12 * 60 * 60 * 1000)
+        return if(isCacheValid){
+            val mangaList = cachedMangas.map {
+                val genres = dao.getGenresForManga(it.id)
+                val themes = dao.getThemesForManga(it.id)
+                it.toManga(genres,themes)
+            }
+            Result.Success(mangaList)
 
-            if(response.isSuccessful){
-                val mangaList = response.body()?.data
-                if(mangaList != null){
-                    mangaList.forEach {
-                        var coverImage :String
-                        val coverResponse = api.getCoverImage(it.id)
-                        if(coverResponse.isSuccessful){
-                            coverImage = coverResponse.body()!!.data.first().attributes.fileName
-                        }else{
-                            coverImage = ""
+        }else{
+            //fetch api call and update local db
+            return try {
+                val response = api.getAllManga()
+
+                if (response.isSuccessful) {
+                    val mangaList = response.body()?.data ?: emptyList()
+
+                    val resultMangaList = mangaList.map { mangaData ->
+                        val coverImage = try {
+                            val coverResponse = api.getCoverImage(mangaData.id)
+                            if (coverResponse.isSuccessful) {
+                                coverResponse.body()?.data?.firstOrNull()?.attributes?.fileName ?: ""
+                            } else {
+                                ""
+                            }
+                        } catch (e: Exception) {
+                            ""
                         }
-                        resultMangaList += it.toManga(coverImage)
+                        mangaData.toManga(coverImage)
                     }
-                    Result.Success(resultMangaList)
-                }
-                else{
+                    //add manga theme and genre to locally then return
+                    dao.insertMangas(resultMangaList.map { it.toEntity(isTopManga = false) })
+                    dao.insertGenre(resultMangaList.flatMap {
+                        it.genres.map { genre ->
+                            GenreEntity(mangaId = it.id, name = genre)
+                        }
+                    })
+                    dao.insertTheme(resultMangaList.flatMap {
+                        it.themes.map { theme ->
+                            ThemeEntity(mangaId = it.id, name = theme)
+                        }
+                    })
+
+                    return Result.Success(resultMangaList)
+                } else {
                     Result.Error(AppError.ServerError("Empty Response from server"))
                 }
-            }else{
-                Result.Error(AppError.ServerError())
             }
-        }catch (e:IOException){
-            Result.Error(AppError.NetworkError())
-        }catch (e:Exception){
-            Result.Error(AppError.UnknownError())
+            catch (e: IOException) {
+                Result.Error(AppError.NetworkError())
+            } catch (e: Exception) {
+                Result.Error(AppError.UnknownError(e.message ?: "Something went wrong"))
+            }
+
         }
     }
 }

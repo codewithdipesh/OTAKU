@@ -22,12 +22,12 @@ class HomeViewmodel @Inject constructor(
     init {
         viewModelScope.launch {
             getTopManga()
+            getAllManga()
         }
     }
 
     suspend fun getTopManga(){
         val result = repository.getTopMangas()
-        Log.d("ViewModel ","getTopManga: $result")
 
         when(result){
             is Result.Success -> {
@@ -40,6 +40,22 @@ class HomeViewmodel @Inject constructor(
             }
         }
     }
+    suspend fun getAllManga(){
+        val result = repository.getAllMangas()
+        Log.d("ViewModel ","getallManga: $result")
+
+        when(result){
+            is Result.Success -> {
+                _state.value = _state.value.copy(
+                    allMangas = result.data
+                )
+            }
+            is Result.Error ->{
+                Log.d("HomeViewmodel", "getTopManga: Error ${result.error}")
+            }
+        }
+    }
+
 
 
 }

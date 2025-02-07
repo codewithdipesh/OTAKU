@@ -28,7 +28,7 @@ fun MangaEntity.toManga(
     )
 }
 
-fun Manga.toEntity():MangaEntity {
+fun Manga.toEntity(isTopManga : Boolean = false):MangaEntity {
     return MangaEntity(
        id = id,
         title = title,
@@ -40,6 +40,7 @@ fun Manga.toEntity():MangaEntity {
         createdAt = createdAt,
         isFavourite = isFavourite,
         coverImage = coverImage,
-        lastUpdated = System.currentTimeMillis()
+        lastUpdated = System.currentTimeMillis(),
+        topManga = isTopManga
     )
 }

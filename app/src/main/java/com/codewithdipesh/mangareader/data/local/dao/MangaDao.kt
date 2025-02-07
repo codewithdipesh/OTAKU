@@ -7,7 +7,6 @@ import androidx.room.Query
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.MangaEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
-import com.codewithdipesh.mangareader.domain.model.Manga
 
 @Dao
 interface MangaDao {
@@ -27,8 +26,11 @@ interface MangaDao {
     @Query("SELECT name FROM theme WHERE mangaId = :mangaId")
     suspend fun getThemesForManga(mangaId: String): List<String>
 
-    @Query("SELECT * FROM manga")
-    suspend fun getCachedMangas(): List<MangaEntity>
+    @Query("SELECT * FROM manga WHERE topManga = 1")
+    suspend fun getCachedTopMangas(): List<MangaEntity>
+
+    @Query("SELECT * FROM manga WHERE topManga = 0")
+    suspend fun getCachedAllMangas(): List<MangaEntity>
 
 
 }

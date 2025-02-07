@@ -3,9 +3,14 @@ package com.codewithdipesh.mangareader.presentation.homescreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowOverflow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +18,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,32 +45,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.codewithdipesh.mangareader.R
+import com.codewithdipesh.mangareader.presentation.elements.MangaCard
 import com.codewithdipesh.mangareader.presentation.elements.SwipingCardAnimation
 import com.codewithdipesh.mangareader.presentation.elements.dottedBackground
 import com.codewithdipesh.mangareader.ui.theme.japanese
 import com.codewithdipesh.mangareader.ui.theme.regular
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(
     viewmodel: HomeViewmodel,
     modifier: Modifier = Modifier
 ) {
     val state by viewmodel.state.collectAsState()
+    val scrollState = rememberScrollState()
 
 //    LaunchedEffect(Unit){
 //        viewmodel.getTopManga()
 //    }
 
-    Box(modifier = Modifier
-            .dottedBackground()
-            .fillMaxSize()
-    ){
-       Column(
-           modifier=Modifier.fillMaxSize()
-               .padding(top = 50.dp, bottom = 32.dp),
+    Column(
+           modifier=Modifier
+               .fillMaxSize()
+               .dottedBackground()
+               .padding(top = 50.dp, bottom = 32.dp)
+               .verticalScroll(scrollState),
            horizontalAlignment = Alignment.CenterHorizontally
        ){
-           //suggestion
+           //suggestion text
            Row (
                modifier = Modifier
                    .fillMaxWidth()
@@ -95,13 +108,52 @@ fun HomeScreen(
            SwipingCardAnimation(
                mangaList = state.topMangaList,
            )
-           //all mangas
+           //all mangas text
+           Row (
+               modifier = Modifier
+                   .fillMaxWidth()
+                   .padding(16.dp),
+               horizontalArrangement = Arrangement.SpaceBetween,
+               verticalAlignment = Alignment.CenterVertically
+           ){
+               Text(
+                   text = stringResource(R.string.all_manga),
+                   color = Color.Black,
+                   fontSize = 20.sp,
+                   fontFamily = japanese
+               )
+               Box(
+                   modifier = Modifier
+                       .size(30.dp)
+                       .background(color = Color.Black),
+                   contentAlignment = Alignment.Center
+               ){
+                   Image(
+                       painter = painterResource(R.drawable.show_more_icon),
+                       contentDescription = "",
+                   )
+               }
+           }
 
+           //mangas
+           FlowRow (
+               modifier =Modifier
+                   .fillMaxWidth()
+                   .padding(horizontal = 16.dp),
+               maxItemsInEachRow = 2,
+               overflow = FlowRowOverflow.Clip,
+               horizontalArrangement = Arrangement.spacedBy(8.dp),
+               verticalArrangement = Arrangement.spacedBy(8.dp)
+           ){
+               state.allMangas.take(4).forEach {
+                   MangaCard(
+                       manga = it,
+                       modifier = Modifier.padding(4.dp)
+                   )
+               }
+           }
 
 
        }
-    }
-
-
 
 }

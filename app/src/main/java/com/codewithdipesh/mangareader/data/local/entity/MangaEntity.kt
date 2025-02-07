@@ -19,4 +19,5 @@ data class MangaEntity(
     val isFavourite : Boolean,
     val coverImage : String?,
     val lastUpdated : Long,
+    val topManga : Boolean,
 )
