@@ -1,5 +1,10 @@
 package com.codewithdipesh.mangareader.presentation.homescreen
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -37,6 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,10 +53,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.codewithdipesh.mangareader.R
 import com.codewithdipesh.mangareader.presentation.elements.MangaCard
+import com.codewithdipesh.mangareader.presentation.elements.SearchBar
 import com.codewithdipesh.mangareader.presentation.elements.SwipingCardAnimation
+import com.codewithdipesh.mangareader.presentation.elements.TopMangaSkeleton
 import com.codewithdipesh.mangareader.presentation.elements.dottedBackground
 import com.codewithdipesh.mangareader.ui.theme.japanese
 import com.codewithdipesh.mangareader.ui.theme.regular
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -59,10 +69,28 @@ fun HomeScreen(
 ) {
     val state by viewmodel.state.collectAsState()
     val scrollState = rememberScrollState()
+    val shimmerColors = listOf(
+        Color.DarkGray,
+        Color.Gray,
+        Color.DarkGray
+    )
+    val transition = rememberInfiniteTransition()
 
-//    LaunchedEffect(Unit){
-//        viewmodel.getTopManga()
-//    }
+    val translateAnim = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 1000,
+                easing = FastOutSlowInEasing
+            )
+        )
+    )
+    val brush = Brush.linearGradient(
+        colors = shimmerColors,
+        start = Offset.Zero,
+        end = Offset(x= translateAnim.value,y=translateAnim.value)
+    )
 
     Column(
            modifier=Modifier
@@ -72,6 +100,9 @@ fun HomeScreen(
                .verticalScroll(scrollState),
            horizontalAlignment = Alignment.CenterHorizontally
        ){
+           //search bar
+           SearchBar()
+
            //suggestion text
            Row (
                modifier = Modifier
@@ -105,9 +136,14 @@ fun HomeScreen(
            }
            Spacer(Modifier.height(8.dp))
            //swiping cards
-           SwipingCardAnimation(
-               mangaList = state.topMangaList,
-           )
+           if(state.topMangaList.isEmpty()){
+               TopMangaSkeleton(brush= brush)
+           }else{
+               SwipingCardAnimation(
+                  mangaList = state.topMangaList
+               )
+           }
+
            //all mangas text
            Row (
                modifier = Modifier
@@ -142,9 +178,20 @@ fun HomeScreen(
                    .padding(horizontal = 16.dp),
                maxItemsInEachRow = 2,
                overflow = FlowRowOverflow.Clip,
-               horizontalArrangement = Arrangement.spacedBy(8.dp),
+               horizontalArrangement = Arrangement.SpaceBetween,
                verticalArrangement = Arrangement.spacedBy(8.dp)
            ){
+               //skeleton
+               if(state.allMangas.isEmpty()){
+                   listOf(1,2).forEach {
+                       MangaCard(
+                           manga = null,
+                           modifier = Modifier
+                               .padding(4.dp)
+                               .background(brush)
+                       )
+                   }
+               }
                state.allMangas.take(4).forEach {
                    MangaCard(
                        manga = it,

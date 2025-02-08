@@ -1,5 +1,6 @@
 package com.codewithdipesh.mangareader.data.repository
 
+import android.util.Log
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
@@ -23,6 +24,7 @@ class MangaRepositoryImpl(
         val cachedMangas = dao.getCachedTopMangas()
         val isCacheValid = cachedMangas.isNotEmpty() &&
                 (System.currentTimeMillis() - cachedMangas.first().lastUpdated < 6 * 60 * 60 * 1000)
+        Log.d("repository ","top: cache valid $isCacheValid")
         return if(isCacheValid){
             val mangaList = cachedMangas.map {
                 val genres = dao.getGenresForManga(it.id)
@@ -30,7 +32,6 @@ class MangaRepositoryImpl(
                 it.toManga(genres,themes)
             }
             Result.Success(mangaList)
-
         }else{
             //fetch api call and update local db
             return try {
@@ -84,6 +85,7 @@ class MangaRepositoryImpl(
         val cachedMangas = dao.getCachedAllMangas()
         val isCacheValid = cachedMangas.isNotEmpty() &&
                 (System.currentTimeMillis() - cachedMangas.first().lastUpdated < 12 * 60 * 60 * 1000)
+        Log.d("repository ","getallManga: cache valid $isCacheValid")
         return if(isCacheValid){
             val mangaList = cachedMangas.map {
                 val genres = dao.getGenresForManga(it.id)
