@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -21,8 +23,10 @@ class HomeViewmodel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getTopManga()
-            getAllManga()
+            launch(Dispatchers.IO) { getTopManga() }
+            launch(Dispatchers.IO) { getAllManga() }
+            launch(Dispatchers.IO) { loadhistory() }
+
         }
     }
 
@@ -56,6 +60,54 @@ class HomeViewmodel @Inject constructor(
         }
     }
 
+    fun onChangeSearchValue(value : String){
+        _state.value =_state.value.copy(
+            searchValue = value
+        )
+    }
+
+    fun clearSearchValue(){
+        _state.value = _state.value.copy(
+            searchValue = "",
+        )
+    }
+    fun clearResultValue(){
+        _state.value = _state.value.copy(
+            searchResult = emptyList()
+        )
+    }
+
+    fun loadhistory(){
+        val history = repository.getSearchHistory()
+        _state.value = _state.value.copy(
+            history = history
+        )
+    }
+
+    fun addSearchHistory(value : String){
+        repository.saveSearchHistory(value)
+        loadhistory()
+    }
+
+    suspend fun searchManga(){
+        if(_state.value.searchValue == ""){
+            Log.d("HomeViewmodel", "searchManga: Error")
+        }else{
+            val result = repository.searchManga(_state.value.searchValue)
+            addSearchHistory(_state.value.searchValue)
+            when(result){
+                is Result.Success -> {
+                    _state.value = _state.value.copy(
+                        searchResult = result.data
+                    )
+                }
+                is Result.Error ->{
+                    Log.d("HomeViewmodel", "searchManga: Error ${result.error}")
+                }
+
+            }
+        }
+    }
 
 
 }

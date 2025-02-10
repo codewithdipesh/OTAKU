@@ -4,5 +4,6 @@
     <string name="top_5">TOP-5</string>
     <string name="all_manga">ALL MANGA</string>
     <string name="search">Search</string>
+    <string name="history">Last Search</string>
 
 </resources>

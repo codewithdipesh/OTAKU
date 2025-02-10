@@ -18,10 +18,18 @@ interface MangaApi {
         @Query("limit") limit: Int = 20
     ): Response<MangaResponse>
 
+    @GET("manga")
+    suspend fun searchManga(
+        @Query("limit") limit: Int = 10,
+        @Query("title") title: String
+    ): Response<MangaResponse>
+
     @GET("/cover")
     suspend fun getCoverImage(
         @Query("manga[]") mangaId: String,
         @Query("limit") limit: Int = 1
     ):Response<coverImageResponse>
+
+
 
 }

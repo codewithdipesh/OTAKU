@@ -2,7 +2,9 @@ package com.codewithdipesh.mangareader.di
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
+import com.codewithdipesh.mangareader.data.Preferences.DefaultPrefrences
 import com.codewithdipesh.mangareader.data.local.MangaDatabase
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.MangaEntity
@@ -52,14 +54,27 @@ object MangaModule {
         return database.mangaDao
     }
 
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.getSharedPreferences("search_prefs", Context.MODE_PRIVATE)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDefaultPreferences(sharedPref : SharedPreferences): DefaultPrefrences {
+        return DefaultPrefrences(sharedPref)
+    }
+
 
     @Provides
     @Singleton
     fun provideRepository(
         api : MangaApi,
-        dao : MangaDao
+        dao : MangaDao,
+        pref: DefaultPrefrences
     ): MangaRepository {
-        return MangaRepositoryImpl(api,dao)
+        return MangaRepositoryImpl(api,dao,pref)
     }
 
 

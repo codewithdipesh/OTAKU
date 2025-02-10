@@ -51,12 +51,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.codewithdipesh.mangareader.R
 import com.codewithdipesh.mangareader.presentation.elements.MangaCard
 import com.codewithdipesh.mangareader.presentation.elements.SearchBar
 import com.codewithdipesh.mangareader.presentation.elements.SwipingCardAnimation
 import com.codewithdipesh.mangareader.presentation.elements.TopMangaSkeleton
 import com.codewithdipesh.mangareader.presentation.elements.dottedBackground
+import com.codewithdipesh.mangareader.presentation.navigation.Screen
 import com.codewithdipesh.mangareader.ui.theme.japanese
 import com.codewithdipesh.mangareader.ui.theme.regular
 import kotlinx.coroutines.delay
@@ -65,7 +68,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun HomeScreen(
     viewmodel: HomeViewmodel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavController
 ) {
     val state by viewmodel.state.collectAsState()
     val scrollState = rememberScrollState()
@@ -101,7 +105,12 @@ fun HomeScreen(
            horizontalAlignment = Alignment.CenterHorizontally
        ){
            //search bar
-           SearchBar()
+           SearchBar(
+               enabled = false,
+               onClick = {
+                   navController.navigate(Screen.Search.route)
+               }
+           )
 
            //suggestion text
            Row (

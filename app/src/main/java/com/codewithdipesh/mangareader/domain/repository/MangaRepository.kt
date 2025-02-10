@@ -6,4 +6,7 @@ import com.codewithdipesh.mangareader.domain.util.Result
 interface MangaRepository {
    suspend fun getTopMangas() : Result<List<Manga>>
    suspend fun getAllMangas() : Result<List<Manga>>
+   suspend fun searchManga(title : String) : Result<List<Manga>>
+   fun getSearchHistory() : List<String>
+   fun saveSearchHistory(searchTerm : String)
 }

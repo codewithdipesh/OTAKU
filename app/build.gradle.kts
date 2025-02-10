@@ -80,7 +80,8 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
 
     //navigation
-    runtimeOnly("androidx.navigation:navigation-compose:2.8.5")
+    implementation("androidx.navigation:navigation-compose:2.8.6")
+    implementation(libs.androidx.navigation.runtime.android)
 
     //coroutines
     runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")

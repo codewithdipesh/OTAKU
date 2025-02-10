@@ -39,7 +39,7 @@ fun TopMangaSkeleton(
 ) {
     val animatedOffsetX = remember { Animatable(0f) }
     val emptyCards = listOf(1,2,3)
-    Box(modifier = Modifier
+    Box(modifier = modifier
         .fillMaxWidth()
         .height(310.dp)
         .wrapContentHeight(),

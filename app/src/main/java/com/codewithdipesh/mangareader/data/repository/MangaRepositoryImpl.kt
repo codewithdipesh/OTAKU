@@ -1,6 +1,7 @@
 package com.codewithdipesh.mangareader.data.repository
 
 import android.util.Log
+import com.codewithdipesh.mangareader.data.Preferences.DefaultPrefrences
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
@@ -15,7 +16,8 @@ import okio.IOException
 
 class MangaRepositoryImpl(
    private val api : MangaApi,
-    private val dao : MangaDao
+    private val dao : MangaDao,
+    private val pref: DefaultPrefrences
 ):MangaRepository{
 
     override suspend fun getTopMangas(): Result<List<Manga>> {
@@ -23,7 +25,7 @@ class MangaRepositoryImpl(
         //got in local db
         val cachedMangas = dao.getCachedTopMangas()
         val isCacheValid = cachedMangas.isNotEmpty() &&
-                (System.currentTimeMillis() - cachedMangas.first().lastUpdated < 6 * 60 * 60 * 1000)
+                (System.currentTimeMillis() - cachedMangas.first().lastUpdated < 12 * 60 * 60 * 1000)
         Log.d("repository ","top: cache valid $isCacheValid")
         return if(isCacheValid){
             val mangaList = cachedMangas.map {
@@ -54,6 +56,7 @@ class MangaRepositoryImpl(
                         mangaData.toManga(coverImage)
                     }
                     //add manga theme and genre to locally then return
+                    Log.d("repository", "Saving manga: lastUpdated = ${System.currentTimeMillis()}")
                     dao.insertMangas(resultMangaList.map { it.toEntity(isTopManga = true) })
                     dao.insertGenre(resultMangaList.flatMap {
                         it.genres.map { genre ->
@@ -84,7 +87,7 @@ class MangaRepositoryImpl(
     override suspend fun getAllMangas(): Result<List<Manga>> {
         val cachedMangas = dao.getCachedAllMangas()
         val isCacheValid = cachedMangas.isNotEmpty() &&
-                (System.currentTimeMillis() - cachedMangas.first().lastUpdated < 12 * 60 * 60 * 1000)
+                (System.currentTimeMillis() - cachedMangas.first().lastUpdated < 24 * 60 * 60 * 1000)
         Log.d("repository ","getallManga: cache valid $isCacheValid")
         return if(isCacheValid){
             val mangaList = cachedMangas.map {
@@ -140,5 +143,45 @@ class MangaRepositoryImpl(
             }
 
         }
+    }
+
+    override suspend fun searchManga(title: String): Result<List<Manga>> {
+        return try {
+            val response = api.searchManga(title = title)
+
+            if (response.isSuccessful) {
+                val mangaList = response.body()?.data ?: emptyList()
+
+                val resultMangaList = mangaList.map { mangaData ->
+                    val coverImage = try {
+                        val coverResponse = api.getCoverImage(mangaData.id)
+                        if (coverResponse.isSuccessful) {
+                            coverResponse.body()?.data?.firstOrNull()?.attributes?.fileName ?: ""
+                        } else {
+                            ""
+                        }
+                    } catch (e: Exception) {
+                        ""
+                    }
+                    mangaData.toManga(coverImage)
+                }
+                return Result.Success(resultMangaList)
+            } else {
+                Result.Error(AppError.ServerError("Empty Response from server"))
+            }
+        }
+        catch (e: IOException) {
+            Result.Error(AppError.NetworkError())
+        } catch (e: Exception) {
+            Result.Error(AppError.UnknownError(e.message ?: "Something went wrong"))
+        }
+    }
+
+    override fun getSearchHistory(): List<String> {
+        return pref.loadHistory()
+    }
+
+    override fun saveSearchHistory(searchTerm: String) {
+        pref.saveHistory(searchTerm)
     }
 }

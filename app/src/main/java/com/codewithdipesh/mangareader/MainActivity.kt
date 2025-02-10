@@ -12,8 +12,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeScreen
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeViewmodel
+import com.codewithdipesh.mangareader.presentation.navigation.MangaNavHost
 import com.codewithdipesh.mangareader.ui.theme.MangaReaderTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,9 +28,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             MangaReaderTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    HomeScreen(
-                        modifier = Modifier.padding(innerPadding),
-                        viewmodel = viewModel
+                    val navController = rememberNavController()
+                    MangaNavHost(
+                        navController = navController,
+                        homeViewmodel = viewModel
                     )
                 }
             }

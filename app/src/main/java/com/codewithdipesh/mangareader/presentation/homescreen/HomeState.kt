@@ -5,4 +5,7 @@ import com.codewithdipesh.mangareader.domain.model.Manga
 data class HomeUiState(
     val topMangaList: List<Manga> = emptyList(),
     val allMangas : List<Manga> = emptyList(),
+    val searchValue : String = "",
+    val searchResult : List<Manga> = emptyList(),
+    val history : List<String> = emptyList()
 )
