@@ -1,5 +1,7 @@
 package com.codewithdipesh.mangareader.domain.model
 
+import kotlinx.serialization.Serializable
+
 sealed class Status(val name : String){
     object Ongoing : Status("ongoing")
     object Completed : Status("completed")

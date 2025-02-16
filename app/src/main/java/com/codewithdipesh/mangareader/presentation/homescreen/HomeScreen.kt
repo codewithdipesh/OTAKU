@@ -149,7 +149,10 @@ fun HomeScreen(
                TopMangaSkeleton(brush= brush)
            }else{
                SwipingCardAnimation(
-                  mangaList = state.topMangaList
+                  mangaList = state.topMangaList,
+                  onClick = {
+                       navController.navigate(Screen.Detail.createRoute(it))
+                   }
                )
            }
 
@@ -204,7 +207,10 @@ fun HomeScreen(
                state.allMangas.take(4).forEach {
                    MangaCard(
                        manga = it,
-                       modifier = Modifier.padding(4.dp)
+                       modifier = Modifier.padding(4.dp),
+                       onClick = {
+                           navController.navigate(Screen.Detail.createRoute(it))
+                       }
                    )
                }
            }

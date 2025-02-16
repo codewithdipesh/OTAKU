@@ -1,5 +1,6 @@
 package com.codewithdipesh.mangareader.presentation.homescreen
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -52,6 +53,7 @@ import com.codewithdipesh.mangareader.presentation.elements.HistoryCard
 import com.codewithdipesh.mangareader.presentation.elements.MangaCard
 import com.codewithdipesh.mangareader.presentation.elements.SearchBar
 import com.codewithdipesh.mangareader.presentation.elements.dottedBackground
+import com.codewithdipesh.mangareader.presentation.navigation.Screen
 import com.codewithdipesh.mangareader.ui.theme.regular
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -73,16 +75,6 @@ fun SearchScreen(
     LaunchedEffect(Unit) {
        focusRequester.requestFocus()
         keyboard?.show()
-    }
-
-    DisposableEffect (Unit){
-        onDispose {
-            //clear the searchValue
-            //clear the searchResultList
-            keyboard?.hide()
-            viewmodel.clearSearchValue()
-            viewmodel.clearResultValue()
-        }
     }
 
     Column(
@@ -119,6 +111,8 @@ fun SearchScreen(
                     .clickable {
                         keyboard?.hide()
                         navController.navigateUp()
+                        viewmodel.clearSearchValue()
+                        viewmodel.clearResultValue()
                     },
                 contentAlignment = Alignment.Center
             ){
@@ -213,7 +207,11 @@ fun SearchScreen(
                 state.searchResult.forEach {
                     MangaCard(
                         manga = it,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(4.dp),
+                        onClick = {
+                            keyboard?.hide()
+                            navController.navigate(Screen.Detail.createRoute(it))
+                        }
                     )
                 }
             }

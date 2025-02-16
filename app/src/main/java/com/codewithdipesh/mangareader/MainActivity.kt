@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeScreen
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeViewmodel
+import com.codewithdipesh.mangareader.presentation.mangaDetails.MangaDetailsViewModel
 import com.codewithdipesh.mangareader.presentation.navigation.MangaNavHost
 import com.codewithdipesh.mangareader.ui.theme.MangaReaderTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,13 +26,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val viewModel by viewModels<HomeViewmodel>()
+        val mangaViewModel by viewModels<MangaDetailsViewModel>()
         setContent {
             MangaReaderTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val navController = rememberNavController()
                     MangaNavHost(
                         navController = navController,
-                        homeViewmodel = viewModel
+                        homeViewmodel = viewModel,
+                        mangaViewModel = mangaViewModel,
+                        modifier = Modifier.padding(innerPadding)
                     )
                 }
             }

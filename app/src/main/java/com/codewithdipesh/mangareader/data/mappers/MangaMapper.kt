@@ -15,7 +15,10 @@ fun Data.toManga(coverImage : String):Manga{
         .filter{ it.attributes.group == "theme"}
         .map { it.attributes.name.en ?: "Unknown"}
 
-    val japaneseTitle : String? = attributes.altTitles.firstNotNullOfOrNull { it.ja ?: it.ja_ro ?: it.ko ?: it.zh }
+    val titles = attributes.altTitles.firstOrNull()
+    val japaneseTitle : String? = titles?.ja ?: titles?.ja_ro ?: titles?.ko?:
+                                  titles?.ko_ro?:titles?.vi ?:titles?.id ?:
+                                  titles?.tl ?: titles?.ru ?: titles?.zh ?: titles?.es_la
 
     return Manga(
        id = id,
@@ -30,6 +33,7 @@ fun Data.toManga(coverImage : String):Manga{
        isFavourite = false,
        altTitle = japaneseTitle,
        coverImage = if(coverImage != "") "https://uploads.mangadex.org/covers/${id}/${coverImage}"
-                    else  null
+                    else  null,
+       authorId = relationships.find{ it.type == "author" }?.id
     )
 }

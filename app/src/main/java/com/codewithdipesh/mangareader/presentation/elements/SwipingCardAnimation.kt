@@ -10,6 +10,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -68,6 +69,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SwipingCardAnimation(
     mangaList : List<Manga>,
+    onClick : (Manga)->Unit,
     onSuccessLoading : () -> Unit = {}
 ) {
     val cards = remember{ mutableStateListOf<Manga>() }
@@ -126,7 +128,10 @@ fun SwipingCardAnimation(
                         )
                 ) {
                     Box(modifier = Modifier
-                        .wrapContentSize(),
+                        .wrapContentSize()
+                        .clickable {
+                            onClick(card)
+                        },
                         contentAlignment = Alignment.Center
                     ) {
                         card.coverImage?.let {

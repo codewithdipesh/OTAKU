@@ -46,7 +46,6 @@ class HomeViewmodel @Inject constructor(
     }
     suspend fun getAllManga(){
         val result = repository.getAllMangas()
-        Log.d("ViewModel ","getallManga: $result")
 
         when(result){
             is Result.Success -> {

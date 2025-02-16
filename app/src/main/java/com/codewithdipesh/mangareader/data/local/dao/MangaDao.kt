@@ -32,5 +32,8 @@ interface MangaDao {
     @Query("SELECT * FROM manga WHERE topManga = 0")
     suspend fun getCachedAllMangas(): List<MangaEntity>
 
+    @Query("SELECT * FROM manga WHERE id = :mangaId")
+    suspend fun getMangaById(mangaId: String): List<MangaEntity>
+
 
 }

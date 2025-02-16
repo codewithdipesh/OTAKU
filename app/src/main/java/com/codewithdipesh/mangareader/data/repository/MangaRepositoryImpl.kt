@@ -5,9 +5,11 @@ import com.codewithdipesh.mangareader.data.Preferences.DefaultPrefrences
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
+import com.codewithdipesh.mangareader.data.mappers.toChapter
 import com.codewithdipesh.mangareader.data.mappers.toEntity
 import com.codewithdipesh.mangareader.data.mappers.toManga
 import com.codewithdipesh.mangareader.data.remote.MangaApi
+import com.codewithdipesh.mangareader.domain.model.Chapter
 import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.AppError
@@ -43,6 +45,7 @@ class MangaRepositoryImpl(
                     val mangaList = response.body()?.data ?: emptyList()
 
                     val resultMangaList = mangaList.map { mangaData ->
+                        //cover Image
                         val coverImage = try {
                             val coverResponse = api.getCoverImage(mangaData.id)
                             if (coverResponse.isSuccessful) {
@@ -83,7 +86,6 @@ class MangaRepositoryImpl(
         }
     }
 
-    //TODO Same as above but with pagination
     override suspend fun getAllMangas(): Result<List<Manga>> {
         val cachedMangas = dao.getCachedAllMangas()
         val isCacheValid = cachedMangas.isNotEmpty() &&
@@ -106,6 +108,7 @@ class MangaRepositoryImpl(
                     val mangaList = response.body()?.data ?: emptyList()
 
                     val resultMangaList = mangaList.map { mangaData ->
+                        //coverImage
                         val coverImage = try {
                             val coverResponse = api.getCoverImage(mangaData.id)
                             if (coverResponse.isSuccessful) {
@@ -147,35 +150,39 @@ class MangaRepositoryImpl(
 
     override suspend fun searchManga(title: String): Result<List<Manga>> {
         return try {
+
             val response = api.searchManga(title = title)
 
             if (response.isSuccessful) {
                 val mangaList = response.body()?.data ?: emptyList()
-
                 val resultMangaList = mangaList.map { mangaData ->
                     val coverImage = try {
                         val coverResponse = api.getCoverImage(mangaData.id)
+                        val coverData = coverResponse.body()?.data
                         if (coverResponse.isSuccessful) {
-                            coverResponse.body()?.data?.firstOrNull()?.attributes?.fileName ?: ""
+                            coverData?.firstOrNull()?.attributes?.fileName ?: ""
                         } else {
                             ""
                         }
                     } catch (e: Exception) {
+                        Log.e("MangaRepository", "searchManga: Error fetching cover", e)
                         ""
                     }
                     mangaData.toManga(coverImage)
                 }
+
                 return Result.Success(resultMangaList)
             } else {
                 Result.Error(AppError.ServerError("Empty Response from server"))
             }
-        }
-        catch (e: IOException) {
+        } catch (e: IOException) {
             Result.Error(AppError.NetworkError())
         } catch (e: Exception) {
-            Result.Error(AppError.UnknownError(e.message ?: "Something went wrong"))
+            Result.Error(AppError.UnknownError(e.message ?: "Unknown Error"))
         }
     }
+
+
 
     override fun getSearchHistory(): List<String> {
         return pref.loadHistory()
@@ -184,4 +191,71 @@ class MangaRepositoryImpl(
     override fun saveSearchHistory(searchTerm: String) {
         pref.saveHistory(searchTerm)
     }
+
+    override suspend fun getAuthor(authorId: String): Result<String> {
+        val response = api.getAuthor(authorId)
+        if (response.isSuccessful){
+            val author = response.body()?.data?.attributes?.name ?: ""
+            Log.d("repo","getAuthor: $author")
+            return Result.Success(author)
+        }
+        else{
+            Log.d("repo","getAuthor: error $response")
+            return  Result.Error(AppError.UnknownError("No author found $response"))
+        }
+    }
+
+    override suspend fun getMangaById(mangaId: String): Result<Manga> {
+
+        val cachedManga = dao.getMangaById(mangaId)
+        if (cachedManga.isNotEmpty()) {
+            val genres = dao.getGenresForManga(mangaId)
+            val themes = dao.getThemesForManga(mangaId)
+            return Result.Success(cachedManga.first().toManga(genres, themes))
+        } else {
+            try {
+                val response = api.getMangaById(mangaId)
+                if (response.isSuccessful) {
+                    if (response.body() != null && response.body()?.data != null) {
+                        Log.d("MangaRepository", "manga japanese title:  ${response.body()!!.data.attributes.altTitles[0].ja}")
+                        return Result.Success(response.body()!!.data.toManga(""))
+                    } else {
+                        return Result.Error(AppError.ServerError("Unknown Server Error"))
+                    }
+                } else {
+                    return Result.Error(AppError.UnknownError("No Manga Found"))
+                }
+            } catch (e: IOException) {
+                return Result.Error(AppError.NetworkError())
+            } catch (e: Exception) {
+                return Result.Error(AppError.UnknownError(e.message ?: "Something went wrong"))
+            }
+        }
+    }
+
+    override suspend fun getChapters(mangaId: String): Result<List<Chapter>> {
+        return  try {
+            val response = api.getChapters(mangaId)
+            if(response.isSuccessful){
+                if(response.body() != null){
+                    Result.Success(response.body()!!.data.map{
+                        it.toChapter()
+                    })
+                }else{
+                    Result.Error(AppError.ServerError("Unknown Server Error"))
+                }
+            }
+            else{
+                Result.Error(AppError.NetworkError())
+            }
+        }catch(e:IOException){
+            Result.Error(AppError.NetworkError())
+        }
+        catch(e:Exception){
+            Result.Error(AppError.UnknownError(e.message ?: "Something went wrong"))
+        }
+
+    }
+
+
 }

@@ -1,5 +1,7 @@
 package com.codewithdipesh.mangareader.domain.model
 
+import kotlinx.serialization.Serializable
+
 data class Manga(
     val id : String,
     val title : String?,
@@ -12,5 +14,6 @@ data class Manga(
     val themes : List<String>,
     val createdAt : String,
     val isFavourite : Boolean,
-    val coverImage : String?
+    val coverImage : String?,
+    val authorId : String?,
 )

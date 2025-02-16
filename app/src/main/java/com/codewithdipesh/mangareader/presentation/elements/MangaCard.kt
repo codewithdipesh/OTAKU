@@ -3,6 +3,7 @@ package com.codewithdipesh.mangareader.presentation.elements
 import android.icu.text.ListFormatter.Width
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,12 +36,14 @@ fun MangaCard(
     manga:Manga?,
     cardWidth: Int = 150,
     cardHeight: Int = 225,
+    onClick :()->Unit = {}
 ) {
     Box(
         modifier = modifier
             .width(cardWidth.dp)
             .background(Color.DarkGray)
             .wrapContentHeight()
+            .clickable { onClick() }
     ){
         Column(
             modifier = Modifier

@@ -1,5 +1,8 @@
 package com.codewithdipesh.mangareader.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 sealed class Rating(val name : String){
     object Safe : Rating("safe")
     object Suggestive : Rating("suggestive")
