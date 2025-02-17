@@ -236,26 +236,23 @@ class MangaRepositoryImpl(
     override suspend fun getChapters(mangaId: String): Result<List<Chapter>> {
         return  try {
             val response = api.getChapters(mangaId)
-            if(response.isSuccessful){
-                if(response.body() != null){
-                    Result.Success(response.body()!!.data.map{
-                        it.toChapter()
-                    })
-                }else{
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    Result.Success(body.data.map { it.toChapter(body.data.size.toDouble()) }) //bcz many time manga has 1 chapter but it has null from Api response
+                } else {
                     Result.Error(AppError.ServerError("Unknown Server Error"))
                 }
+            } else {
+               Result.Error(AppError.NetworkError())
             }
-            else{
-                Result.Error(AppError.NetworkError())
-            }
-        }catch(e:IOException){
+        } catch (e: IOException) {
             Result.Error(AppError.NetworkError())
+        } catch (e: Exception) {
+            Result.Error(AppError.UnknownError(e.localizedMessage ?: "Something went wrong"))
         }
-        catch(e:Exception){
-            Result.Error(AppError.UnknownError(e.message ?: "Something went wrong"))
-        }
-
     }
+
 
 
 }

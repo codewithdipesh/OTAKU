@@ -109,12 +109,12 @@ fun SwipingCardAnimation(
                             orientation = Orientation.Horizontal,
                             onDragStopped = {
                                 when { //.removeLast() function works on real card and .reversed() is only applied for approach view purpose
-                                    animatedOffsetX.value > 300 -> { // Swipe Right
+                                    animatedOffsetX.value > 200 -> { // Swipe Right
                                         val lastCard = cards.removeAt(cards.lastIndex)
                                         cards.add(0, lastCard)
                                         animatedOffsetX.snapTo(0f)
                                     }
-                                    animatedOffsetX.value < -300 -> { // Swipe Left
+                                    animatedOffsetX.value < -200 -> { // Swipe Left
                                          val firstCardIndex = cards.indexOfFirst { it == card }
                                         val firstCard = cards.removeAt(firstCardIndex)
                                         cards.add(firstCard)

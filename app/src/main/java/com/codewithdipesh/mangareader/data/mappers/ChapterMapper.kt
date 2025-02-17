@@ -5,10 +5,11 @@ import com.codewithdipesh.mangareader.data.remote.dto.chapterResult
 import com.codewithdipesh.mangareader.domain.model.Chapter
 
 
-fun ChapterData.toChapter(): Chapter {
+fun ChapterData.toChapter(optionalSize : Double =  0.0): Chapter {
     return Chapter(
         id = id,
-        chapterNumber = attributes.chapter.toInt(),
+        chapterNumber = if(attributes.chapter != null) attributes.chapter.toDouble()
+                        else optionalSize,
         title = attributes.title ?: "",
         pages = attributes.pages,
         mangaId = relationships.find { it.type == "manga" }?.id ?: "",

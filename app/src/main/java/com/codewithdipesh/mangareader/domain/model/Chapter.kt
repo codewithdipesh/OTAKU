@@ -2,7 +2,7 @@ package com.codewithdipesh.mangareader.domain.model
 
 data class Chapter(
     val id : String,
-    val chapterNumber: Int,
+    val chapterNumber: Double,
     val title : String?,
     val pages : Int,
     val mangaId : String,

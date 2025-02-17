@@ -74,7 +74,6 @@ fun SearchScreen(
 
     LaunchedEffect(Unit) {
        focusRequester.requestFocus()
-        keyboard?.show()
     }
 
     Column(

@@ -106,6 +106,10 @@ dependencies {
     //kotlin json serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
+    //blurry backgorund
+
+    implementation("com.github.skydoves:cloudy:0.2.4")
+
 
 
 }

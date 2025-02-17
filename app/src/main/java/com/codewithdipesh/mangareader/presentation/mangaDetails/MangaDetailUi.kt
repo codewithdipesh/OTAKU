@@ -4,6 +4,7 @@ import com.codewithdipesh.mangareader.domain.model.Chapter
 import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.domain.model.Rating
 import com.codewithdipesh.mangareader.domain.model.Status
+import com.codewithdipesh.mangareader.presentation.elements.MangaContent
 
 data class MangaDetailUi(
     val id: String = "",
@@ -23,4 +24,6 @@ data class MangaDetailUi(
     val author: String? = null,
     val coverImage: String? = null,
     val isLoading: Boolean = false,  // UI State
+
+    val selectedContent : MangaContent = MangaContent.Details
 )

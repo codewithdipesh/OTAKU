@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.Result
+import com.codewithdipesh.mangareader.presentation.elements.MangaContent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,6 +97,12 @@ class MangaDetailsViewModel @Inject constructor(
             }
         }
 
+    }
+
+    fun changeSelectedContent(newContent : MangaContent){
+        _state.value = _state.value.copy(
+            selectedContent = newContent
+        )
     }
 
     fun clearUi(){
