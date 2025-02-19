@@ -32,6 +32,7 @@ class MangaDetailsViewModel @Inject constructor(
             val result = repository.getMangaById(mangaId)
             when (result) {
                 is Result.Success -> {
+                    Log.e("Chapter Size", "viewmodel -> ${result.data.chapters}")
                     val manga = result.data
                     _state.value = state.value.copy(
                         id = manga.id,
@@ -44,7 +45,8 @@ class MangaDetailsViewModel @Inject constructor(
                         createdAt = manga.createdAt,
                         isFavourite = manga.isFavourite,
                         isLoading = false,
-                        altTitle = manga.altTitle
+                        altTitle = manga.altTitle,
+                        totalChapter = manga.chapters
                     )
                 }
                 is Result.Error -> {
@@ -89,8 +91,14 @@ class MangaDetailsViewModel @Inject constructor(
                 val chapterList = result.data
                 Log.e("MangaViewModel", "chapters: ${chapterList}")
                 _state.value = _state.value.copy(
-                    chapters = chapterList
+                    chapters = chapterList,
                 )
+                //already got null as last chapter
+                if(chapterList.isNotEmpty() && _state.value.totalChapter == 0){
+                    _state.value = _state.value.copy(
+                        totalChapter = chapterList.size ?:0
+                    )
+                }
             }
             is Result.Error ->{
                 Log.d("MangaViewmodel", "get chapters: Error ${result.error}")

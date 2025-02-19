@@ -16,4 +16,5 @@ data class Manga(
     val isFavourite : Boolean,
     val coverImage : String?,
     val authorId : String?,
+    val chapters :Int
 )

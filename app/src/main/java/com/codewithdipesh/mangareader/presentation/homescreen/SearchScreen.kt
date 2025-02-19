@@ -170,23 +170,26 @@ fun SearchScreen(
 
             }
             //history cards
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                state.history.forEach {
-                     HistoryCard(
-                         historyTerm = it,
-                         onClick = {
-                             viewmodel.onChangeSearchValue(it)
-                             viewmodel.clearResultValue()
-                             keyboard?.hide()
-                             scope.launch(Dispatchers.IO) {
-                                 viewmodel.searchManga()
-                             }
-                         }
-                     )
+            if(state.searchResult.isNotEmpty()){
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    state.history.forEach {
+                        HistoryCard(
+                            historyTerm = it,
+                            onClick = {
+                                viewmodel.onChangeSearchValue(it)
+                                viewmodel.clearResultValue()
+                                keyboard?.hide()
+                                scope.launch(Dispatchers.IO) {
+                                    viewmodel.searchManga()
+                                }
+                            }
+                        )
+                    }
                 }
             }
 
@@ -198,7 +201,7 @@ fun SearchScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .verticalScroll(scrollState),
-                maxItemsInEachRow = 2,
+                maxItemsInEachRow = 4,
                 overflow = FlowRowOverflow.Clip,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalArrangement = Arrangement.spacedBy(8.dp)

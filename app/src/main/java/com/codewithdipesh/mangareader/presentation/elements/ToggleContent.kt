@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -35,24 +36,24 @@ fun ToggleContent(
     onClick : (MangaContent) -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .wrapContentHeight()
     ){
         //for full width default divider
         HorizontalDivider(
             thickness = 3.dp,
             modifier = Modifier.offset(
-                y = 22.dp
+                y = 32.dp
             ),
             color = colorResource(R.color.medium_gray)
         )
         //option select row
         Row(modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .height(26.dp),
+            .padding()
+            .height(32.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             list.forEach {
                 Box(
@@ -68,15 +69,21 @@ fun ToggleContent(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = it.name,
+                            text = if(it == MangaContent.Chapter){//for only chapter case
+                                        val totalChapter = if(state.totalChapter != 0) {
+                                            "(${state.totalChapter})"
+                                        }else ""
+                                        it.name + totalChapter
+                                   }
+                                   else it.name,
                             style = TextStyle(
                                 color = if(state.selectedContent == it) Color.White
                                 else Color.LightGray,
                                 fontWeight = FontWeight.Normal,
-                                fontSize = 18.sp
+                                fontSize = 16.sp
                             )
                         )
-                        Spacer(Modifier.height(8.dp))
+                        Spacer(Modifier.height(24.dp))
                         //underline
                         HorizontalDivider(
                             thickness = 3.dp,
@@ -84,6 +91,8 @@ fun ToggleContent(
                             else colorResource(R.color.medium_gray)
                         )
                     }
+
+                    Spacer(Modifier.width(16.dp))
 
                 }
             }

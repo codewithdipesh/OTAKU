@@ -18,8 +18,8 @@ data class MangaDetailUi(
     val themes: List<String> = emptyList(),
     val createdAt: String? = null,
     val isFavourite: Boolean = false,
+    val totalChapter:Int = 0,
     val chapters: List<Chapter> = emptyList(),
-
     val authorId: String? = null,
     val author: String? = null,
     val coverImage: String? = null,

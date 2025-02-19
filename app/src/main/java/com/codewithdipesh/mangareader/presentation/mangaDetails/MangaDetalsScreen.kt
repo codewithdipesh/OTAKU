@@ -1,3 +1,4 @@
+
 package com.codewithdipesh.mangareader.presentation.mangaDetails
 
 import android.graphics.RenderEffect
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import com.codewithdipesh.mangareader.presentation.elements.ChapterCard
 import com.codewithdipesh.mangareader.presentation.elements.MangaContent
 import com.codewithdipesh.mangareader.presentation.elements.ToggleContent
 import com.codewithdipesh.mangareader.ui.theme.japanese
@@ -102,12 +104,12 @@ fun MangaDetailsScreen(
                     .height(300.dp)
             ){
                 AsyncImage(
-                        model = coverImage,
-                        contentDescription = title,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                            .blur(40.dp)
-                    )
+                    model = coverImage,
+                    contentDescription = title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                        .blur(50.dp)
+                )
             }
             Box(
                 Modifier
@@ -116,7 +118,7 @@ fun MangaDetailsScreen(
                     .background( //gradient
                         brush = Brush.verticalGradient(
                             colors = listOf(
-                                Color.Black.copy(alpha = 0.3f), // Darker Blur at the Top
+                                Color.Black.copy(alpha = 0.5f), // Darker Blur at the Top
                                 colorResource(R.color.dark_gray), // Blend into Dark Gray
 
                             )
@@ -180,7 +182,12 @@ fun MangaDetailsScreen(
                         ) {
                             //title
                             Text(
-                                text = state.title,
+                                text =
+                                  if(state.title.length > 30 ){
+                                    state.title.take(30) + "..."
+                                  }else{
+                                    state.title
+                                },
                                 style = TextStyle(
                                     color = Color.White,
                                     fontSize = 22.sp,
@@ -221,17 +228,17 @@ fun MangaDetailsScreen(
                             Box(
                                 modifier = Modifier
                                     .size(160.dp,38.dp)
-                                    .background(Color.White)
+                                    .background(colorResource(R.color.yellow))
                                     .clickable {
                                         //todo
                                     },
                                 contentAlignment = Alignment.Center
                             ){
-                               Icon(
-                                   painter = painterResource(R.drawable.read_now_icon),
-                                   contentDescription = "Read Now",
-                                   tint = Color.Black
-                               )
+                                Icon(
+                                    painter = painterResource(R.drawable.read_now_icon),
+                                    contentDescription = "Read Now",
+                                    tint = Color.Black
+                                )
                             }
 
                         }
@@ -258,28 +265,46 @@ fun MangaDetailsScreen(
             }
         )
         Spacer(Modifier.height(24.dp))
+        //desc
+        //and if title is longer add here
         if(state.selectedContent == MangaContent.Details){
+            if(state.title.length > 30){
+                Text(
+                    text =state.title,
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontFamily = regular,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+
+                )
+                //Spacer
+                Spacer(Modifier.height(16.dp))
+            }
+            //desc
             Text(
-                text = state.description?:"",
+                text =
+                    if(state.title.length > 30){
+                       val desc = state.description ?: ""
+                       state.title + "\n" + desc
+                    }else{
+                        state.description ?: ""
+                    },
                 color = Color.White,
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 80.dp),
                 textAlign = TextAlign.Start
             )
         }
+        //chapters
         else if (state.selectedContent == MangaContent.Chapter){
             state.chapters.forEach {
-                Text(
-                    text = it.chapterNumber.toString(),
-                    color = Color.White,
-
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    textAlign = TextAlign.Start
-                )
-                Text(
-                    text = it.title ?: "No title",
-                    color = Color.White,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    textAlign = TextAlign.Start
+                ChapterCard(
+                    chapter = it
                 )
             }
         }

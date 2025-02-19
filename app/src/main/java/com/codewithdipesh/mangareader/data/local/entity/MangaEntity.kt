@@ -20,5 +20,6 @@ data class MangaEntity(
     val coverImage : String?,
     val lastUpdated : Long,
     val topManga : Boolean,
-    val authorId : String?
+    val authorId : String?,
+    val chapters : Int
 )

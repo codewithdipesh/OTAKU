@@ -1,5 +1,6 @@
 package com.codewithdipesh.mangareader.data.mappers
 
+import android.util.Log
 import com.codewithdipesh.mangareader.data.remote.dto.Data
 import com.codewithdipesh.mangareader.data.remote.dto.MangaResponse
 import com.codewithdipesh.mangareader.domain.model.Manga
@@ -20,6 +21,7 @@ fun Data.toManga(coverImage : String):Manga{
                                   titles?.ko_ro?:titles?.vi ?:titles?.id ?:
                                   titles?.tl ?: titles?.ru ?: titles?.zh ?: titles?.es_la
 
+    Log.e("Chapter Size", "repo(api)-> toManga() -> ${attributes.lastChapter}")
     return Manga(
        id = id,
        title = attributes.title.en,
@@ -34,6 +36,8 @@ fun Data.toManga(coverImage : String):Manga{
        altTitle = japaneseTitle,
        coverImage = if(coverImage != "") "https://uploads.mangadex.org/covers/${id}/${coverImage}"
                     else  null,
-       authorId = relationships.find{ it.type == "author" }?.id
+       authorId = relationships.find{ it.type == "author" }?.id,
+       chapters = if(!attributes.lastChapter.isNullOrEmpty()) attributes.lastChapter.toInt()
+                  else 0
     )
 }

@@ -40,7 +40,7 @@ class MangaRepositoryImpl(
             //fetch api call and update local db
             return try {
                 val response = api.getTopManga()
-
+                Log.d("repository", "response - $response")
                 if (response.isSuccessful) {
                     val mangaList = response.body()?.data ?: emptyList()
 
@@ -56,9 +56,11 @@ class MangaRepositoryImpl(
                         } catch (e: Exception) {
                             ""
                         }
+                        Log.d("repository", "response - $coverImage")
                         mangaData.toManga(coverImage)
                     }
                     //add manga theme and genre to locally then return
+
                     Log.d("repository", "Saving manga: lastUpdated = ${System.currentTimeMillis()}")
                     dao.insertMangas(resultMangaList.map { it.toEntity(isTopManga = true) })
                     dao.insertGenre(resultMangaList.flatMap {
@@ -155,6 +157,7 @@ class MangaRepositoryImpl(
 
             if (response.isSuccessful) {
                 val mangaList = response.body()?.data ?: emptyList()
+                Log.d("repository","search ${mangaList}")
                 val resultMangaList = mangaList.map { mangaData ->
                     val coverImage = try {
                         val coverResponse = api.getCoverImage(mangaData.id)
@@ -170,6 +173,7 @@ class MangaRepositoryImpl(
                     }
                     mangaData.toManga(coverImage)
                 }
+                Log.d("repository","${resultMangaList.first().chapters}")
 
                 return Result.Success(resultMangaList)
             } else {
@@ -209,6 +213,7 @@ class MangaRepositoryImpl(
 
         val cachedManga = dao.getMangaById(mangaId)
         if (cachedManga.isNotEmpty()) {
+            Log.e("Chapter Size", "repo (cached) -> ${cachedManga.first().chapters}")
             val genres = dao.getGenresForManga(mangaId)
             val themes = dao.getThemesForManga(mangaId)
             return Result.Success(cachedManga.first().toManga(genres, themes))
@@ -218,7 +223,9 @@ class MangaRepositoryImpl(
                 if (response.isSuccessful) {
                     if (response.body() != null && response.body()?.data != null) {
                         Log.d("MangaRepository", "manga japanese title:  ${response.body()!!.data.attributes.altTitles[0].ja}")
-                        return Result.Success(response.body()!!.data.toManga(""))
+                        val updatedManga = response.body()!!.data.toManga("")
+                        Log.e("Chapter Size", "repo(api)-> toManga() -> in repo after mapping ${updatedManga.chapters}")
+                        return Result.Success(updatedManga)
                     } else {
                         return Result.Error(AppError.ServerError("Unknown Server Error"))
                     }

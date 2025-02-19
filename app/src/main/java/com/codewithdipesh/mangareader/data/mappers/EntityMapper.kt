@@ -25,7 +25,8 @@ fun MangaEntity.toManga(
         coverImage = coverImage,
         genres = genres,
         themes = themes,
-        authorId = authorId
+        authorId = authorId,
+        chapters = chapters
     )
 }
 
@@ -43,6 +44,7 @@ fun Manga.toEntity(isTopManga : Boolean = false):MangaEntity {
         coverImage = coverImage,
         lastUpdated = System.currentTimeMillis(),
         topManga = isTopManga,
-        authorId = authorId
+        authorId = authorId,
+        chapters = chapters
     )
 }

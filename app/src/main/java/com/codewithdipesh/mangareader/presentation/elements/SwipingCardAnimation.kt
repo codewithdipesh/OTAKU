@@ -12,6 +12,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +48,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -72,13 +74,12 @@ fun SwipingCardAnimation(
     onClick : (Manga)->Unit,
     onSuccessLoading : () -> Unit = {}
 ) {
-    val cards = remember{ mutableStateListOf<Manga>() }
+    var cards by remember{ mutableStateOf(mangaList.toList()) }
     val animatedOffsetX = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(mangaList){
-        cards.clear()
-        cards.addAll(mangaList)
+        cards = mangaList
     }
 
     Box(modifier = Modifier
@@ -100,32 +101,45 @@ fun SwipingCardAnimation(
                             scaleY = if(index == cards.lastIndex) 1f else 0.90f
                         )
                         .offset(y = if(index == cards.lastIndex) 0.dp else 10.dp)
-                        .draggable(
-                            state = rememberDraggableState { delta ->
-                                scope.launch {
-                                    animatedOffsetX.snapTo(animatedOffsetX.value + delta)
+                        .pointerInput(Unit){
+                            detectHorizontalDragGestures(
+                                onDragEnd = {
+                                    scope.launch {
+                                        when {
+                                            animatedOffsetX.value > 200f -> {
+                                                // Swipe left(last card to first card
+                                                cards = cards.toMutableList().apply {
+                                                    val lastCard = removeAt(lastIndex)
+                                                    add(0,lastCard)
+                                                }
+                                                animatedOffsetX.snapTo(0f)
+                                            }
+                                            animatedOffsetX.value < -200f -> {
+                                                // Swipe right(first card to last)
+                                                cards = cards.drop(1) + cards.first()
+                                                animatedOffsetX.snapTo(0f)
+                                            }
+                                            else -> {
+                                                // Return to center
+                                                animatedOffsetX.animateTo(0f,
+                                                    animationSpec = tween(
+                                                        durationMillis = 300,
+                                                        easing =  FastOutSlowInEasing
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    }
+                                },
+                                onHorizontalDrag = {change,dragAmount->
+                                    change.consume()
+                                    scope.launch {
+                                        animatedOffsetX.snapTo(animatedOffsetX.value + dragAmount)
+                                    }
+
                                 }
-                            },
-                            orientation = Orientation.Horizontal,
-                            onDragStopped = {
-                                when { //.removeLast() function works on real card and .reversed() is only applied for approach view purpose
-                                    animatedOffsetX.value > 200 -> { // Swipe Right
-                                        val lastCard = cards.removeAt(cards.lastIndex)
-                                        cards.add(0, lastCard)
-                                        animatedOffsetX.snapTo(0f)
-                                    }
-                                    animatedOffsetX.value < -200 -> { // Swipe Left
-                                         val firstCardIndex = cards.indexOfFirst { it == card }
-                                        val firstCard = cards.removeAt(firstCardIndex)
-                                        cards.add(firstCard)
-                                        animatedOffsetX.snapTo(0f)
-                                    }
-                                    else -> { // Reset Position if swipe isn't enough
-                                        animatedOffsetX.animateTo(0f)
-                                    }
-                                }
-                            }
-                        )
+                            )
+                        }
                 ) {
                     Box(modifier = Modifier
                         .wrapContentSize()
