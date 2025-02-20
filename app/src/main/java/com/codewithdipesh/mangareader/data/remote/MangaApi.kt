@@ -52,6 +52,7 @@ interface MangaApi {
         @Query("translatedLanguage[]") language : String="en",
         @Query("includeEmptyPages") emptyPages : Int= 0,
         @Query("limit") limit : Int=96,
+        @Query("offset") offset : Int=0,
     ): Response<chapterResult>
 
 

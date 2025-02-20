@@ -92,15 +92,22 @@ class HomeViewmodel @Inject constructor(
         if(_state.value.searchValue == ""){
             Log.d("HomeViewmodel", "searchManga: Error")
         }else{
+            _state.value = _state.value.copy(
+                isloading = true
+            )
             val result = repository.searchManga(_state.value.searchValue)
             addSearchHistory(_state.value.searchValue)
             when(result){
                 is Result.Success -> {
                     _state.value = _state.value.copy(
-                        searchResult = result.data
+                        searchResult = result.data,
+                        isloading = false
                     )
                 }
                 is Result.Error ->{
+                    _state.value = _state.value.copy(
+                        isloading = false
+                    )
                     Log.d("HomeViewmodel", "searchManga: Error ${result.error}")
                 }
 

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -76,6 +77,15 @@ fun MangaDetailsScreen(
             viewModel.load(mangaId,coverImage,title,authorId)
         }else{
             //todo error
+        }
+    }
+    //pagination
+    LaunchedEffect(scrollState.value) {
+        val scrollPosition = scrollState.value
+        val maxScroll = scrollState.maxValue
+
+        if(scrollPosition >= maxScroll *0.90 && !state.endReached){
+            viewModel.getChapters(state.id)
         }
     }
     DisposableEffect(Unit){
@@ -268,6 +278,22 @@ fun MangaDetailsScreen(
         //desc
         //and if title is longer add here
         if(state.selectedContent == MangaContent.Details){
+            if(state.isLoading){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(
+                        color = colorResource(R.color.yellow),
+                        strokeWidth = 2.dp,
+                        modifier = Modifier
+                            .size(50.dp)
+                    )
+                }
+            }
             if(state.title.length > 30){
                 Text(
                     text =state.title,
@@ -300,6 +326,7 @@ fun MangaDetailsScreen(
                 textAlign = TextAlign.Start
             )
         }
+
         //chapters
         else if (state.selectedContent == MangaContent.Chapter){
             state.chapters.forEach {
@@ -307,8 +334,26 @@ fun MangaDetailsScreen(
                     chapter = it
                 )
             }
+            //chapter loading
+            if(state.isChapterLoading){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(
+                        color = colorResource(R.color.yellow),
+                        strokeWidth = 2.dp,
+                        modifier = Modifier
+                            .size(50.dp)
+                    )
+                }
+            }
+            //Spacer
+            Spacer(Modifier.height(60.dp))
         }
-
 
 
     }

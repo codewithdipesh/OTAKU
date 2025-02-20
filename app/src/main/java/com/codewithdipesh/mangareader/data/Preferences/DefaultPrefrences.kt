@@ -1,6 +1,7 @@
 package com.codewithdipesh.mangareader.data.Preferences
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.codewithdipesh.mangareader.domain.Preferences.preference
 
 class DefaultPrefrences(
@@ -8,6 +9,7 @@ class DefaultPrefrences(
 ) : preference {
 
     override fun saveHistory(searchTerm: String) {
+        Log.e("history"," prefernces : $searchTerm")
         val currentHistory = loadHistory().toMutableList()
         currentHistory.remove(searchTerm)//remove to avoid duplicates
         currentHistory.add(0,searchTerm)
@@ -22,6 +24,8 @@ class DefaultPrefrences(
     }
 
     override fun loadHistory(): List<String> {
-        return prefs.getString(preference.KEY_HISTORY,"")?.split(",")?.filter { it.isNotEmpty() }?: emptyList()
+        val history = prefs.getString(preference.KEY_HISTORY,"")?.split(",")?.filter { it.isNotEmpty() }?: emptyList()
+        Log.e("history"," repository : $history")
+        return history
     }
 }

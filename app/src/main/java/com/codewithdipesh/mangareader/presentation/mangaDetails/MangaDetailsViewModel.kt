@@ -1,6 +1,7 @@
 package com.codewithdipesh.mangareader.presentation.mangaDetails
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codewithdipesh.mangareader.domain.model.Manga
@@ -26,9 +27,14 @@ class MangaDetailsViewModel @Inject constructor(
     private val _state = MutableStateFlow(MangaDetailUi())
     val state = _state.asStateFlow()
 
+    private val PAGE_SIZE:Int = 96
+
     suspend fun load(mangaId: String, coverImage: String, title: String,authorId:String) {
         // Set basic details instantly (for faster UI update)
         viewModelScope.launch(Dispatchers.IO) {
+            _state.value = _state.value.copy(
+                isLoading = true
+            )
             val result = repository.getMangaById(mangaId)
             when (result) {
                 is Result.Success -> {
@@ -46,7 +52,8 @@ class MangaDetailsViewModel @Inject constructor(
                         isFavourite = manga.isFavourite,
                         isLoading = false,
                         altTitle = manga.altTitle,
-                        totalChapter = manga.chapters
+                        totalChapter = manga.chapters,
+                        isChapterLoading = manga.chapters == 0
                     )
                 }
                 is Result.Error -> {
@@ -83,25 +90,28 @@ class MangaDetailsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getChapters(id : String){
+     suspend fun getChapters(id : String){
         if(id == "") return
-        val result = repository.getChapters(id)
+        OnChapterLoadingState()
+        val result = repository.getChapters(mangaId = id, limit = PAGE_SIZE, offset = _state.value.currentPage *PAGE_SIZE)
         when(result){
             is Result.Success -> {
                 val chapterList = result.data
-                Log.e("MangaViewModel", "chapters: ${chapterList}")
-                _state.value = _state.value.copy(
-                    chapters = chapterList,
-                )
-                //already got null as last chapter
-                if(chapterList.isNotEmpty() && _state.value.totalChapter == 0){
-                    _state.value = _state.value.copy(
-                        totalChapter = chapterList.size ?:0
+                if(chapterList.isNotEmpty()) {
+                    _state.value = _state.value.copy(//endReached means fully loaded current page
+                        chapters = _state.value.chapters + chapterList, // Append new data
+                        currentPage = _state.value.currentPage+1,
+                        endReached = (_state.value.chapters.size + chapterList.size) < ((_state.value.currentPage +1) * PAGE_SIZE)
                     )
+                    if(_state.value.istotalChapterNull) {//it means we got null as totalChapters from fetching mangaById
+                        _state.value.totalChapter + chapterList.size
+                    }
                 }
+                OffChapterLoadingState()
             }
             is Result.Error ->{
                 Log.d("MangaViewmodel", "get chapters: Error ${result.error}")
+                OffChapterLoadingState()
             }
         }
 
@@ -115,5 +125,16 @@ class MangaDetailsViewModel @Inject constructor(
 
     fun clearUi(){
         _state.value = MangaDetailUi()
+    }
+
+    fun OnChapterLoadingState(){
+        _state.value = _state.value.copy(
+            isChapterLoading = true
+        )
+    }
+    fun OffChapterLoadingState(){
+        _state.value = _state.value.copy(
+            isChapterLoading = false
+        )
     }
 }

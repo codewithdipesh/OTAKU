@@ -2,6 +2,7 @@ package com.codewithdipesh.mangareader.data.repository
 
 import android.util.Log
 import com.codewithdipesh.mangareader.data.Preferences.DefaultPrefrences
+import com.codewithdipesh.mangareader.data.cache.MangaCache
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
@@ -193,6 +194,7 @@ class MangaRepositoryImpl(
     }
 
     override fun saveSearchHistory(searchTerm: String) {
+        Log.e("history"," repository : $searchTerm")
         pref.saveHistory(searchTerm)
     }
 
@@ -211,12 +213,25 @@ class MangaRepositoryImpl(
 
     override suspend fun getMangaById(mangaId: String): Result<Manga> {
 
-        val cachedManga = dao.getMangaById(mangaId)
-        if (cachedManga.isNotEmpty()) {
-            Log.e("Chapter Size", "repo (cached) -> ${cachedManga.first().chapters}")
+        //in memory cache(RAM) -> disk cache -> api
+        val memoryCachedManga = MangaCache.get(mangaId)
+        Log.d("cache", "RAM ${memoryCachedManga} ->")
+        if(memoryCachedManga != null){
+            Log.d("cache", "got RAM ->")
+            return Result.Success(memoryCachedManga)
+        }
+        //no cache available in RAM
+          //search in disk Room db
+        val diskCachedManga = dao.getMangaById(mangaId)
+        if (diskCachedManga.isNotEmpty()) {
+            Log.d("cache", "got in disk  ->")
+            Log.e("Chapter Size", "repo (cached) -> ${diskCachedManga.first().chapters}")
             val genres = dao.getGenresForManga(mangaId)
             val themes = dao.getThemesForManga(mangaId)
-            return Result.Success(cachedManga.first().toManga(genres, themes))
+            val result = diskCachedManga.first().toManga(genres, themes)
+            //save in in memory cache
+            MangaCache.put(result.id,result)
+            return Result.Success(result)
         } else {
             try {
                 val response = api.getMangaById(mangaId)
@@ -225,6 +240,8 @@ class MangaRepositoryImpl(
                         Log.d("MangaRepository", "manga japanese title:  ${response.body()!!.data.attributes.altTitles[0].ja}")
                         val updatedManga = response.body()!!.data.toManga("")
                         Log.e("Chapter Size", "repo(api)-> toManga() -> in repo after mapping ${updatedManga.chapters}")
+                        //put in RAM first
+                        MangaCache.put(updatedManga.id,updatedManga)
                         return Result.Success(updatedManga)
                     } else {
                         return Result.Error(AppError.ServerError("Unknown Server Error"))
@@ -240,9 +257,9 @@ class MangaRepositoryImpl(
         }
     }
 
-    override suspend fun getChapters(mangaId: String): Result<List<Chapter>> {
+    override suspend fun getChapters(mangaId: String,limit:Int,offset:Int): Result<List<Chapter>> {
         return  try {
-            val response = api.getChapters(mangaId)
+            val response = api.getChapters(mangaId = mangaId, limit = limit, offset = offset)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {

@@ -1,7 +1,7 @@
 package com.codewithdipesh.mangareader.domain.Preferences
 
 interface preference {
-    fun saveHistory(string: String)
+    fun saveHistory(searchTerm: String)
 
     fun loadHistory(): List<String>
 

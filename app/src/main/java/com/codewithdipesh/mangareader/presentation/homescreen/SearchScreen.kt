@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -145,7 +146,8 @@ fun SearchScreen(
         }
         Spacer(Modifier.height(16.dp))
         //history
-        if(state.searchResult.isEmpty() && state.history.isNotEmpty()){
+        if(state.searchResult.isEmpty() && state.history.isNotEmpty() && !state.isloading){
+            Log.d("search","got the history cards ${state.history}")
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
@@ -169,32 +171,47 @@ fun SearchScreen(
                 )
 
             }
-            //history cards
-            if(state.searchResult.isNotEmpty()){
-                FlowRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    state.history.forEach {
-                        HistoryCard(
-                            historyTerm = it,
-                            onClick = {
-                                viewmodel.onChangeSearchValue(it)
-                                viewmodel.clearResultValue()
-                                keyboard?.hide()
-                                scope.launch(Dispatchers.IO) {
-                                    viewmodel.searchManga()
-                                }
+
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                state.history.forEach {
+                    HistoryCard(
+                        historyTerm = it,
+                        onClick = {
+                            viewmodel.onChangeSearchValue(it)
+                            viewmodel.clearResultValue()
+                            keyboard?.hide()
+                            scope.launch(Dispatchers.IO) {
+                                viewmodel.searchManga()
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
 
         }
         //results
+        if(state.isloading){
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircularProgressIndicator(
+                    color = colorResource(R.color.yellow),
+                    strokeWidth = 2.dp,
+                    modifier = Modifier
+                        .padding(80.dp)
+                        .size(60.dp)
+                )
+            }
+        }
         if(state.searchResult.isNotEmpty()){
             FlowRow (
                 modifier =Modifier
