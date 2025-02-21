@@ -27,6 +27,8 @@ data class MangaDetailUi(
     val coverImage: String? = null,
     val isLoading: Boolean = false,  // UI State
     val isChapterLoading: Boolean = false,
+    val hasErrorOccured:Boolean = false,
+    val isInternetAvailable : Boolean = true,
 
     val selectedContent : MangaContent = MangaContent.Details,
     val currentPage : Int = 0,

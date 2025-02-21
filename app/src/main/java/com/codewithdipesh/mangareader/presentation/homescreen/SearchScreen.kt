@@ -80,12 +80,10 @@ fun SearchScreen(
     LaunchedEffect(Unit) {
        focusRequester.requestFocus()
     }
-    SideEffect { // Ensures the coroutine runs once when Composable enters composition
-        scope.launch {
-            viewmodel.uiEvent.collect { message ->
-                Log.e("event", message)
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            }
+    LaunchedEffect(Unit) {
+        viewmodel.uiEvent.collect { message ->
+            Log.e("event", message)
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 

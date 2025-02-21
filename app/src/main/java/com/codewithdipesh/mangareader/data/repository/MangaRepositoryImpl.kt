@@ -16,6 +16,7 @@ import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.AppError
 import com.codewithdipesh.mangareader.domain.util.Result
 import okio.IOException
+import java.net.UnknownHostException
 
 class MangaRepositoryImpl(
    private val api : MangaApi,
@@ -185,8 +186,10 @@ class MangaRepositoryImpl(
             }
         } catch (e: IOException) {
             Result.Error(AppError.NetworkError())
+        } catch (e: UnknownHostException) {
+            Result.Error(AppError.NetworkError())
         } catch (e: Exception) {
-            Result.Error(AppError.UnknownError(e.message ?: "Unknown Error"))
+            Result.Error(AppError.UnknownError(e.message ?: "Unknown error occured"))
         }
     }
 

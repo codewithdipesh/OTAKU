@@ -1,5 +1,6 @@
 package com.codewithdipesh.mangareader.presentation.elements
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,12 +28,16 @@ import com.codewithdipesh.mangareader.ui.theme.regular
 @Composable
 fun ChapterCard(
     modifier: Modifier = Modifier,
-    chapter : Chapter
+    chapter : Chapter,
+    onClick : ()->Unit ={}
 ){
     Column(
         modifier.fillMaxWidth()
-        .wrapContentHeight()
+            .wrapContentHeight()
             .padding(bottom = 8.dp)
+            .clickable {
+                onClick()
+            }
     ) {
         //content
         Row(
@@ -81,6 +86,7 @@ fun ChapterCard(
                     }}",
                 tint = Color.White,
                 modifier = Modifier.weight(0.1f)
+
             )
         }
         Spacer(Modifier.height(8.dp))

@@ -5,13 +5,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codewithdipesh.mangareader.domain.model.Manga
+import com.codewithdipesh.mangareader.domain.observer.connectivityObserver
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.Result
 import com.codewithdipesh.mangareader.presentation.elements.MangaContent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -21,13 +25,62 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MangaDetailsViewModel @Inject constructor(
-    private val repository: MangaRepository
+    private val repository: MangaRepository,
+    private val connectivity : connectivityObserver
 ): ViewModel()
 {
     private val _state = MutableStateFlow(MangaDetailUi())
     val state = _state.asStateFlow()
 
+    private val _uiEvent = Channel<String>(Channel.BUFFERED)
+    val uiEvent = _uiEvent.receiveAsFlow()
+
     private val PAGE_SIZE:Int = 96
+
+    val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
+        throwable.printStackTrace()
+    }
+
+    fun observeConnectivity(mangaId: String, coverImage: String, title: String,authorId:String){
+        viewModelScope.launch(Dispatchers.IO) {
+            connectivity.observe().collect {
+                when (it) {
+                    connectivityObserver.Status.Available -> {
+                        if(_state.value.hasErrorOccured){//available after any error
+                            _state.value = _state.value.copy(
+                                isInternetAvailable = true
+                            )
+                            setNoErrorState()
+                            sendEvent("Internet restored! Fetching data...")
+                            load(mangaId,coverImage,title,authorId)
+                        }
+                    }
+                    connectivityObserver.Status.UnAvailable,connectivityObserver.Status.Lost -> {
+                        _state.value = _state.value.copy(
+                            isInternetAvailable = false
+                        )
+                        sendEvent("No Internet,Pls connect and try again")
+                    }
+                }
+            }
+        }
+    }
+
+    fun sendEvent(message: String) {
+        viewModelScope.launch {
+            _uiEvent.send(message)
+        }
+    }
+    private fun setErrorState(){
+        _state.value = _state.value.copy(
+            hasErrorOccured = true
+        )
+    }
+    private fun setNoErrorState(){
+        _state.value = _state.value.copy(
+            hasErrorOccured = false
+        )
+    }
 
     suspend fun load(mangaId: String, coverImage: String, title: String,authorId:String) {
         // Set basic details instantly (for faster UI update)
@@ -57,13 +110,14 @@ class MangaDetailsViewModel @Inject constructor(
                     )
                 }
                 is Result.Error -> {
+                    _uiEvent.send(result.error.message)
                     Log.e("MangaViewModel", "Error fetching manga: ${result.error}")
                     _state.value = _state.value.copy(isLoading = false)
                 }
             }
         }
-        viewModelScope.launch(Dispatchers.IO) { getChapters(mangaId) }
-        viewModelScope.launch(Dispatchers.IO) { getAuthor(authorId) }
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) { getChapters(mangaId) }
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) { getAuthor(authorId) }
 
         _state.value = _state.value.copy(
             coverImage = coverImage,
@@ -85,6 +139,7 @@ class MangaDetailsViewModel @Inject constructor(
                 )
             }
             is Result.Error -> {
+                setErrorState()
                 Log.d("MangaViewmodel", "get Author: Error ${result.error}")
             }
         }
@@ -110,6 +165,8 @@ class MangaDetailsViewModel @Inject constructor(
                 OffChapterLoadingState()
             }
             is Result.Error ->{
+                setErrorState()
+                sendEvent(result.error.message)
                 Log.d("MangaViewmodel", "get chapters: Error ${result.error}")
                 OffChapterLoadingState()
             }
@@ -137,4 +194,5 @@ class MangaDetailsViewModel @Inject constructor(
             isChapterLoading = false
         )
     }
+
 }

@@ -4,6 +4,8 @@ package com.codewithdipesh.mangareader.presentation.mangaDetails
 import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,6 +34,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -40,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -71,12 +75,26 @@ fun MangaDetailsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
 
+    // Initial load effect
+    LaunchedEffect(mangaId, coverImage, title) {
+        if(mangaId.isNotEmpty() && coverImage.isNotEmpty() && title.isNotEmpty()) {
+            viewModel.load(mangaId, coverImage, title, authorId)
+        }
+    }
+
+    // Separate connectivity observer effect
     LaunchedEffect(Unit) {
-        if(mangaId != "" && coverImage != "" && title!= ""){
-            viewModel.load(mangaId,coverImage,title,authorId)
-        }else{
-            //todo error
+        if(mangaId.isNotEmpty() && coverImage.isNotEmpty() && title.isNotEmpty()) {
+            viewModel.observeConnectivity(mangaId, coverImage, title, authorId)
+        }
+    }
+    //toast if error
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { message ->
+            Log.e("event", message)
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
     //pagination
@@ -240,7 +258,11 @@ fun MangaDetailsScreen(
                                     .size(160.dp,38.dp)
                                     .background(colorResource(R.color.yellow))
                                     .clickable {
-                                        //todo
+                                        if(state.isInternetAvailable){
+                                            //todo
+                                        }else{
+                                            viewModel.sendEvent("No Internet Connection")
+                                        }
                                     },
                                 contentAlignment = Alignment.Center
                             ){
@@ -331,7 +353,14 @@ fun MangaDetailsScreen(
         else if (state.selectedContent == MangaContent.Chapter){
             state.chapters.forEach {
                 ChapterCard(
-                    chapter = it
+                    chapter = it,
+                    onClick = {
+                        if(state.isInternetAvailable){
+                            //todo
+                        }else{
+                            viewModel.sendEvent("No Internet Connection")
+                        }
+                    }
                 )
             }
             //chapter loading
