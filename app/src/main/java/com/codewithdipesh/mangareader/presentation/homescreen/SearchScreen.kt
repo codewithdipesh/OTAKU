@@ -1,6 +1,7 @@
 package com.codewithdipesh.mangareader.presentation.homescreen
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -69,12 +72,21 @@ fun SearchScreen(
 
     val state by viewmodel.state.collectAsState()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val keyboard = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
     val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
        focusRequester.requestFocus()
+    }
+    SideEffect { // Ensures the coroutine runs once when Composable enters composition
+        scope.launch {
+            viewmodel.uiEvent.collect { message ->
+                Log.e("event", message)
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     Column(

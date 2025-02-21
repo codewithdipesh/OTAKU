@@ -37,7 +37,6 @@ fun Data.toManga(coverImage : String):Manga{
        coverImage = if(coverImage != "") "https://uploads.mangadex.org/covers/${id}/${coverImage}"
                     else  null,
        authorId = relationships.find{ it.type == "author" }?.id,
-       chapters = if(!attributes.lastChapter.isNullOrEmpty()) attributes.lastChapter.toInt()
-                  else 0
+       chapters = attributes.lastChapter?.toDoubleOrNull()?.toInt() ?: 0
     )
 }

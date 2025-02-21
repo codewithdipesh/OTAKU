@@ -159,6 +159,9 @@ class MangaRepositoryImpl(
             if (response.isSuccessful) {
                 val mangaList = response.body()?.data ?: emptyList()
                 Log.d("repository","search ${mangaList}")
+                if(mangaList.isEmpty()){
+                    return Result.Error(AppError.ServerError("No Manga Found"))
+                }
                 val resultMangaList = mangaList.map { mangaData ->
                     val coverImage = try {
                         val coverResponse = api.getCoverImage(mangaData.id)

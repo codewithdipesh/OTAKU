@@ -8,8 +8,10 @@ import com.codewithdipesh.mangareader.data.Preferences.DefaultPrefrences
 import com.codewithdipesh.mangareader.data.local.MangaDatabase
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.MangaEntity
+import com.codewithdipesh.mangareader.data.observer.ConnectivityObserverImpl
 import com.codewithdipesh.mangareader.data.remote.MangaApi
 import com.codewithdipesh.mangareader.data.repository.MangaRepositoryImpl
+import com.codewithdipesh.mangareader.domain.observer.connectivityObserver
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import dagger.Module
 import dagger.Provides
@@ -75,6 +77,12 @@ object MangaModule {
         pref: DefaultPrefrences
     ): MangaRepository {
         return MangaRepositoryImpl(api,dao,pref)
+    }
+
+    @Singleton
+    @Provides
+    fun provideConnectivityObserver(@ApplicationContext context: Context): connectivityObserver {
+        return ConnectivityObserverImpl(context)
     }
 
 
