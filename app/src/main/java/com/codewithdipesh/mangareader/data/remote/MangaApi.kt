@@ -1,6 +1,9 @@
 package com.codewithdipesh.mangareader.data.remote
 
 import com.codewithdipesh.mangareader.data.remote.dto.AuthorResponse
+import com.codewithdipesh.mangareader.data.remote.dto.Chapter
+import com.codewithdipesh.mangareader.data.remote.dto.ChapterByIdResponse
+import com.codewithdipesh.mangareader.data.remote.dto.ChapterPageResult
 import com.codewithdipesh.mangareader.data.remote.dto.MangaByIdResponse
 import com.codewithdipesh.mangareader.data.remote.dto.MangaResponse
 import com.codewithdipesh.mangareader.data.remote.dto.chapterResult
@@ -54,6 +57,18 @@ interface MangaApi {
         @Query("limit") limit : Int=96,
         @Query("offset") offset : Int=0,
     ): Response<chapterResult>
+
+    @GET("/chapter/{chapterId}")
+    suspend fun getChapterById(
+        @Path("chapterId") chapterId : String
+    ):Response<ChapterByIdResponse>
+
+    @GET("/at-home/server/{chapterId}")
+    suspend fun getChapterPages(
+        @Path("chapterId") chapterId : String
+    ) : Response<ChapterPageResult>
+
+
 
 
 

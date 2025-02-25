@@ -25,13 +25,16 @@ import com.codewithdipesh.mangareader.presentation.homescreen.HomeViewmodel
 import com.codewithdipesh.mangareader.presentation.homescreen.SearchScreen
 import com.codewithdipesh.mangareader.presentation.mangaDetails.MangaDetailsScreen
 import com.codewithdipesh.mangareader.presentation.mangaDetails.MangaDetailsViewModel
+import com.codewithdipesh.mangareader.presentation.reader.ReaderScreen
+import com.codewithdipesh.mangareader.presentation.reader.ReaderViewModel
 
 @Composable
 fun MangaNavHost(
     modifier: Modifier = Modifier,
     navController : NavHostController,
     homeViewmodel: HomeViewmodel,
-    mangaViewModel : MangaDetailsViewModel
+    mangaViewModel : MangaDetailsViewModel,
+    readerViewModel : ReaderViewModel
 ) {
     NavHost(
         navController = navController,
@@ -86,6 +89,21 @@ fun MangaNavHost(
                  title = title,
                  authorId = authorId
              )
+
+        }
+        composable(
+            Screen.Reader.route,
+            arguments = listOf(
+                navArgument("chapterId") { type= NavType.StringType}
+            )
+        ){entry->
+            val chapterId = entry.arguments?.getString("chapterId") ?: ""
+
+            ReaderScreen(
+                chapterId = chapterId,
+                viewModel = readerViewModel,
+                navController = navController
+            )
 
         }
     }

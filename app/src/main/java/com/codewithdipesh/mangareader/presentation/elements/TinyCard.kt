@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,28 +21,31 @@ import androidx.compose.ui.unit.sp
 import com.codewithdipesh.mangareader.ui.theme.regular
 
 @Composable
-fun HistoryCard(
+fun TinyCard(
     modifier: Modifier = Modifier,
-    historyTerm : String,
+    text : String,
     onClick: () -> Unit = {},
+    textSize :Int = 16,
+    shape : Shape = RoundedCornerShape(10.dp),
+    bgColor: Color = Color.DarkGray
 ) {
     Box(
         modifier = modifier
             .padding(4.dp)
             .height(30.dp)
-            .clip(shape = RoundedCornerShape(10.dp))
+            .clip(shape)
             .wrapContentWidth()
-            .background(color = Color.DarkGray)
+            .background(bgColor)
             .clickable {
                 onClick()
             },
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = historyTerm,
+            text = text,
             style = TextStyle(
                 color = Color.White,
-                fontSize = 16.sp,
+                fontSize = textSize.sp,
                 fontFamily = regular,
                 fontWeight = FontWeight.Bold
             ),

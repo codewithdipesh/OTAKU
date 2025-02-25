@@ -11,4 +11,7 @@
     <color name="medium_gray">#585858</color>
     <color name="yellow">#F3C418</color>
     <color name="dark_gray">#191A1C</color>
+    <color name="deep_yellow">#FACB55</color>
+    <color name="medium_light_gray">#4E4E4E</color>
+    <color name="blue">#00C8F3</color>
 </resources>

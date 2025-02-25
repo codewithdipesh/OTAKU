@@ -17,6 +17,7 @@ import com.codewithdipesh.mangareader.presentation.homescreen.HomeScreen
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeViewmodel
 import com.codewithdipesh.mangareader.presentation.mangaDetails.MangaDetailsViewModel
 import com.codewithdipesh.mangareader.presentation.navigation.MangaNavHost
+import com.codewithdipesh.mangareader.presentation.reader.ReaderViewModel
 import com.codewithdipesh.mangareader.ui.theme.MangaReaderTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val viewModel by viewModels<HomeViewmodel>()
         val mangaViewModel by viewModels<MangaDetailsViewModel>()
+        val readerViewModel by viewModels<ReaderViewModel>()
         setContent {
             MangaReaderTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -35,6 +37,7 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         homeViewmodel = viewModel,
                         mangaViewModel = mangaViewModel,
+                        readerViewModel = readerViewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

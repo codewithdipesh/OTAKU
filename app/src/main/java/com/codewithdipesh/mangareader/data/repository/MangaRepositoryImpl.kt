@@ -3,6 +3,7 @@ package com.codewithdipesh.mangareader.data.repository
 import android.util.Log
 import com.codewithdipesh.mangareader.data.Preferences.DefaultPrefrences
 import com.codewithdipesh.mangareader.data.cache.MangaCache
+import com.codewithdipesh.mangareader.domain.constants.MangaQuotes
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
@@ -11,12 +12,14 @@ import com.codewithdipesh.mangareader.data.mappers.toEntity
 import com.codewithdipesh.mangareader.data.mappers.toManga
 import com.codewithdipesh.mangareader.data.remote.MangaApi
 import com.codewithdipesh.mangareader.domain.model.Chapter
+import com.codewithdipesh.mangareader.domain.model.ChapterDetails
 import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.AppError
 import com.codewithdipesh.mangareader.domain.util.Result
 import okio.IOException
 import java.net.UnknownHostException
+import kotlin.random.Random
 
 class MangaRepositoryImpl(
    private val api : MangaApi,
@@ -283,6 +286,48 @@ class MangaRepositoryImpl(
         }
     }
 
+    override suspend fun getChapterPages(chapterId: String): Result<ChapterDetails> {
+        return try {
+            val response = api.getChapterPages(chapterId)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    Result.Success(ChapterDetails(
+                        hash = body.chapter.hash,
+                        data = body.chapter.data,
+                        dataSaver = body.chapter.dataSaver
+                    ))
+                } else {
+                    Result.Error(AppError.ServerError("Unknown Server Error"))
+                }
+            } else {
+                Result.Error(AppError.NetworkError())
+            }
+        }catch (e:IOException){
+            Result.Error(AppError.NetworkError())
+        }catch (e:Exception){
+            Result.Error(AppError.UnknownError(e.localizedMessage ?: "Something went wrong"))
+        }
+    }
+
+    override suspend fun getChapterById(chapterId: String): Result<Chapter> {
+        return try {
+            val response = api.getChapterById(chapterId)
+            if (response.isSuccessful) {
+                if (response.body() != null) {
+                    Result.Success(response.body()!!.data.toChapter())
+                } else {
+                    Result.Error(AppError.ServerError())
+                }
+            }else{
+                Result.Error(AppError.UnknownError("No Chapter Found"))
+            }
+        }catch (e:IOException){
+            Result.Error(AppError.NetworkError())
+        }catch (e:Exception){
+            Result.Error(AppError.UnknownError())
+        }
+    }
 
 
 }

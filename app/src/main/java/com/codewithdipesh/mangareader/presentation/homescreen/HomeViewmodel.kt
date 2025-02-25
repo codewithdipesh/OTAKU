@@ -70,9 +70,9 @@ class HomeViewmodel @Inject constructor(
     }
 
     private fun refetchData(){
-        viewModelScope.launch(Dispatchers.IO){
-            getTopManga()
-            getAllManga()
+        viewModelScope.launch(){
+            launch(Dispatchers.IO){ getTopManga() }
+            launch(Dispatchers.IO){ getAllManga() }
         }
 
     }

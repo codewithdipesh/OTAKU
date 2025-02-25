@@ -14,6 +14,8 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -38,6 +41,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
@@ -54,14 +58,21 @@ import com.codewithdipesh.mangareader.domain.model.Manga
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.sp
+import com.codewithdipesh.mangareader.domain.model.Rating
+import com.codewithdipesh.mangareader.domain.model.Status
 import com.codewithdipesh.mangareader.presentation.elements.ChapterCard
 import com.codewithdipesh.mangareader.presentation.elements.MangaContent
+import com.codewithdipesh.mangareader.presentation.elements.TinyCard
 import com.codewithdipesh.mangareader.presentation.elements.ToggleContent
+import com.codewithdipesh.mangareader.presentation.navigation.Screen
 import com.codewithdipesh.mangareader.ui.theme.japanese
 import com.codewithdipesh.mangareader.ui.theme.regular
 import com.skydoves.cloudy.cloudy
+import java.util.Locale
 
+@OptIn(ExperimentalLayoutApi::class)
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun MangaDetailsScreen(
@@ -272,7 +283,33 @@ fun MangaDetailsScreen(
                                     tint = Color.Black
                                 )
                             }
-
+                            //publication details
+                            if(state.status != null){
+                                Row(modifier =Modifier.fillMaxWidth()
+                                    .padding(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ){
+                                    //color according to teh state
+                                    Box(Modifier
+                                        .size(10.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(if (state.status == Status.Ongoing) Color.Green else colorResource(R.color.blue))
+                                    )
+                                    //current state
+                                    Text(
+                                        text = "${state.year},${state.status!!.name.uppercase(
+                                            Locale.getDefault()
+                                        )}",
+                                        style = TextStyle(
+                                            color= Color.White,
+                                            fontFamily = regular,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 12.sp
+                                        )
+                                    )
+                                }
+                            }
                         }
 
 
@@ -281,7 +318,31 @@ fun MangaDetailsScreen(
             }
 
         }
+        Spacer(Modifier.height(6.dp))
+        //showing the attribute list
+        if(state.genres.isNotEmpty()){
+            FlowRow(
+                maxItemsInEachRow = 8,
+                modifier = Modifier
+                    .fillMaxWidth().padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.Start
+            ){
+                //contentRating
+                TinyCard(
+                    text = if (state.contentRating == Rating.Pornographic) "18+"
+                    else state.contentRating.name,
+                    bgColor = if (state.contentRating == Rating.Pornographic) Color.Red
+                    else if(state.contentRating == Rating.Erotica) colorResource(R.color.orange)
+                    else Color.DarkGray,
+                    textSize = 14
 
+                )
+                //list of genres
+                state.genres.take(7).forEach {
+                    TinyCard(text = it,textSize = 14)
+                }
+            }
+        }
         Spacer(Modifier.height(16.dp))
 
         //select content option
@@ -351,18 +412,6 @@ fun MangaDetailsScreen(
 
         //chapters
         else if (state.selectedContent == MangaContent.Chapter){
-            state.chapters.forEach {
-                ChapterCard(
-                    chapter = it,
-                    onClick = {
-                        if(state.isInternetAvailable){
-                            //todo
-                        }else{
-                            viewModel.sendEvent("No Internet Connection")
-                        }
-                    }
-                )
-            }
             //chapter loading
             if(state.isChapterLoading){
                 Row(
@@ -380,13 +429,42 @@ fun MangaDetailsScreen(
                     )
                 }
             }
-            //Spacer
-            Spacer(Modifier.height(60.dp))
+            else{
+                //chapter loading completed but no chapter(empty list)
+                if(state.chapters.isEmpty()){
+                    Text(
+                        text = "No Chapter Found",
+                        style = TextStyle(
+                            color = Color.LightGray,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = regular,
+                            fontSize = 14.sp
+                        ),
+                        modifier = Modifier.padding()
+
+                    )
+                }//chapter loading completed and chapter fetched
+                else{
+                    state.chapters.forEach {
+                        ChapterCard(
+                            chapter = it,
+                            onClick = {
+                                if(state.isInternetAvailable){
+                                    navController.navigate(Screen.Reader.createRoute(it))
+                                }else{
+                                    viewModel.sendEvent("No Internet Connection")
+                                }
+                            }
+                        )
+                    }
+                    //Spacer
+                    Spacer(Modifier.height(60.dp))
+                }
+            }
         }
 
 
     }
-
 
 
 }

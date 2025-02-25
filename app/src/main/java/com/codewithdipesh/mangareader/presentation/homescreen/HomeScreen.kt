@@ -205,14 +205,14 @@ fun HomeScreen(
                modifier =Modifier
                    .fillMaxWidth()
                    .padding(horizontal = 16.dp),
-               maxItemsInEachRow = 2,
+               maxItemsInEachRow = 6,
                overflow = FlowRowOverflow.Clip,
                horizontalArrangement = Arrangement.SpaceBetween,
                verticalArrangement = Arrangement.spacedBy(8.dp)
            ){
                //skeleton
                if(state.allMangas.isEmpty()){
-                   listOf(1,2).forEach {
+                   listOf(1,2,3,4).forEach {
                        MangaCard(
                            manga = null,
                            modifier = Modifier
@@ -221,7 +221,7 @@ fun HomeScreen(
                        )
                    }
                }
-               state.allMangas.take(4).forEach {
+               state.allMangas.forEach {
                    MangaCard(
                        manga = it,
                        modifier = Modifier.padding(4.dp),

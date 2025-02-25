@@ -12,7 +12,7 @@ data class MangaDetailUi(
     val title: String = "",
     val altTitle: String? = null,
     val description: String? = null,
-    val status: Status = Status.Completed,
+    val status: Status? = null,
     val year: Int? = null,
     val contentRating: Rating = Rating.Safe,
     val genres: List<String> = emptyList(),
