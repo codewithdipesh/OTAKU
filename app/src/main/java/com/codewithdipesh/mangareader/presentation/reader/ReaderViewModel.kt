@@ -98,13 +98,10 @@ class ReaderViewModel @Inject constructor(
                     hash = chapterDetails.hash,
                 )
                 preloadPages(imageLoader,context)
-                delay(10000)
-                stopLoading()
                 Log.d("load","loading->load->preload done")
             }
             is Result.Error -> {
                 Log.d("chapterPages", result.error.message)
-                stopLoading()
             }
         }
     }
@@ -119,11 +116,9 @@ class ReaderViewModel @Inject constructor(
                     currentPage = 1,
                     pageSize = result.data.pages
                 )
-                stopLoading()
             }
             is Result.Error -> {
-                //todo error
-                stopLoading()
+                
             }
         }
     }

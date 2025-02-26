@@ -52,6 +52,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -62,6 +63,7 @@ import coil3.request.ImageRequest
 import com.codewithdipesh.mangareader.R
 import com.codewithdipesh.mangareader.presentation.elements.LoaderWithQuotes
 import com.codewithdipesh.mangareader.presentation.elements.SlidingButton
+import com.codewithdipesh.mangareader.presentation.elements.resetToSystemBrightness
 import com.codewithdipesh.mangareader.presentation.elements.setScreenBrightness
 import com.codewithdipesh.mangareader.ui.theme.regular
 import kotlinx.coroutines.delay
@@ -87,7 +89,7 @@ fun ReaderScreen(
         skipPartiallyExpanded = false
     )
 
-    var brightness by remember { mutableStateOf(1f) }
+    var brightness by remember { mutableStateOf(0.75f) }
     val activity = context as? Activity
 //    var scale by remember { mutableStateOf(1f) }
 //    var offsetX by remember { mutableStateOf(0f) }
@@ -95,11 +97,15 @@ fun ReaderScreen(
 
 
     LaunchedEffect(Unit){
-      if(chapterId.isNotEmpty()){
-          Log.d("reader","load chapter")
-          viewModel.load(chapterId,imageLoader,context)
-          Log.d("reader","no loader anymore..")
-      }
+        scope.launch {
+            if(chapterId.isNotEmpty()){
+                Log.d("reader","load chapter")
+                viewModel.load(chapterId,imageLoader,context)
+                delay(10000)//fi\\\
+                viewModel.stopLoading()
+                Log.d("reader","no loader anymore..")
+            }
+        }
     }
     LaunchedEffect(state.currentPage){
       viewModel.preloadPages(imageLoader,context)
@@ -156,8 +162,10 @@ fun ReaderScreen(
                             scope.launch {
                                 navController.navigateUp()
                                 viewModel.clearUi()
+                                resetToSystemBrightness(activity)
                             }
-                        },
+                        }
+                        .weight(0.2f),
                         contentAlignment = Alignment.Center
                     ){
                         Icon(
@@ -170,7 +178,8 @@ fun ReaderScreen(
                     //Chapter and page
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.weight(0.8f)
                     ) {
                         if(state.chapter != null){
                             Text(
@@ -179,8 +188,9 @@ fun ReaderScreen(
                                     color = colorResource(R.color.yellow),
                                     fontWeight = FontWeight.Normal,
                                     fontFamily = regular,
-                                    fontSize = 14.sp
-                                )
+                                    fontSize = 12.sp
+                                ),
+                                textAlign = TextAlign.Center
                             )
                         }
                         Text(
@@ -197,6 +207,7 @@ fun ReaderScreen(
                     //settings button
                     Box(Modifier
                         .size(50.dp)
+                        .weight(0.2f)
                         .background(color = colorResource(R.color.medium_gray))
                         .clickable {
                             showBottomSheet = true
@@ -384,7 +395,7 @@ fun ReaderScreen(
                                     brightness = it
                                     setScreenBrightness(brightness,activity)
                                 },
-                                valueRange = 0.5f..1.5f,
+                                valueRange = 0.3f..1f,
                                 colors = SliderDefaults.colors(
                                     activeTrackColor = colorResource(R.color.yellow),
                                     disabledActiveTrackColor = colorResource(R.color.medium_gray),
