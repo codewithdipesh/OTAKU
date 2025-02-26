@@ -238,7 +238,10 @@ fun MangaDetailsScreen(
                             //alt title
                             Text(
                                 text = if(state.altTitle == null) ""
-                                else state.altTitle!!,
+                                      else{
+                                          if(state.altTitle!!.length > 30) state.altTitle!!.take(30) + "..."
+                                          else state.altTitle!!
+                                },
                                 style = TextStyle(
                                     color = Color.White,
                                     fontSize = 14.sp,
@@ -286,7 +289,7 @@ fun MangaDetailsScreen(
                             //publication details
                             if(state.status != null){
                                 Row(modifier =Modifier.fillMaxWidth()
-                                    .padding(8.dp),
+                                    .padding(vertical = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ){
@@ -305,7 +308,7 @@ fun MangaDetailsScreen(
                                             color= Color.White,
                                             fontFamily = regular,
                                             fontWeight = FontWeight.Bold,
-                                            fontSize = 12.sp
+                                            fontSize = 10.sp
                                         )
                                     )
                                 }
