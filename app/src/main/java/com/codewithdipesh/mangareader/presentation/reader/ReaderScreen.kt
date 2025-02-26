@@ -89,9 +89,9 @@ fun ReaderScreen(
 
     var brightness by remember { mutableStateOf(1f) }
     val activity = context as? Activity
-    var scale by remember { mutableStateOf(1f) }
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
+//    var scale by remember { mutableStateOf(1f) }
+//    var offsetX by remember { mutableStateOf(0f) }
+//    var offsetY by remember { mutableStateOf(0f) }
 
 
     LaunchedEffect(Unit){
@@ -226,22 +226,22 @@ fun ReaderScreen(
                             contentDescription = "Page ${state.currentPage}",
                             modifier = Modifier
                                 .fillMaxSize()
-                                .graphicsLayer(
-                                    scaleX = scale,
-                                    scaleY = scale,
-                                    translationX = offsetX,
-                                    translationY = offsetY
-                                )
-                                .pointerInput(Unit){
-                                    detectTransformGestures { _, pan, zoom, _ ->
-                                        scale = (scale * zoom).coerceIn(1f,4f)
-                                        if(scale > 1f){
-                                            offsetX += pan.x
-                                            offsetY += pan.y
-                                        }
-                                    }
-                                },
-                            contentScale = ContentScale.FillWidth,
+//                                .graphicsLayer(
+//                                    scaleX = scale,
+//                                    scaleY = scale,
+//                                    translationX = offsetX,
+//                                    translationY = offsetY
+//                                )
+//                                .pointerInput(Unit){
+//                                    detectTransformGestures { _, pan, zoom, _ ->
+//                                        scale = (scale * zoom).coerceIn(1f,4f)
+//                                        if(scale > 1f){
+//                                            offsetX += pan.x
+//                                            offsetY += pan.y
+//                                        }
+//                                    }
+//                                },
+                            ,contentScale = ContentScale.FillWidth,
                             colorFilter = ColorFilter.colorMatrix(
                                 colorMatrix = ColorMatrix().apply {
                                     setToScale(brightness,brightness,brightness,1f)
@@ -283,9 +283,9 @@ fun ReaderScreen(
                         .clickable {
                             viewModel.decreasePage()
                             //reset zoom and panning
-                            scale =1f
-                            offsetX=0f
-                            offsetY=0f
+//                            scale =1f
+//                            offsetX=0f
+//                            offsetY=0f
                         },
                         contentAlignment = Alignment.Center
                     ){
@@ -302,10 +302,10 @@ fun ReaderScreen(
                         .background(color = Color.Black.copy(alpha = 0.7f))
                         .clickable {
                             viewModel.increasePage()
-                            //reset zoom and panning
-                            scale =1f
-                            offsetX=0f
-                            offsetY=0f
+//                            //reset zoom and panning
+//                            scale =1f
+//                            offsetX=0f
+//                            offsetY=0f
                         },
                         contentAlignment = Alignment.Center
                     ){

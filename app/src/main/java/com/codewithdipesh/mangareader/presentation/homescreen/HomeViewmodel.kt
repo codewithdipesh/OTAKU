@@ -6,9 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codewithdipesh.mangareader.domain.observer.connectivityObserver
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
+import com.codewithdipesh.mangareader.domain.util.AppError
 import com.codewithdipesh.mangareader.domain.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,6 +33,8 @@ class HomeViewmodel @Inject constructor(
     private val _uiEvent = Channel<String>(Channel.BUFFERED) // Buffered so it doesn't block
     val uiEvent = _uiEvent.receiveAsFlow()
 
+    private var searchJob: Job? = null
+
     init {
         viewModelScope.launch(Dispatchers.IO){
             loadhistory()
@@ -44,6 +48,9 @@ class HomeViewmodel @Inject constructor(
             connectivity.observe().collect {
                 when (it) {
                     connectivityObserver.Status.Available -> {
+                        _state.value = _state.value.copy(
+                            isInternetAvailable = true
+                        )
                         if(_state.value.hasErrorOccured){//available after any error
                             setNoErrorState()
                             sendEvent("Internet restored! Fetching data...")
@@ -51,7 +58,9 @@ class HomeViewmodel @Inject constructor(
                         }
                     }
                     connectivityObserver.Status.UnAvailable,connectivityObserver.Status.Lost -> {
-                        sendEvent("No Internet,Pls connect and try again")
+                        _state.value = _state.value.copy(
+                            isInternetAvailable = false
+                        )
                     }
                 }
             }
@@ -113,6 +122,7 @@ class HomeViewmodel @Inject constructor(
     }
 
     fun onChangeSearchValue(value : String){
+        searchJob?.cancel()
         _state.value =_state.value.copy(
             searchValue = value
         )
@@ -139,7 +149,7 @@ class HomeViewmodel @Inject constructor(
         loadhistory()
     }
 
-    suspend fun searchManga(){
+    fun searchManga(){
         if(_state.value.searchValue == ""){
             Log.d("HomeViewmodel", "searchManga: Error")
             sendEvent("Pls enter anything")
@@ -147,24 +157,28 @@ class HomeViewmodel @Inject constructor(
             _state.value = _state.value.copy(
                 isloading = true
             )
-            val result = repository.searchManga(_state.value.searchValue)
-            addSearchHistory(_state.value.searchValue)
-            when(result){
-                is Result.Success -> {
-                    _state.value = _state.value.copy(
-                        searchResult = result.data,
-                        isloading = false
-                    )
-                }
-                is Result.Error ->{
-                    sendEvent(result.error.message)
-                    _state.value = _state.value.copy(
-                        isloading = false
-                    )
-                    Log.d("HomeViewmodel", "searchManga: Error ${result.error}")
-                }
+            searchJob?.cancel()
+            searchJob = viewModelScope.launch {
+                val result = repository.searchManga(_state.value.searchValue)
+                addSearchHistory(_state.value.searchValue)
+                when(result){
+                    is Result.Success -> {
+                        _state.value = _state.value.copy(
+                            searchResult = result.data,
+                            isloading = false
+                        )
+                    }
+                    is Result.Error ->{
+                        if(result.error !is AppError.UnknownError) sendEvent(result.error.message)
+                        _state.value = _state.value.copy(
+                            isloading = false
+                        )
+                        Log.d("HomeViewmodel", "searchManga: Error ${result.error}")
+                    }
 
+                }
             }
+
         }
     }
 

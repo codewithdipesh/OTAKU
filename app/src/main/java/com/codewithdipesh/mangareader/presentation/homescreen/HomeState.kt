@@ -9,5 +9,6 @@ data class HomeUiState(
     val isloading : Boolean = false,//it is only for search screen
     val hasErrorOccured : Boolean = false,
     val searchResult : List<Manga> = emptyList(),
-    val history : List<String> = emptyList()
+    val history : List<String> = emptyList(),
+    val isInternetAvailable : Boolean = true,
 )

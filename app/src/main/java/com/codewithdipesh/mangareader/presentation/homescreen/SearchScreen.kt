@@ -22,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -68,9 +69,6 @@ fun SearchScreen(
     val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
-       focusRequester.requestFocus()
-    }
-    LaunchedEffect(Unit) {
         viewmodel.uiEvent.collect { message ->
             Log.e("event", message)
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -107,32 +105,30 @@ fun SearchScreen(
             Box(
                 modifier = Modifier
                     .size(50.dp)
-                    .background(color = colorResource(R.color.medium_gray))
-                    .clickable {
-                        keyboard?.hide()
-                        navController.navigateUp()
-                        viewmodel.clearSearchValue()
-                        viewmodel.clearResultValue()
-                    },
+                    .background(color = colorResource(R.color.medium_gray)),
                 contentAlignment = Alignment.Center
             ){
-                Icon(
-                    painter = painterResource(R.drawable.close_icon),
-                    contentDescription = "close search bar",
-                    tint = Color.White
-                )
+                IconButton(
+                    onClick = {navController.navigateUp()}
+                ){
+                    Icon(
+                        painter = painterResource(R.drawable.close_icon),
+                        contentDescription = "close search bar",
+                        tint = Color.White
+                    )
+                }
             }
             SearchBar(
                     value = state.searchValue,
                     onValueChange = {
                         viewmodel.onChangeSearchValue(it)
-                        if(state.searchResult.isNotEmpty()){
-                            viewmodel.clearResultValue()
-                        }
                     },
                     onSearch = {
                         scope.launch(Dispatchers.IO){
                             viewmodel.searchManga()
+                            if(state.searchResult.isNotEmpty()){
+                                viewmodel.clearResultValue()
+                            }
                         }
                         keyboard?.hide()
                     },
@@ -229,7 +225,11 @@ fun SearchScreen(
                         modifier = Modifier.padding(4.dp),
                         onClick = {
                             keyboard?.hide()
-                            navController.navigate(Screen.Detail.createRoute(it))
+                            if(state.isInternetAvailable){
+                                navController.navigate(Screen.Detail.createRoute(it))
+                            }else{
+                                viewmodel.sendEvent("No Internet ")
+                            }
                         }
                     )
                 }
