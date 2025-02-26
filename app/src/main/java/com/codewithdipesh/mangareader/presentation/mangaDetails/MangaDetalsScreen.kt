@@ -412,6 +412,31 @@ fun MangaDetailsScreen(
 
         //chapters
         else if (state.selectedContent == MangaContent.Chapter){
+            if(!state.isChapterLoading && state.chapters.isEmpty() ){
+                Text(
+                    text = "No Chapter Found",
+                    style = TextStyle(
+                        color = Color.LightGray,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = regular,
+                        fontSize = 14.sp
+                    ),
+                    modifier = Modifier.padding()
+
+                )
+            }
+            state.chapters.forEach {
+                    ChapterCard(
+                        chapter = it,
+                        onClick = {
+                            if(state.isInternetAvailable){
+                                navController.navigate(Screen.Reader.createRoute(it))
+                            }else{
+                                viewModel.sendEvent("No Internet Connection")
+                            }
+                        }
+                    )
+            }
             //chapter loading
             if(state.isChapterLoading){
                 Row(
@@ -429,38 +454,10 @@ fun MangaDetailsScreen(
                     )
                 }
             }
-            else{
-                //chapter loading completed but no chapter(empty list)
-                if(state.chapters.isEmpty()){
-                    Text(
-                        text = "No Chapter Found",
-                        style = TextStyle(
-                            color = Color.LightGray,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = regular,
-                            fontSize = 14.sp
-                        ),
-                        modifier = Modifier.padding()
+            //Spacer
+            Spacer(Modifier.height(60.dp))
 
-                    )
-                }//chapter loading completed and chapter fetched
-                else{
-                    state.chapters.forEach {
-                        ChapterCard(
-                            chapter = it,
-                            onClick = {
-                                if(state.isInternetAvailable){
-                                    navController.navigate(Screen.Reader.createRoute(it))
-                                }else{
-                                    viewModel.sendEvent("No Internet Connection")
-                                }
-                            }
-                        )
-                    }
-                    //Spacer
-                    Spacer(Modifier.height(60.dp))
-                }
-            }
+
         }
 
 

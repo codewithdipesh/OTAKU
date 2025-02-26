@@ -109,6 +109,7 @@ fun SearchScreen(
                 contentAlignment = Alignment.Center
             ){
                 IconButton(
+                    modifier = Modifier.fillMaxSize(),
                     onClick = {navController.navigateUp()}
                 ){
                     Icon(

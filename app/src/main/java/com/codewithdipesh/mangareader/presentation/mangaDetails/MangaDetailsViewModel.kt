@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.domain.observer.connectivityObserver
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
+import com.codewithdipesh.mangareader.domain.util.AppError
 import com.codewithdipesh.mangareader.domain.util.Result
 import com.codewithdipesh.mangareader.presentation.elements.MangaContent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,6 +42,8 @@ class MangaDetailsViewModel @Inject constructor(
     val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
         throwable.printStackTrace()
     }
+    //as for scrolling there is multiple toast appearing for no internet connection
+    private var NoInternetErrorEmittedCount = 0
 
     fun observeConnectivity(mangaId: String, coverImage: String, title: String,authorId:String){
         viewModelScope.launch(Dispatchers.IO) {
@@ -117,8 +120,9 @@ class MangaDetailsViewModel @Inject constructor(
                 }
             }
         }
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) { getChapters(mangaId) }
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) { getAuthor(authorId) }
+        if(!_state.value.isChapterFetched) viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) { getChapters(mangaId) }
+        if(!_state.value.isAuthorFetched) viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) { getAuthor(authorId) }
+
 
         _state.value = _state.value.copy(
             coverImage = coverImage,
@@ -148,7 +152,11 @@ class MangaDetailsViewModel @Inject constructor(
 
      suspend fun getChapters(id : String){
         if(id == "") return
+         //chapter laoding and chapter fetched
         OnChapterLoadingState()
+         _state.value = _state.value.copy(
+             isChapterFetched = false
+         )
         val result = repository.getChapters(mangaId = id, limit = PAGE_SIZE, offset = _state.value.currentPage *PAGE_SIZE)
         when(result){
             is Result.Success -> {
@@ -157,17 +165,24 @@ class MangaDetailsViewModel @Inject constructor(
                     _state.value = _state.value.copy(//endReached means fully loaded current page
                         chapters = _state.value.chapters + chapterList, // Append new data
                         currentPage = _state.value.currentPage+1,
-                        endReached = (_state.value.chapters.size + chapterList.size) < ((_state.value.currentPage +1) * PAGE_SIZE)
+                        endReached = (_state.value.chapters.size + chapterList.size) < ((_state.value.currentPage +1) * PAGE_SIZE),
+                        isChapterFetched = true
                     )
                     if(_state.value.istotalChapterNull) {//it means we got null as totalChapters from fetching mangaById
                         _state.value.totalChapter + chapterList.size
                     }
                 }
                 OffChapterLoadingState()
+                NoInternetErrorEmittedCount=0
             }
             is Result.Error ->{
                 setErrorState()
-                sendEvent(result.error.message)
+                NoInternetErrorEmittedCount++
+                if(result.error !is AppError.UnknownError
+                    && (result.error is AppError.NetworkError && NoInternetErrorEmittedCount <=1 )
+                ){
+                    sendEvent("No Internet,Pls connect and try again")
+                }
                 Log.d("MangaViewmodel", "get chapters: Error ${result.error}")
                 OffChapterLoadingState()
             }

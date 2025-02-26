@@ -29,6 +29,8 @@ data class MangaDetailUi(
     val isChapterLoading: Boolean = false,
     val hasErrorOccured:Boolean = false,
     val isInternetAvailable : Boolean = true,
+    val isChapterFetched : Boolean = false,
+    val isAuthorFetched : Boolean = false,
 
     val selectedContent : MangaContent = MangaContent.Details,
     val currentPage : Int = 0,
