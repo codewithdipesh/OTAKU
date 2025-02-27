@@ -123,6 +123,10 @@ fun SearchScreen(
                     value = state.searchValue,
                     onValueChange = {
                         viewmodel.onChangeSearchValue(it)
+                        viewmodel.clearResultValue()
+                    },
+                    onMaxReachedLengthValue = {
+                        viewmodel.sendEvent("Max character Reached!")
                     },
                     onSearch = {
                         scope.launch(Dispatchers.IO){

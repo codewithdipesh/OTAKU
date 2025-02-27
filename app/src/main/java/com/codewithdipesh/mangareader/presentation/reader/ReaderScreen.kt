@@ -65,6 +65,7 @@ import com.codewithdipesh.mangareader.presentation.elements.LoaderWithQuotes
 import com.codewithdipesh.mangareader.presentation.elements.SlidingButton
 import com.codewithdipesh.mangareader.presentation.elements.resetToSystemBrightness
 import com.codewithdipesh.mangareader.presentation.elements.setScreenBrightness
+import com.codewithdipesh.mangareader.presentation.mangaDetails.MangaDetailsViewModel
 import com.codewithdipesh.mangareader.ui.theme.regular
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -89,11 +90,12 @@ fun ReaderScreen(
         skipPartiallyExpanded = false
     )
 
-    var brightness by remember { mutableStateOf(0.75f) }
+    var brightness by remember { mutableStateOf(0.8f) }
     val activity = context as? Activity
 //    var scale by remember { mutableStateOf(1f) }
 //    var offsetX by remember { mutableStateOf(0f) }
 //    var offsetY by remember { mutableStateOf(0f) }
+
 
 
     LaunchedEffect(Unit){
@@ -155,7 +157,8 @@ fun ReaderScreen(
                 ) {
                     //close button
                     Box(Modifier
-                        .size(50.dp)
+                        .size(50.dp) // Fixed size
+                        .fillMaxHeight()
                         .background(color = colorResource(R.color.medium_gray))
                         .clickable {
                             //back navigate
@@ -164,8 +167,7 @@ fun ReaderScreen(
                                 viewModel.clearUi()
                                 resetToSystemBrightness(activity)
                             }
-                        }
-                        .weight(0.2f),
+                        },
                         contentAlignment = Alignment.Center
                     ){
                         Icon(
@@ -206,8 +208,8 @@ fun ReaderScreen(
 
                     //settings button
                     Box(Modifier
-                        .size(50.dp)
-                        .weight(0.2f)
+                        .size(50.dp) // Fixed size
+                        .fillMaxHeight()
                         .background(color = colorResource(R.color.medium_gray))
                         .clickable {
                             showBottomSheet = true

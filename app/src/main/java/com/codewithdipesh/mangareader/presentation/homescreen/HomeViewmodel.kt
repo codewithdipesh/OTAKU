@@ -12,7 +12,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -30,10 +32,13 @@ class HomeViewmodel @Inject constructor(
     private val _state = MutableStateFlow(HomeUiState())
     val state = _state.asStateFlow()
 
+    private var lastEmitted = ""
+
     private val _uiEvent = Channel<String>(Channel.BUFFERED) // Buffered so it doesn't block
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private var searchJob: Job? = null
+    private var clearJob : Job? = null //its for clearing lastEmitted error
 
     init {
         viewModelScope.launch(Dispatchers.IO){
@@ -183,10 +188,20 @@ class HomeViewmodel @Inject constructor(
     }
 
     fun sendEvent(message: String) {
-        viewModelScope.launch {
-            _uiEvent.send(message)
+        if(lastEmitted != message){
+            viewModelScope.launch {
+                _uiEvent.send(message)
+            }
+            lastEmitted = message
+
+            clearJob?.cancel()
+            clearJob = viewModelScope.launch {
+                delay(5000)
+                lastEmitted =""
+            }
         }
     }
+
 
 
 

@@ -44,6 +44,7 @@ import com.codewithdipesh.mangareader.ui.theme.regular
 fun SearchBar(
     modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit = {},
+    onMaxReachedLengthValue:()->Unit ={},
     value: String = "",
     enabled :Boolean,
     onClick:()->Unit={},
@@ -52,8 +53,6 @@ fun SearchBar(
     showSearchIcon : Boolean = true,
     focusRequester: FocusRequester = FocusRequester.Default
 ) {
-    var text by remember(value) { mutableStateOf(value) }
-
     Box(
         modifier = modifier
             .padding(16.dp)
@@ -63,7 +62,7 @@ fun SearchBar(
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ){
-        if(text == ""){
+        if(value == ""){
             Text(
                 text = placeholderText,
                 style = TextStyle(
@@ -94,11 +93,12 @@ fun SearchBar(
             }
             Spacer(Modifier.width(8.dp))
             BasicTextField(
-                value = text,
+                value = value,
                 onValueChange = {
-                    if(text.length <= 20){
-                        text = it
+                    if(it.length <= 20){
                         onValueChange(it)
+                    }else{
+                        onMaxReachedLengthValue()
                     }
                 },
                 modifier = Modifier

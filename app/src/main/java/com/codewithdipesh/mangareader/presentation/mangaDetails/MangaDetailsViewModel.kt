@@ -63,7 +63,6 @@ class MangaDetailsViewModel @Inject constructor(
                         _state.value = _state.value.copy(
                             isInternetAvailable = false
                         )
-                        sendEvent("No Internet,Pls connect and try again")
                     }
                 }
             }
