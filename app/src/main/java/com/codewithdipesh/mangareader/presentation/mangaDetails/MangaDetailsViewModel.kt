@@ -1,10 +1,8 @@
 package com.codewithdipesh.mangareader.presentation.mangaDetails
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.domain.observer.connectivityObserver
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.AppError
@@ -20,10 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import okhttp3.internal.wait
-import java.net.URLDecoder
 import javax.inject.Inject
 
 @HiltViewModel
@@ -162,24 +156,38 @@ class MangaDetailsViewModel @Inject constructor(
         }
     }
 
-     suspend fun getChapters(id : String){
+    suspend fun getChapters(id : String){
         if(id == "") return
          //chapter laoding and chapter fetched
         OnChapterLoadingState()
          _state.value = _state.value.copy(
              isChapterFetched = false
          )
-        val result = repository.getChapters(mangaId = id, limit = PAGE_SIZE, offset = _state.value.currentPage *PAGE_SIZE)
+        //determine some things before api call
+        val currentPage = if(_state.value.selectedSortOrder == "asc") _state.value.currentPageAsc else _state.value.currentPageDesc
+        val offset = currentPage * PAGE_SIZE
+
+        val result = repository.getChapters(mangaId = id, limit = PAGE_SIZE, offset = offset, order = _state.value.selectedSortOrder)
         when(result){
             is Result.Success -> {
                 val chapterList = result.data
                 if(chapterList.isNotEmpty()) {
-                    _state.value = _state.value.copy(//endReached means fully loaded current page
-                        chapters = _state.value.chapters + chapterList, // Append new data
-                        currentPage = _state.value.currentPage+1,
-                        endReached = (_state.value.chapters.size + chapterList.size) < ((_state.value.currentPage +1) * PAGE_SIZE),
-                        isChapterFetched = true
-                    )
+                    if(_state.value.selectedSortOrder == "asc"){
+                        _state.value = _state.value.copy(//endReached means fully loaded current page
+                            chaptersAsc = _state.value.chaptersAsc + chapterList, // Append new data
+                            currentPageAsc = _state.value.currentPageAsc +1,
+                            endReachedAsc = (_state.value.chaptersAsc.size + chapterList.size) < ((_state.value.currentPageAsc +1) * PAGE_SIZE),
+                            isChapterFetched = true
+                        )
+                    }else{
+                        _state.value = _state.value.copy(//endReached means fully loaded current page
+                            chaptersDesc = _state.value.chaptersDesc + chapterList, // Append new data
+                            currentPageDesc = _state.value.currentPageDesc +1,
+                            endReachedDesc = (_state.value.chaptersDesc.size + chapterList.size) < ((_state.value.currentPageDesc +1) * PAGE_SIZE),
+                            isChapterFetched = true
+                        )
+                    }
+
                     if(_state.value.istotalChapterNull) {//it means we got null as totalChapters from fetching mangaById
                         _state.value.totalChapter + chapterList.size
                     }
@@ -189,7 +197,7 @@ class MangaDetailsViewModel @Inject constructor(
             }
             is Result.Error ->{
                 setErrorState()
-                NoInternetErrorEmittedCount++
+                NoInternetErrorEmittedCount++ //showing no internet erro 1 time only
                 if(result.error !is AppError.UnknownError
                     && (result.error is AppError.NetworkError && NoInternetErrorEmittedCount <=1 )
                 ){
@@ -202,6 +210,7 @@ class MangaDetailsViewModel @Inject constructor(
 
     }
 
+    //chapter || details || similar
     fun changeSelectedContent(newContent : MangaContent){
         _state.value = _state.value.copy(
             selectedContent = newContent
@@ -226,5 +235,22 @@ class MangaDetailsViewModel @Inject constructor(
             isChapterLoading = false
         )
     }
+
+    suspend fun toggleSortOrder() {
+        val newOrder = if (_state.value.selectedSortOrder == "asc") "desc" else "asc"
+        _state.value = _state.value.copy(
+            selectedSortOrder = newOrder,
+            currentPageAsc = 0,
+            currentPageDesc = 0,
+            endReachedAsc = false,
+            endReachedDesc = false
+        )
+        if(!_state.value.hasToggledOnce){
+            _state.value = _state.value.copy(hasToggledOnce = true)
+            getChapters(_state.value.id)
+        }
+    }
+
+
 
 }

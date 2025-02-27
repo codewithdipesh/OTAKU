@@ -266,9 +266,9 @@ class MangaRepositoryImpl(
         }
     }
 
-    override suspend fun getChapters(mangaId: String,limit:Int,offset:Int): Result<List<Chapter>> {
+    override suspend fun getChapters(mangaId: String,limit:Int,offset:Int,order:String): Result<List<Chapter>> {
         return  try {
-            val response = api.getChapters(mangaId = mangaId, limit = limit, offset = offset)
+            val response = api.getChapters(mangaId = mangaId, limit = limit, offset = offset, chapterOrder = order, volumeOrder = order)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {

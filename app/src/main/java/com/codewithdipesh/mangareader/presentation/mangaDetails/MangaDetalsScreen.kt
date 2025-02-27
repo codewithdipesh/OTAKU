@@ -1,16 +1,12 @@
 
 package com.codewithdipesh.mangareader.presentation.mangaDetails
 
-import android.graphics.RenderEffect
-import android.graphics.Shader
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,7 +29,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,8 +39,6 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asComposeRenderEffect
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -54,22 +47,20 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.codewithdipesh.mangareader.R
-import com.codewithdipesh.mangareader.domain.model.Manga
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.sp
 import com.codewithdipesh.mangareader.domain.model.Rating
 import com.codewithdipesh.mangareader.domain.model.Status
 import com.codewithdipesh.mangareader.presentation.elements.ChapterCard
 import com.codewithdipesh.mangareader.presentation.elements.MangaContent
+import com.codewithdipesh.mangareader.presentation.elements.OrderChooser
 import com.codewithdipesh.mangareader.presentation.elements.TinyCard
 import com.codewithdipesh.mangareader.presentation.elements.ToggleContent
 import com.codewithdipesh.mangareader.presentation.navigation.Screen
-import com.codewithdipesh.mangareader.ui.theme.japanese
 import com.codewithdipesh.mangareader.ui.theme.regular
-import com.skydoves.cloudy.cloudy
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -87,6 +78,7 @@ fun MangaDetailsScreen(
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     // Initial load effect
     LaunchedEffect(mangaId, coverImage, title) {
@@ -110,11 +102,15 @@ fun MangaDetailsScreen(
     }
     //pagination
     LaunchedEffect(scrollState.value) {
+        if(!state.hasToggledOnce) return@LaunchedEffect //skip for the first time toggle bcz it automatically paging
+
         val scrollPosition = scrollState.value
         val maxScroll = scrollState.maxValue
 
-        if(scrollPosition >= maxScroll *0.90 && !state.endReached){
-            viewModel.getChapters(state.id)
+        val isAscOrder = state.selectedSortOrder == "asc"
+        if(scrollPosition >= maxScroll *0.90){
+            if(isAscOrder && !state.endReachedAsc) viewModel.getChapters(state.id)
+            else if(!isAscOrder && !state.endReachedDesc) viewModel.getChapters(state.id)
         }
     }
 
@@ -356,10 +352,11 @@ fun MangaDetailsScreen(
                 viewModel.changeSelectedContent(it)
             }
         )
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(8.dp))
         //desc
         //and if title is longer add here
         if(state.selectedContent == MangaContent.Details){
+            Spacer(Modifier.height(16.dp))
             if(state.isLoading){
                 Row(
                     modifier = Modifier
@@ -411,20 +408,48 @@ fun MangaDetailsScreen(
 
         //chapters
         else if (state.selectedContent == MangaContent.Chapter){
-            if(!state.isChapterLoading && state.chapters.isEmpty() ){
+            //sort by
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ){
                 Text(
-                    text = "No Chapter Found",
+                    text="Sort Order",
                     style = TextStyle(
-                        color = Color.LightGray,
-                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
                         fontFamily = regular,
+                        fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
-                    ),
-                    modifier = Modifier.padding()
-
+                    )
+                )
+                Spacer(Modifier.width(8.dp))
+                OrderChooser(
+                    orderType = state.selectedSortOrder,
+                    onToggle = {
+                        scope.launch {
+                            viewModel.toggleSortOrder()
+                        }
+                    }
                 )
             }
-            state.chapters.forEach {
+            Spacer(Modifier.height(8.dp))
+            if(state.selectedSortOrder == "asc"){
+                if(!state.isChapterLoading && state.chaptersAsc.isEmpty() ){
+                    Text(
+                        text = "No Chapter Found",
+                        style = TextStyle(
+                            color = Color.LightGray,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = regular,
+                            fontSize = 14.sp
+                        ),
+                        modifier = Modifier.padding()
+
+                    )
+                }
+                state.chaptersAsc.forEach {
                     ChapterCard(
                         chapter = it,
                         onClick = {
@@ -435,6 +460,33 @@ fun MangaDetailsScreen(
                             }
                         }
                     )
+                }
+            }else{
+                if(!state.isChapterLoading && state.chaptersDesc.isEmpty() ){
+                    Text(
+                        text = "No Chapter Found",
+                        style = TextStyle(
+                            color = Color.LightGray,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = regular,
+                            fontSize = 14.sp
+                        ),
+                        modifier = Modifier.padding()
+
+                    )
+                }
+                state.chaptersDesc.forEach {
+                    ChapterCard(
+                        chapter = it,
+                        onClick = {
+                            if(state.isInternetAvailable){
+                                navController.navigate(Screen.Reader.createRoute(it))
+                            }else{
+                                viewModel.sendEvent("No Internet Connection")
+                            }
+                        }
+                    )
+                }
             }
             //chapter loading
             if(state.isChapterLoading){

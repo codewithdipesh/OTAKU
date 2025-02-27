@@ -1,8 +1,6 @@
 package com.codewithdipesh.mangareader.presentation.mangaDetails
 
-import androidx.compose.runtime.mutableStateOf
 import com.codewithdipesh.mangareader.domain.model.Chapter
-import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.domain.model.Rating
 import com.codewithdipesh.mangareader.domain.model.Status
 import com.codewithdipesh.mangareader.presentation.elements.MangaContent
@@ -21,7 +19,8 @@ data class MangaDetailUi(
     val isFavourite: Boolean = false,
     val totalChapter:Int = 0,
     val istotalChapterNull:Boolean = false,
-    val chapters: List<Chapter> = emptyList(),
+    val chaptersAsc: List<Chapter> = emptyList(),
+    val chaptersDesc: List<Chapter> = emptyList(),
     val authorId: String? = null,
     val author: String? = null,
     val coverImage: String? = null,
@@ -33,6 +32,11 @@ data class MangaDetailUi(
     val isAuthorFetched : Boolean = false,
 
     val selectedContent : MangaContent = MangaContent.Details,
-    val currentPage : Int = 0,
-    val endReached :Boolean =false,
+    val currentPageAsc : Int = 0,
+    val endReachedAsc :Boolean =false,
+    val currentPageDesc : Int = 0,
+    val endReachedDesc :Boolean =false,
+
+    val selectedSortOrder :String = "desc",
+    val hasToggledOnce :Boolean = false //for first time toggle i have to getChapters for other sorting order also
 )

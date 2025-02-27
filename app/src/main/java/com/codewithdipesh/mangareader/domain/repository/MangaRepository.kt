@@ -13,7 +13,7 @@ interface MangaRepository {
    fun saveSearchHistory(searchTerm : String)
    suspend fun getAuthor(authorId:String) : Result<String>
    suspend fun getMangaById(mangaId:String) : Result<Manga>
-   suspend fun getChapters(mangaId:String,limit:Int = 96,offset:Int =0) : Result<List<Chapter>>
+   suspend fun getChapters(mangaId:String,limit:Int = 96,offset:Int =0,order:String = "asc") : Result<List<Chapter>>
    suspend fun getChapterPages(chapterId:String) : Result<ChapterDetails>
    suspend fun getChapterById(chapterId: String): Result<Chapter>
 }

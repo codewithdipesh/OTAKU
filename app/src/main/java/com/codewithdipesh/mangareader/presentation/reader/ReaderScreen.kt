@@ -108,7 +108,7 @@ fun ReaderScreen(
             if(chapterId.isNotEmpty()){
                 Log.d("reader","load chapter")
                 viewModel.load(chapterId,imageLoader,context)
-                delay(10000)//fi\\\
+                delay(8000)//fi\\\
                 viewModel.stopLoading()
                 Log.d("reader","no loader anymore..")
             }

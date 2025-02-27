@@ -8,10 +8,11 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="orange">#E0834F</color>
-    <color name="medium_gray">#585858</color>
     <color name="yellow">#F3C418</color>
-    <color name="dark_gray">#191A1C</color>
     <color name="deep_yellow">#FACB55</color>
     <color name="medium_light_gray">#4E4E4E</color>
+    <color name="medium_gray">#4F4F4F</color>
+    <color name="medium_dark_gray">#2C2C2C</color>
+    <color name="dark_gray">#191A1C</color>
     <color name="blue">#00C8F3</color>
 </resources>
