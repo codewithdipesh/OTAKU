@@ -102,7 +102,8 @@ fun MangaNavHost(
             ReaderScreen(
                 chapterId = chapterId,
                 viewModel = readerViewModel,
-                navController = navController
+                navController = navController,
+                detailsViewModel = mangaViewModel
             )
 
         }

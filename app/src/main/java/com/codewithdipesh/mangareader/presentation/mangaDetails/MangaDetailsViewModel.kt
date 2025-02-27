@@ -13,6 +13,7 @@ import com.codewithdipesh.mangareader.presentation.elements.MangaContent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +37,9 @@ class MangaDetailsViewModel @Inject constructor(
 
     private val _uiEvent = Channel<String>(Channel.BUFFERED)
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    private var lastEmitted = ""
+    private var clearJob:Job? =null
 
     private val PAGE_SIZE:Int = 96
 
@@ -70,8 +74,17 @@ class MangaDetailsViewModel @Inject constructor(
     }
 
     fun sendEvent(message: String) {
-        viewModelScope.launch {
-            _uiEvent.send(message)
+        if(lastEmitted != message){
+            viewModelScope.launch {
+                _uiEvent.send(message)
+            }
+            lastEmitted = message
+
+            clearJob?.cancel()
+            clearJob = viewModelScope.launch {
+                delay(5000)
+                lastEmitted =""
+            }
         }
     }
     private fun setErrorState(){
@@ -196,7 +209,10 @@ class MangaDetailsViewModel @Inject constructor(
     }
 
     fun clearUi(){
-        _state.value = MangaDetailUi()
+        viewModelScope.launch {
+            delay(300)
+            _state.value = MangaDetailUi()
+        }
     }
 
     fun OnChapterLoadingState(){

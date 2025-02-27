@@ -117,11 +117,6 @@ fun MangaDetailsScreen(
             viewModel.getChapters(state.id)
         }
     }
-    DisposableEffect(Unit){
-        onDispose {
-            viewModel.clearUi()
-        }
-    }
 
     Column(
         modifier=modifier
@@ -180,6 +175,7 @@ fun MangaDetailsScreen(
                             .background(color = colorResource(R.color.dark_gray))
                             .clickable {
                                 navController.navigateUp()
+                                viewModel.clearUi()
                             },
                         contentAlignment = Alignment.Center
                     ){

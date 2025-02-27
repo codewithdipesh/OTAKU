@@ -2,6 +2,7 @@ package com.codewithdipesh.mangareader.presentation.reader
 
 import android.app.Activity
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,6 +70,7 @@ import com.codewithdipesh.mangareader.presentation.elements.setScreenBrightness
 import com.codewithdipesh.mangareader.presentation.mangaDetails.MangaDetailsViewModel
 import com.codewithdipesh.mangareader.ui.theme.regular
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import okhttp3.internal.wait
 
@@ -77,12 +80,14 @@ fun ReaderScreen(
     modifier: Modifier = Modifier,
     chapterId:String,
     viewModel: ReaderViewModel,
+    detailsViewModel: MangaDetailsViewModel,
     navController: NavController
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val imageLoader = remember { ImageLoader.Builder(context).build() }
     val state by viewModel.uiState.collectAsState()
+    val detailState by detailsViewModel.state.collectAsState()
     val scrollState = rememberScrollState()
     var showBottomSheet by remember { mutableStateOf(false) }
     var isImageLoading by remember { mutableStateOf(true)}
@@ -109,6 +114,18 @@ fun ReaderScreen(
             }
         }
     }
+    //consuming detailViewModel state for internet
+    LaunchedEffect(detailState.isInternetAvailable){
+        snapshotFlow { detailState.isInternetAvailable }
+            .collectLatest { isAvailable->
+                if(!isAvailable){
+                    Toast.makeText(context,"No Internet",Toast.LENGTH_SHORT).show()
+                }else{
+                    viewModel.preloadPages(imageLoader,context)
+                }
+            }
+    }
+
     LaunchedEffect(state.currentPage){
       viewModel.preloadPages(imageLoader,context)
     }
@@ -262,7 +279,7 @@ fun ReaderScreen(
                             )
                         )
                     }
-                    if(state.isLoading || isImageLoading){
+                    if(state.isLoading || isImageLoading ){
                         CircularProgressIndicator(
                             color = colorResource(R.color.yellow),
                             strokeWidth = 2.dp,
