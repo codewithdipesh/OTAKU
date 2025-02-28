@@ -163,16 +163,17 @@ class MangaDetailsViewModel @Inject constructor(
          _state.value = _state.value.copy(
              isChapterFetched = false
          )
-        //determine some things before api call
-        val currentPage = if(_state.value.selectedSortOrder == "asc") _state.value.currentPageAsc else _state.value.currentPageDesc
+        //determine some things before api cal
+        val currentSortOrder = _state.value.selectedSortOrder
+        val currentPage = if(currentSortOrder == "asc") _state.value.currentPageAsc else _state.value.currentPageDesc
         val offset = currentPage * PAGE_SIZE
 
-        val result = repository.getChapters(mangaId = id, limit = PAGE_SIZE, offset = offset, order = _state.value.selectedSortOrder)
+        val result = repository.getChapters(mangaId = id, limit = PAGE_SIZE, offset = offset, order = currentSortOrder)
         when(result){
             is Result.Success -> {
                 val chapterList = result.data
                 if(chapterList.isNotEmpty()) {
-                    if(_state.value.selectedSortOrder == "asc"){
+                    if(currentSortOrder == "asc"){
                         _state.value = _state.value.copy(//endReached means fully loaded current page
                             chaptersAsc = _state.value.chaptersAsc + chapterList, // Append new data
                             currentPageAsc = _state.value.currentPageAsc +1,
@@ -242,8 +243,6 @@ class MangaDetailsViewModel @Inject constructor(
             selectedSortOrder = newOrder,
             currentPageAsc = 0,
             currentPageDesc = 0,
-            endReachedAsc = false,
-            endReachedDesc = false
         )
         if(!_state.value.hasToggledOnce){
             _state.value = _state.value.copy(hasToggledOnce = true)
