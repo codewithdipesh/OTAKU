@@ -105,6 +105,12 @@ fun MangaNavHost(
                 navController = navController,
                 detailsViewModel = mangaViewModel
             )
+        }
+
+        composable(Screen.Favourites.route){
+
+        }
+        composable(Screen.Downloads.route){
 
         }
     }

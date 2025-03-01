@@ -13,5 +13,6 @@ data class ReaderScreenUI(
     val isLoading : Boolean = false,
     val isHighQuality : Boolean = false,
     val isPreloadComplete : Boolean = false,
-    val readMode :ReadMode = ReadMode.Vertical
+    val readMode :ReadMode = ReadMode.Vertical,
+    val manualTrigger : Boolean = false
 )

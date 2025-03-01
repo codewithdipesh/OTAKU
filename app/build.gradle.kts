@@ -110,6 +110,9 @@ dependencies {
 
     implementation("com.github.skydoves:cloudy:0.2.4")
 
+    //haze for glass morphic design
+    implementation("dev.chrisbanes.haze:haze:1.4.0")
+
 
 
 }

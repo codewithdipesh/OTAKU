@@ -161,6 +161,7 @@ class ReaderViewModel @Inject constructor(
             }else{
                 ReadMode.Vertical
             },
+            manualTrigger = true,
             currentPage = 1
         )
     }

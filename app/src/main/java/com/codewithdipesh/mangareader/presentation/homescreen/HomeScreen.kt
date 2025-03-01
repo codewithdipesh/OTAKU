@@ -23,8 +23,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -60,6 +62,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.codewithdipesh.mangareader.R
+import com.codewithdipesh.mangareader.presentation.elements.BottomNav
 import com.codewithdipesh.mangareader.presentation.elements.MangaCard
 import com.codewithdipesh.mangareader.presentation.elements.SearchBar
 import com.codewithdipesh.mangareader.presentation.elements.SwipingCardAnimation
@@ -68,6 +71,8 @@ import com.codewithdipesh.mangareader.presentation.elements.dottedBackground
 import com.codewithdipesh.mangareader.presentation.navigation.Screen
 import com.codewithdipesh.mangareader.ui.theme.japanese
 import com.codewithdipesh.mangareader.ui.theme.regular
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -87,6 +92,7 @@ fun HomeScreen(
         Color.Gray,
         Color.DarkGray
     )
+
 
     val transition = rememberInfiniteTransition()
 
@@ -113,126 +119,148 @@ fun HomeScreen(
         }
     }
 
-    Column(
-           modifier=Modifier
-               .fillMaxSize()
-               .dottedBackground()
-               .padding(top = 50.dp, bottom = 32.dp)
-               .verticalScroll(scrollState),
-           horizontalAlignment = Alignment.CenterHorizontally
-       ){
-           //search bar
-           SearchBar(
-               enabled = false,
-               onClick = {
-                   navController.navigate(Screen.Search.route)
-               }
-           )
+    Box(
+        modifier=Modifier.fillMaxSize()
+    ){
+        //screen component
+        Column(
+            modifier= Modifier
+                .fillMaxSize()
+                .dottedBackground()
+                .padding(top = 50.dp, bottom = 32.dp)
+                .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            //search bar
+            SearchBar(
+                enabled = false,
+                onClick = {
+                    navController.navigate(Screen.Search.route)
+                }
+            )
 
-           //suggestion text
-           Row (
-               modifier = Modifier
-                   .fillMaxWidth()
-                   .padding(16.dp),
-               horizontalArrangement = Arrangement.spacedBy(8.dp),
-               verticalAlignment = Alignment.CenterVertically
-           ){
-               Text(
-                   text = stringResource(R.string.suggestion),
-                   color = Color.White,
-                   fontSize = 26.sp,
-                   fontFamily = japanese
-               )
-               Box(
-                   modifier = Modifier
-                       .size(100.dp,50.dp),
-                   contentAlignment = Alignment.Center
-               ){
-                   Image(
-                       painter = painterResource(R.drawable.speech_bubble),
-                       contentDescription = "",
-                   )
-                   Text(
-                       text = stringResource(R.string.top_5),
-                       color = Color.Black,
-                       fontSize = 16.sp,
-                       fontFamily = japanese
-                   )
-               }
-           }
-           Spacer(Modifier.height(8.dp))
-           //swiping cards
-           if(state.topMangaList.isEmpty()){
-               TopMangaSkeleton(brush= brush)
-           }else{
-               SwipingCardAnimation(
-                  mangaList = state.topMangaList,
-                  onClick = {
-                       navController.navigate(Screen.Detail.createRoute(it))
-                   }
-               )
-           }
+            //suggestion text
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    text = stringResource(R.string.suggestion),
+                    color = Color.White,
+                    fontSize = 26.sp,
+                    fontFamily = japanese
+                )
+                Box(
+                    modifier = Modifier
+                        .size(100.dp,50.dp),
+                    contentAlignment = Alignment.Center
+                ){
+                    Image(
+                        painter = painterResource(R.drawable.speech_bubble),
+                        contentDescription = "",
+                    )
+                    Text(
+                        text = stringResource(R.string.top_5),
+                        color = Color.Black,
+                        fontSize = 16.sp,
+                        fontFamily = japanese
+                    )
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            //swiping cards
+            if(state.topMangaList.isEmpty()){
+                TopMangaSkeleton(brush= brush)
+            }else{
+                SwipingCardAnimation(
+                    mangaList = state.topMangaList,
+                    onClick = {
+                        navController.navigate(Screen.Detail.createRoute(it))
+                    }
+                )
+            }
 
-           //all mangas text
-           Row (
-               modifier = Modifier
-                   .fillMaxWidth()
-                   .padding(16.dp),
-               horizontalArrangement = Arrangement.SpaceBetween,
-               verticalAlignment = Alignment.CenterVertically
-           ){
-               Text(
-                   text = stringResource(R.string.all_manga),
-                   color = Color.Black,
-                   fontSize = 20.sp,
-                   fontFamily = japanese
-               )
-               Box(
-                   modifier = Modifier
-                       .size(30.dp)
-                       .background(color = Color.Black),
-                   contentAlignment = Alignment.Center
-               ){
-                   Image(
-                       painter = painterResource(R.drawable.show_more_icon),
-                       contentDescription = "",
-                   )
-               }
-           }
+            //all mangas text
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    text = stringResource(R.string.all_manga),
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontFamily = japanese
+                )
+                Box(
+                    modifier = Modifier
+                        .size(30.dp)
+                        .background(color = Color.Black),
+                    contentAlignment = Alignment.Center
+                ){
+                    Image(
+                        painter = painterResource(R.drawable.show_more_icon),
+                        contentDescription = "",
+                    )
+                }
+            }
 
-           //mangas
-           FlowRow (
-               modifier =Modifier
-                   .fillMaxWidth()
-                   .padding(horizontal = 16.dp),
-               maxItemsInEachRow = 6,
-               overflow = FlowRowOverflow.Clip,
-               horizontalArrangement = Arrangement.SpaceBetween,
-               verticalArrangement = Arrangement.spacedBy(8.dp)
-           ){
-               //skeleton
-               if(state.allMangas.isEmpty()){
-                   listOf(1,2,3,4).forEach {
-                       MangaCard(
-                           manga = null,
-                           modifier = Modifier
-                               .padding(4.dp)
-                               .background(brush)
-                       )
-                   }
-               }
-               state.allMangas.forEach {
-                   MangaCard(
-                       manga = it,
-                       modifier = Modifier.padding(4.dp),
-                       onClick = {
-                           navController.navigate(Screen.Detail.createRoute(it))
-                       }
-                   )
-               }
-           }
+            //mangas
+            FlowRow (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                maxItemsInEachRow = 6,
+                overflow = FlowRowOverflow.Clip,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ){
+                //skeleton
+                if(state.allMangas.isEmpty()){
+                    listOf(1,2,3,4).forEach {
+                        MangaCard(
+                            manga = null,
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .background(brush)
+                        )
+                    }
+                }
+                state.allMangas.forEach {
+                    MangaCard(
+                        manga = it,
+                        modifier = Modifier.padding(4.dp),
+                        onClick = {
+                            navController.navigate(Screen.Detail.createRoute(it))
+                        }
+                    )
+                }
+            }
 
 
-       }
+        }
+        //bottomNavBar
+        Box(
+           modifier = Modifier.wrapContentSize()
+               .align(Alignment.BottomCenter)
+               .offset(y = (-46).dp)
+        ){
+            BottomNav(
+                selectedOption = when(navController.currentBackStackEntry?.destination?.route){
+                    Screen.Home.route -> Screen.Home
+                    Screen.Favourites.route -> Screen.Favourites
+                    Screen.Downloads.route -> Screen.Downloads
+                    else ->Screen.Detail //for other screen though no use of thi screen , only using the top 3
+                },
+                onClick = { navController.navigate(it.route) },
+            )
+        }
+    }
+
 
 }

@@ -127,7 +127,7 @@ fun ReaderScreen(
             }
     }
 
-    LaunchedEffect(state.currentPage){
+    LaunchedEffect(state.currentPage , state.manualTrigger){
       viewModel.preloadPages(imageLoader,context)
     }
     val currentPageLink = remember(state.currentPage){ viewModel.getPageLink(state.currentPage)}

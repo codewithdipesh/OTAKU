@@ -10,6 +10,8 @@ import java.net.URLEncoder
 sealed class Screen(val route : String){
     object Home : Screen("home")
     object Search : Screen("search")
+    object Favourites : Screen("favourites")
+    object Downloads : Screen("downloads")
     object Detail : Screen("detail/{mangaId}/{coverImage}/{title}/{authorId}"){
         fun createRoute(manga : Manga) : String {
             return "detail/${manga.id}/${Uri.encode(manga.coverImage)}/${Uri.encode(manga.title)}/${Uri.encode(manga.authorId)}"
