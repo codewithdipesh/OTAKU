@@ -1,6 +1,7 @@
 package com.codewithdipesh.mangareader.presentation.reader
 
 import com.codewithdipesh.mangareader.domain.model.Chapter
+import com.codewithdipesh.mangareader.domain.model.ReadMode
 
 data class ReaderScreenUI(
     val highQualityImageList : List<String> = emptyList(),
@@ -11,5 +12,6 @@ data class ReaderScreenUI(
     val pageSize : Int = 1,
     val isLoading : Boolean = false,
     val isHighQuality : Boolean = false,
-    val isPreloadComplete : Boolean = false
+    val isPreloadComplete : Boolean = false,
+    val readMode :ReadMode = ReadMode.Vertical
 )

@@ -20,6 +20,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
@@ -63,7 +66,9 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import com.codewithdipesh.mangareader.R
+import com.codewithdipesh.mangareader.domain.model.ReadMode
 import com.codewithdipesh.mangareader.presentation.elements.LoaderWithQuotes
+import com.codewithdipesh.mangareader.presentation.elements.ReadModeChooser
 import com.codewithdipesh.mangareader.presentation.elements.SlidingButton
 import com.codewithdipesh.mangareader.presentation.elements.resetToSystemBrightness
 import com.codewithdipesh.mangareader.presentation.elements.setScreenBrightness
@@ -97,10 +102,6 @@ fun ReaderScreen(
 
     var brightness by remember { mutableStateOf(0.8f) }
     val activity = context as? Activity
-//    var scale by remember { mutableStateOf(1f) }
-//    var offsetX by remember { mutableStateOf(0f) }
-//    var offsetY by remember { mutableStateOf(0f) }
-
 
 
     LaunchedEffect(Unit){
@@ -108,7 +109,7 @@ fun ReaderScreen(
             if(chapterId.isNotEmpty()){
                 Log.d("reader","load chapter")
                 viewModel.load(chapterId,imageLoader,context)
-                delay(8000)//fi\\\
+                delay(10000)//fi\\\
                 viewModel.stopLoading()
                 Log.d("reader","no loader anymore..")
             }
@@ -129,8 +130,8 @@ fun ReaderScreen(
     LaunchedEffect(state.currentPage){
       viewModel.preloadPages(imageLoader,context)
     }
-    val currentPageLink = viewModel.getPageLink(state.currentPage)
-    val painter = if (currentPageLink.isNotEmpty()) {
+    val currentPageLink = remember(state.currentPage){ viewModel.getPageLink(state.currentPage)}
+    val painter = if (!currentPageLink.isNullOrEmpty()) {
         rememberAsyncImagePainter(
             model = ImageRequest.Builder(context)
                 .data(currentPageLink)
@@ -149,9 +150,10 @@ fun ReaderScreen(
         null
     }
 
-    Box(Modifier
-        .fillMaxSize()
-        .background(color = colorResource(R.color.dark_gray)),
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(color = colorResource(R.color.dark_gray)),
     ){
         if(!state.isPreloadComplete){
             LoaderWithQuotes()
@@ -173,18 +175,19 @@ fun ReaderScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     //close button
-                    Box(Modifier
-                        .size(50.dp) // Fixed size
-                        .fillMaxHeight()
-                        .background(color = colorResource(R.color.medium_gray))
-                        .clickable {
-                            //back navigate
-                            scope.launch {
-                                navController.navigateUp()
-                                viewModel.clearUi()
-                                resetToSystemBrightness(activity)
-                            }
-                        },
+                    Box(
+                        Modifier
+                            .size(50.dp) // Fixed size
+                            .fillMaxHeight()
+                            .background(color = colorResource(R.color.medium_gray))
+                            .clickable {
+                                //back navigate
+                                scope.launch {
+                                    navController.navigateUp()
+                                    viewModel.clearUi()
+                                    resetToSystemBrightness(activity)
+                                }
+                            },
                         contentAlignment = Alignment.Center
                     ){
                         Icon(
@@ -212,25 +215,28 @@ fun ReaderScreen(
                                 textAlign = TextAlign.Center
                             )
                         }
-                        Text(
-                            text = "${state.currentPage}/${state.pageSize}",
-                            style = TextStyle(
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = regular,
-                                fontSize = 18.sp
+                        if(state.readMode == ReadMode.Horizontal){
+                            Text(
+                                text = "${state.currentPage}/${state.pageSize}",
+                                style = TextStyle(
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = regular,
+                                    fontSize = 18.sp
+                                )
                             )
-                        )
+                        }
                     }
 
                     //settings button
-                    Box(Modifier
-                        .size(50.dp) // Fixed size
-                        .fillMaxHeight()
-                        .background(color = colorResource(R.color.medium_gray))
-                        .clickable {
-                            showBottomSheet = true
-                        },
+                    Box(
+                        Modifier
+                            .size(50.dp) // Fixed size
+                            .fillMaxHeight()
+                            .background(color = colorResource(R.color.medium_gray))
+                            .clickable {
+                                showBottomSheet = true
+                            },
                         contentAlignment = Alignment.Center,
 
                         ){
@@ -244,106 +250,173 @@ fun ReaderScreen(
                 }
                 Spacer(Modifier.height(30.dp))
                 //Image
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .verticalScroll(scrollState),
-                    contentAlignment = Alignment.TopCenter
-                ){
-                    if (currentPageLink.isNotEmpty() && painter != null) {
-                        Image(
-                            painter = painter,
-                            contentDescription = "Page ${state.currentPage}",
-                            modifier = Modifier
-                                .fillMaxSize()
-//                                .graphicsLayer(
-//                                    scaleX = scale,
-//                                    scaleY = scale,
-//                                    translationX = offsetX,
-//                                    translationY = offsetY
-//                                )
-//                                .pointerInput(Unit){
-//                                    detectTransformGestures { _, pan, zoom, _ ->
-//                                        scale = (scale * zoom).coerceIn(1f,4f)
-//                                        if(scale > 1f){
-//                                            offsetX += pan.x
-//                                            offsetY += pan.y
-//                                        }
-//                                    }
-//                                },
-                            ,contentScale = ContentScale.FillWidth,
-                            colorFilter = ColorFilter.colorMatrix(
-                                colorMatrix = ColorMatrix().apply {
-                                    setToScale(brightness,brightness,brightness,1f)
-                                }
+                //horizontal changing mode
+                if(state.readMode == ReadMode.Horizontal){
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .verticalScroll(scrollState),
+                        contentAlignment = Alignment.TopCenter
+                    ){
+                        if (!currentPageLink.isNullOrEmpty() && painter != null) {
+                            Image(
+                                painter = painter,
+                                contentDescription = "Page ${state.currentPage}",
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                contentScale = ContentScale.FillWidth,
+                                colorFilter = ColorFilter.colorMatrix(
+                                    colorMatrix = ColorMatrix().apply {
+                                        setToScale(brightness,brightness,brightness,1f)
+                                    }
+                                )
                             )
-                        )
+                        }
+                        if(state.isLoading || isImageLoading ){
+                            CircularProgressIndicator(
+                                color = colorResource(R.color.yellow),
+                                strokeWidth = 2.dp,
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .align(Alignment.Center)
+                            )
+                        }
                     }
-                    if(state.isLoading || isImageLoading ){
-                        CircularProgressIndicator(
-                            color = colorResource(R.color.yellow),
-                            strokeWidth = 2.dp,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .align(Alignment.Center)
-                        )
+                }
+                //vertical scrolling mode
+                else{
+                    val lazylistState = rememberLazyListState()
+
+                    LaunchedEffect(lazylistState) {
+                        snapshotFlow {
+                            if(lazylistState.layoutInfo.visibleItemsInfo.isNotEmpty()){
+                                lazylistState.layoutInfo.visibleItemsInfo.first().index
+                            } else null
+                        }
+                        .collectLatest { visibleIndex->
+                           visibleIndex?.let {
+                               if(it + 1 != state.currentPage){
+                                   viewModel.increasePage()
+                               }
+                           }
+                        }
+                    }
+
+                    LazyColumn(
+                        state = lazylistState,
+                        modifier = Modifier.fillMaxSize()
+                    ){
+                        items(state.pageSize){index->
+                            val pageNumber = index + 1
+                            val pageLink = remember { viewModel.getPageLink(pageNumber)}
+                            val pagePainter = if (!pageLink.isNullOrEmpty()) {
+                                rememberAsyncImagePainter(
+                                    model = ImageRequest.Builder(context)
+                                        .data(pageLink)
+                                        .build(),
+                                    imageLoader = imageLoader,
+                                    onState = { painterState ->
+                                        when (painterState) {
+                                            is AsyncImagePainter.State.Loading -> isImageLoading = true
+                                            is AsyncImagePainter.State.Success -> isImageLoading = false
+                                            is AsyncImagePainter.State.Error -> isImageLoading = false
+                                            is AsyncImagePainter.State.Empty -> isImageLoading = true
+                                        }
+                                    }
+                                )
+                            } else {
+                                null
+                            }
+
+                            Box(modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                                contentAlignment = Alignment.Center
+                            ){
+                                if (!pageLink.isNullOrEmpty() && pagePainter != null) {
+                                    Image(
+                                        painter = pagePainter,
+                                        contentDescription = "Page ${state.currentPage}",
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        contentScale = ContentScale.FillWidth,
+                                        colorFilter = ColorFilter.colorMatrix(
+                                            colorMatrix = ColorMatrix().apply {
+                                                setToScale(brightness,brightness,brightness,1f)
+                                            }
+                                        )
+                                    )
+                                }
+                                if(state.isLoading || isImageLoading ){
+                                    CircularProgressIndicator(
+                                        color = colorResource(R.color.yellow),
+                                        strokeWidth = 2.dp,
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .align(Alignment.Center)
+                                    )
+                                }
+                            }
+
+
+                        }
                     }
                 }
 
             }
 
             //page changer
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(horizontal = 16.dp, vertical = 60.dp),
-                horizontalArrangement =
-                if(state.currentPage == 1)
-                    Arrangement.End
-                else if(state.currentPage == state.pageSize)
-                    Arrangement.Start
-                else Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if(state.currentPage >1){
-                    Box(Modifier
-                        .size(50.dp)
-                        .background(color = Color.Black.copy(alpha = 0.7f))
-                        .clickable {
-                            viewModel.decreasePage()
-                            //reset zoom and panning
-//                            scale =1f
-//                            offsetX=0f
-//                            offsetY=0f
-                        },
-                        contentAlignment = Alignment.Center
-                    ){
-                        Icon(
-                            painter = painterResource(R.drawable.back_nav_icon),
-                            contentDescription = "previous page",
-                            tint = Color.White
-                        )
+            if(state.readMode == ReadMode.Horizontal){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .padding(horizontal = 16.dp, vertical = 60.dp),
+                    horizontalArrangement =
+                    if(state.currentPage == 1)
+                        Arrangement.End
+                    else if(state.currentPage == state.pageSize)
+                        Arrangement.Start
+                    else Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if(state.currentPage >1){
+                        Box(
+                            Modifier
+                                .size(50.dp)
+                                .background(color = Color.Black.copy(alpha = 0.7f))
+                                .clickable {
+                                    viewModel.decreasePage()
+                                },
+                            contentAlignment = Alignment.Center
+                        ){
+                            Icon(
+                                painter = painterResource(R.drawable.back_nav_icon),
+                                contentDescription = "previous page",
+                                tint = Color.White
+                            )
+                        }
                     }
-                }
-                if(state.currentPage < state.pageSize){
-                    Box(Modifier
-                        .size(50.dp)
-                        .background(color = Color.Black.copy(alpha = 0.7f))
-                        .clickable {
-                            viewModel.increasePage()
+                    if(state.currentPage < state.pageSize){
+                        Box(
+                            Modifier
+                                .size(50.dp)
+                                .background(color = Color.Black.copy(alpha = 0.7f))
+                                .clickable {
+                                    viewModel.increasePage()
 //                            //reset zoom and panning
 //                            scale =1f
 //                            offsetX=0f
 //                            offsetY=0f
-                        },
-                        contentAlignment = Alignment.Center
-                    ){
-                        Icon(
-                            painter = painterResource(R.drawable.show_more_icon),
-                            contentDescription = "next page",
-                            tint = Color.White
-                        )
+                                },
+                            contentAlignment = Alignment.Center
+                        ){
+                            Icon(
+                                painter = painterResource(R.drawable.show_more_icon),
+                                contentDescription = "next page",
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
             }
@@ -360,6 +433,28 @@ fun ReaderScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ){
+                        //ReadMode
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Text(
+                                text = "Read mode",
+                                style = TextStyle(
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    fontFamily = regular
+                                )
+                            )
+                            ReadModeChooser(
+                               readMode = state.readMode,
+                               onToggle = { viewModel.toggleReadMode() }
+                            )
+                        }
+
                         //high quality
                         Row(
                             modifier = Modifier
@@ -392,7 +487,8 @@ fun ReaderScreen(
                                 fontSize = 18.sp,
                                 fontFamily = regular
                             ),
-                            modifier = Modifier.align(Alignment.Start)
+                            modifier = Modifier
+                                .align(Alignment.Start)
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                         Row(

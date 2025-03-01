@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
 import coil3.request.ImageRequest
+import com.codewithdipesh.mangareader.domain.model.ReadMode
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,7 +41,7 @@ class ReaderViewModel @Inject constructor(
 
     fun preloadPages(imageLoader: ImageLoader,context:Context){
         viewModelScope.launch(Dispatchers.Main){
-            val preloadCount = 5
+            val preloadCount = 10
             val lastPreloadedPage = preloadPages.maxOrNull() ?:0
             for (i in 1..preloadCount) {
                 val nextPage = lastPreloadedPage + i
@@ -52,6 +53,9 @@ class ReaderViewModel @Inject constructor(
                     imageLoader.enqueue(request) // Preload into cache
                     preloadPages.add(nextPage - 1) // Mark as preloaded (0-based index)
                     Log.d("Preload", "Preloading page $nextPage")
+                }else{
+                    Log.d("Preload", "No more pages to preload")
+                    break
                 }
             }
         }
@@ -72,7 +76,8 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
-    fun getPageLink(pageNumber : Int): String{
+    fun getPageLink(pageNumber : Int): String?{
+        if(pageNumber == 0) return null
         val hash = _state.value.hash
         if(hash != ""){
             if(_state.value.isHighQuality){
@@ -146,5 +151,17 @@ class ReaderViewModel @Inject constructor(
     fun clearUi() {
         _state.value = ReaderScreenUI()
         preloadPages.clear()
+    }
+
+    fun toggleReadMode(){
+        _state.value = _state.value.copy(
+            readMode =
+            if(_state.value.readMode == ReadMode.Vertical){
+                ReadMode.Horizontal
+            }else{
+                ReadMode.Vertical
+            },
+            currentPage = 1
+        )
     }
 }

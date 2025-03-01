@@ -219,10 +219,7 @@ class MangaDetailsViewModel @Inject constructor(
     }
 
     fun clearUi(){
-        viewModelScope.launch {
-            delay(300)
-            _state.value = MangaDetailUi()
-        }
+        _state.value = MangaDetailUi()
     }
 
     fun OnChapterLoadingState(){
