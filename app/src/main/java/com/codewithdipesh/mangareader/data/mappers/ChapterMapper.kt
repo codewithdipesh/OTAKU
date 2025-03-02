@@ -6,7 +6,7 @@ import com.codewithdipesh.mangareader.data.remote.dto.DataXXX
 import com.codewithdipesh.mangareader.domain.model.Chapter
 
 
-fun ChapterData.toChapter(optionalSize : Double =  0.0): Chapter {
+fun ChapterData.toChapter(optionalSize : Double =  0.0,visitedChapterList:List<String> = emptyList()): Chapter {
     return Chapter(
         id = id,
         chapterNumber = if(attributes.chapter != null) attributes.chapter.toDouble()
@@ -15,11 +15,12 @@ fun ChapterData.toChapter(optionalSize : Double =  0.0): Chapter {
         pages = attributes.pages,
         mangaId = relationships.find { it.type == "manga" }?.id ?: "",
         createdAt = attributes.createdAt,
-        version = attributes.version
+        version = attributes.version,
+        isVisited = visitedChapterList.contains(id)
     )
 }
 //chapter by Id -> response data
-fun DataXXX.toChapter(optionalSize : Double =  0.0) : Chapter{
+fun DataXXX.toChapter(optionalSize : Double =  0.0,isVisited:Boolean = false) : Chapter{
     return Chapter(
         id = id,
         chapterNumber = if(attributes.chapter != null) attributes.chapter.toDouble()
@@ -28,6 +29,7 @@ fun DataXXX.toChapter(optionalSize : Double =  0.0) : Chapter{
         pages = attributes.pages,
         mangaId = relationships.find { it.type == "manga" }?.id ?: "",
         createdAt = attributes.createdAt,
-        version = attributes.version
+        version = attributes.version,
+        isVisited = isVisited
     )
 }

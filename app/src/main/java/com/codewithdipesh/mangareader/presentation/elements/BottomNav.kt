@@ -53,11 +53,6 @@ fun BottomNav(
                        if(selectedOption == Screen.Home || (selectedOption != Screen.Favourites && selectedOption != Screen.Downloads)) Color.Black
                        else colorResource(R.color.light_yellow).copy(0.7f)
                    )
-                   .then(
-                       if(selectedOption != Screen.Home){
-                           Modifier.blur(20.dp)
-                       }else Modifier
-                   )
                    .align(Alignment.CenterStart)
                    .clickable {
                        onClick(Screen.Home)
@@ -82,11 +77,6 @@ fun BottomNav(
                        if(selectedOption == Screen.Favourites) Color.Black
                        else colorResource(R.color.light_yellow).copy(0.7f)
                    )
-                   .then(
-                       if(selectedOption != Screen.Favourites){
-                           Modifier.blur(20.dp)
-                       }else Modifier
-                   )
                    .align(Alignment.Center)
                    .clickable {
                        onClick(Screen.Favourites)
@@ -109,11 +99,6 @@ fun BottomNav(
                    .background(
                        if(selectedOption == Screen.Downloads) Color.Black
                        else colorResource(R.color.light_yellow).copy(0.7f)
-                   )
-                   .then(
-                       if(selectedOption != Screen.Downloads){
-                           Modifier.blur(20.dp)
-                       }else Modifier
                    )
                    .align(Alignment.CenterEnd)
                    .clickable {

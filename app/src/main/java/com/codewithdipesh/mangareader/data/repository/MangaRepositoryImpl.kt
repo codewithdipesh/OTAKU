@@ -7,13 +7,18 @@ import com.codewithdipesh.mangareader.domain.constants.MangaQuotes
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
+import com.codewithdipesh.mangareader.data.local.entity.VisitedChapter
 import com.codewithdipesh.mangareader.data.mappers.toChapter
+import com.codewithdipesh.mangareader.data.mappers.toDownloadedChapter
 import com.codewithdipesh.mangareader.data.mappers.toEntity
 import com.codewithdipesh.mangareader.data.mappers.toManga
 import com.codewithdipesh.mangareader.data.remote.MangaApi
 import com.codewithdipesh.mangareader.domain.model.Chapter
 import com.codewithdipesh.mangareader.domain.model.ChapterDetails
+import com.codewithdipesh.mangareader.domain.model.DownloadedChapter
+import com.codewithdipesh.mangareader.domain.model.Downloads
 import com.codewithdipesh.mangareader.domain.model.Manga
+import com.codewithdipesh.mangareader.domain.model.MangaDownloadedDetails
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.AppError
 import com.codewithdipesh.mangareader.domain.util.Result
@@ -268,11 +273,13 @@ class MangaRepositoryImpl(
 
     override suspend fun getChapters(mangaId: String,limit:Int,offset:Int,order:String): Result<List<Chapter>> {
         return  try {
+            val visitedChapters = dao.getVisitedChapterForManga(mangaId).map { it.chapterid }
+
             val response = api.getChapters(mangaId = mangaId, limit = limit, offset = offset, chapterOrder = order, volumeOrder = order)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
-                    Result.Success(body.data.map { it.toChapter(body.data.size.toDouble()) }) //bcz many time manga has 1 chapter but it has null from Api response
+                    Result.Success(body.data.map { it.toChapter(body.data.size.toDouble(),visitedChapters) }) //bcz many time manga has 1 chapter but it has null from Api response
                 } else {
                     Result.Error(AppError.ServerError("Unknown Server Error"))
                 }
@@ -312,10 +319,12 @@ class MangaRepositoryImpl(
 
     override suspend fun getChapterById(chapterId: String): Result<Chapter> {
         return try {
+            val isVisited = dao.getVisitedOrNot(chapterId)
+
             val response = api.getChapterById(chapterId)
             if (response.isSuccessful) {
                 if (response.body() != null) {
-                    Result.Success(response.body()!!.data.toChapter())
+                    Result.Success(response.body()!!.data.toChapter(isVisited = isVisited))
                 } else {
                     Result.Error(AppError.ServerError())
                 }
@@ -326,6 +335,47 @@ class MangaRepositoryImpl(
             Result.Error(AppError.NetworkError())
         }catch (e:Exception){
             Result.Error(AppError.UnknownError())
+        }
+    }
+
+    override suspend fun getAllVisitedChapters(): Result<List<VisitedChapter>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun addVisitedChapter(chapter: Chapter,coverImage :String) {
+        val visitedChapter = VisitedChapter(
+            chapterid = chapter.id,
+            mangaId = chapter.mangaId,
+            coverImageurl = coverImage
+        )
+        dao.addVisitedChapter(visitedChapter)
+    }
+
+    override suspend fun getAllDownloads(): Result<Downloads>  {
+        return try {
+            val allChapters = dao.getAllDownloadedChapters()
+            //diferenciate by manga
+            if(allChapters.isNotEmpty()){
+                val specificMangaChapters = allChapters.groupBy {  it.mangaId  }//mangaId -> list<DownloadedChapterEntity>
+                val ans  = mutableMapOf<MangaDownloadedDetails,List<DownloadedChapter>>()
+
+                specificMangaChapters.forEach{ mangaIdMap ->
+                    val mangaDetail = MangaDownloadedDetails(
+                        id = mangaIdMap.key,
+                        title = mangaIdMap.value.first().mangaName,
+                        totalChaptersDownloaded = mangaIdMap.value.size,
+                        coverImage = mangaIdMap.value.first().coverImage
+                    )
+                    val chapterList = mangaIdMap.value.map { it.toDownloadedChapter()} //lis<DownloadeChapter>
+                    ans[mangaDetail] = chapterList
+                }
+                return Result.Success(Downloads(downloads = ans))
+            }
+            else{
+                return Result.Success(Downloads())
+            }
+        }catch (e:Exception){
+            return Result.Error(AppError.UnknownError(e.message ?: "UnknownError Happened"))
         }
     }
 

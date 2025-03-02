@@ -3,6 +3,7 @@ package com.codewithdipesh.mangareader.presentation.mangaDetails
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.codewithdipesh.mangareader.domain.model.Chapter
 import com.codewithdipesh.mangareader.domain.observer.connectivityObserver
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.AppError
@@ -247,6 +248,32 @@ class MangaDetailsViewModel @Inject constructor(
         }
     }
 
+    fun markForVisitedChapter(chapter: Chapter){
+
+        //add it in uistate
+        _state.value = _state.value.copy(
+            chaptersAsc = _state.value.chaptersAsc.map {
+                if(it.id == chapter.id){
+                    it.copy(isVisited = true)
+                }else{
+                    it
+                }
+            },
+            chaptersDesc = _state.value.chaptersDesc.map {
+                if (it.id == chapter.id) {
+                    it.copy(isVisited = true)
+                } else {
+                    it
+                }
+            }
+        )
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.addVisitedChapter(
+                chapter =chapter,
+                coverImage= _state.value.coverImage ?: ""
+            )
+        }
+    }
 
 
 }

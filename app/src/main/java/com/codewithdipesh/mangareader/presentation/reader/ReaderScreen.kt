@@ -128,6 +128,9 @@ fun ReaderScreen(
     }
 
     LaunchedEffect(state.currentPage , state.manualTrigger){
+      if(state.currentPage == state.pageSize -1 ){ //last page ->mark for visited
+          state.chapter?.let { detailsViewModel.markForVisitedChapter(state.chapter!!) }
+      }
       viewModel.preloadPages(imageLoader,context)
     }
     val currentPageLink = remember(state.currentPage){ viewModel.getPageLink(state.currentPage)}
