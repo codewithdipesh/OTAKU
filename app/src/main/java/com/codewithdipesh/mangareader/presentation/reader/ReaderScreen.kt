@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -180,7 +182,7 @@ fun ReaderScreen(
                     //close button
                     Box(
                         Modifier
-                            .size(50.dp) // Fixed size
+                            .size(35.dp) // Fixed size
                             .fillMaxHeight()
                             .background(color = colorResource(R.color.medium_gray))
                             .clickable {
@@ -204,7 +206,7 @@ fun ReaderScreen(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.weight(0.8f)
+                        modifier = Modifier.weight(0.7f)
                     ) {
                         if(state.chapter != null){
                             Text(
@@ -231,23 +233,44 @@ fun ReaderScreen(
                         }
                     }
 
-                    //settings button
-                    Box(
-                        Modifier
-                            .size(50.dp) // Fixed size
-                            .fillMaxHeight()
-                            .background(color = colorResource(R.color.medium_gray))
-                            .clickable {
-                                showBottomSheet = true
-                            },
-                        contentAlignment = Alignment.Center,
-
-                        ){
-                        Icon(
-                            painter = painterResource(R.drawable.setting_icon),
-                            contentDescription = "close",
-                            tint = Color.White
-                        )
+                    //download and setting button
+                    Row(modifier = Modifier.wrapContentSize(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ){
+                        //downloads button
+                        Box(
+                            Modifier
+                                .size(35.dp) // Fixed size
+                                .fillMaxHeight()
+                                .background(color = colorResource(R.color.medium_gray))
+                                .clickable {
+                                    //todo download
+                                },
+                            contentAlignment = Alignment.Center,
+                            ){
+                            Icon(
+                                painter = painterResource(R.drawable.downloads_icon),
+                                contentDescription = "download",
+                                tint = Color.White
+                            )
+                        }
+                        //settings button
+                        Box(
+                            Modifier
+                                .size(35.dp) // Fixed size
+                                .fillMaxHeight()
+                                .background(color = colorResource(R.color.medium_gray))
+                                .clickable {
+                                    showBottomSheet = true
+                                },
+                            contentAlignment = Alignment.Center,
+                            ){
+                            Icon(
+                                painter = painterResource(R.drawable.setting_icon),
+                                contentDescription = "close",
+                                tint = Color.White
+                            )
+                        }
                     }
 
                 }

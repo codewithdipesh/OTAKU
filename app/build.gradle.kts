@@ -113,6 +113,9 @@ dependencies {
     //haze for glass morphic design
     implementation("dev.chrisbanes.haze:haze:1.4.0")
 
+    //workmanager
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
+
 
 
 }

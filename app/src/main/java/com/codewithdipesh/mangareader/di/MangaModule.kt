@@ -53,7 +53,7 @@ object MangaModule {
     fun provideDao(
        database: MangaDatabase
     ): MangaDao {
-        return database.mangaDao
+        return database.mangaDao()
     }
 
     @Provides

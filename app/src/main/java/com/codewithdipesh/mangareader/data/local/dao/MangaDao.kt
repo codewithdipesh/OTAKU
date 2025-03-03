@@ -55,6 +55,9 @@ interface MangaDao {
     @Query("SELECT * FROM downloaded_chapter WHERE mangaId = :mangaId")
     suspend fun getDownloadedChapterForManga(mangaId: String) : List<DownloadedChapterEntity>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addDownloadedChapter(chapter : DownloadedChapterEntity)
+
     @Query("SELECT * FROM downloaded_chapter WHERE id = :chapterId")
     suspend fun getDownloadedChapter(chapterId: String) : DownloadedChapterEntity
 
