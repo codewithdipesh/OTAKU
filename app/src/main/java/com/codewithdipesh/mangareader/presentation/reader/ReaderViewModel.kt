@@ -1,7 +1,12 @@
 package com.codewithdipesh.mangareader.presentation.reader
 
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.OneTimeWorkRequestBuilder
@@ -171,7 +176,7 @@ class ReaderViewModel @Inject constructor(
         )
     }
 
-    fun startDownloadChapter(context: Context,chapter:Chapter,mangaName : String,pageUrls : List<String>,coverImage:String){
+     fun startDownloadChapter(context: Context,chapter:Chapter,mangaName : String,pageNames : List<String>,coverImage:String){
         val title = chapter.title ?: "Chapter ${chapter.chapterNumber}"
         val workRequest = OneTimeWorkRequestBuilder<DownloadChapterWorker>()
             .setInputData(
@@ -179,16 +184,17 @@ class ReaderViewModel @Inject constructor(
                     "chapterId" to chapter.id,
                     "chapterTitle" to title ,
                     "chapterNumber" to chapter.chapterNumber,
-                    "pageUrls" to pageUrls.toTypedArray(),
+                    "pageNames" to pageNames.toTypedArray(),
                     "mangaId" to chapter.mangaId,
                     "mangaName" to mangaName,
                     "coverImage" to coverImage,
-                    "pages" to chapter.pages
+                    "pages" to chapter.pages,
+                    "BASEURL" to LOW_QUALITY_BASE_URL,
+                    "hash" to _state.value.hash
                 )
             ).build()
 
         WorkManager.getInstance(context).enqueue(workRequest)
-
 
     }
 }

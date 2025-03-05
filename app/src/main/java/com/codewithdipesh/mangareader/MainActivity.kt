@@ -1,9 +1,11 @@
  package com.codewithdipesh.mangareader
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.codewithdipesh.mangareader.presentation.downloads.DownloadsViewModel
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeScreen
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeViewmodel
 import com.codewithdipesh.mangareader.presentation.mangaDetails.MangaDetailsViewModel
@@ -29,6 +32,7 @@ class MainActivity : ComponentActivity() {
         val viewModel by viewModels<HomeViewmodel>()
         val mangaViewModel by viewModels<MangaDetailsViewModel>()
         val readerViewModel by viewModels<ReaderViewModel>()
+        val downloadViewModel by viewModels<DownloadsViewModel>()
         setContent {
             MangaReaderTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -38,6 +42,7 @@ class MainActivity : ComponentActivity() {
                         homeViewmodel = viewModel,
                         mangaViewModel = mangaViewModel,
                         readerViewModel = readerViewModel,
+                        downloadViewModel = downloadViewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

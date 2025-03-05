@@ -20,6 +20,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.codewithdipesh.mangareader.presentation.downloads.DownloadScreen
+import com.codewithdipesh.mangareader.presentation.downloads.DownloadsViewModel
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeScreen
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeViewmodel
 import com.codewithdipesh.mangareader.presentation.homescreen.SearchScreen
@@ -34,7 +36,8 @@ fun MangaNavHost(
     navController : NavHostController,
     homeViewmodel: HomeViewmodel,
     mangaViewModel : MangaDetailsViewModel,
-    readerViewModel : ReaderViewModel
+    readerViewModel : ReaderViewModel,
+    downloadViewModel : DownloadsViewModel
 ) {
     NavHost(
         navController = navController,
@@ -111,7 +114,10 @@ fun MangaNavHost(
 
         }
         composable(Screen.Downloads.route){
-
+           DownloadScreen(
+               viewModel = downloadViewModel,
+               navController = navController
+           )
         }
     }
 

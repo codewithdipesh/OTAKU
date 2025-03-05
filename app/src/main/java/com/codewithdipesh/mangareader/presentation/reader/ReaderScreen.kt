@@ -1,8 +1,12 @@
 package com.codewithdipesh.mangareader.presentation.reader
 
+import android.Manifest
 import android.app.Activity
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -105,7 +109,6 @@ fun ReaderScreen(
     var brightness by remember { mutableStateOf(0.8f) }
     val activity = context as? Activity
 
-
     LaunchedEffect(Unit){
         scope.launch {
             if(chapterId.isNotEmpty()){
@@ -182,7 +185,7 @@ fun ReaderScreen(
                     //close button
                     Box(
                         Modifier
-                            .size(35.dp) // Fixed size
+                            .size(40.dp) // Fixed size
                             .fillMaxHeight()
                             .background(color = colorResource(R.color.medium_gray))
                             .clickable {
@@ -206,7 +209,9 @@ fun ReaderScreen(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.weight(0.7f)
+                        modifier = Modifier
+                            .weight(0.7f)
+
                     ) {
                         if(state.chapter != null){
                             Text(
@@ -217,7 +222,7 @@ fun ReaderScreen(
                                     fontFamily = regular,
                                     fontSize = 12.sp
                                 ),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
                             )
                         }
                         if(state.readMode == ReadMode.Horizontal){
@@ -240,11 +245,18 @@ fun ReaderScreen(
                         //downloads button
                         Box(
                             Modifier
-                                .size(35.dp) // Fixed size
+                                .size(40.dp) // Fixed size
                                 .fillMaxHeight()
                                 .background(color = colorResource(R.color.medium_gray))
                                 .clickable {
                                     //todo download
+                                    viewModel.startDownloadChapter(
+                                        context,
+                                        state.chapter!!,
+                                        detailState.title,
+                                        state.lowQualityImageList,
+                                        detailState.coverImage!!
+                                    )
                                 },
                             contentAlignment = Alignment.Center,
                             ){
@@ -257,7 +269,7 @@ fun ReaderScreen(
                         //settings button
                         Box(
                             Modifier
-                                .size(35.dp) // Fixed size
+                                .size(40.dp) // Fixed size
                                 .fillMaxHeight()
                                 .background(color = colorResource(R.color.medium_gray))
                                 .clickable {

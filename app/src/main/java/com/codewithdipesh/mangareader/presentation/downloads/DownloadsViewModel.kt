@@ -31,6 +31,7 @@ class DownloadsViewModel @Inject constructor(
         val response = repository.getAllDownloads()
         when(response){
             is Result.Success -> {
+                Log.d("downloadViewModel", response.data.toString())
                 _state.value = _state.value.copy(
                     downloads = response.data,
                     isLoading = false
