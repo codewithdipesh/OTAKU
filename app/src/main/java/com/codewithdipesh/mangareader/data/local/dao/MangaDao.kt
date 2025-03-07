@@ -61,4 +61,7 @@ interface MangaDao {
     @Query("SELECT * FROM downloaded_chapter WHERE id = :chapterId")
     suspend fun getDownloadedChapter(chapterId: String) : DownloadedChapterEntity
 
+    @Query("SELECT COUNT(*) FROM downloaded_chapter")
+    suspend fun getDownloadedChaptersCount(): Int
+
 }

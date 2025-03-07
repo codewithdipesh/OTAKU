@@ -3,6 +3,7 @@ package com.codewithdipesh.mangareader.data.repository
 import android.util.Log
 import com.codewithdipesh.mangareader.data.Preferences.DefaultPrefrences
 import com.codewithdipesh.mangareader.data.cache.MangaCache
+import com.codewithdipesh.mangareader.data.local.MangaDatabase
 import com.codewithdipesh.mangareader.domain.constants.MangaQuotes
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
@@ -351,30 +352,46 @@ class MangaRepositoryImpl(
         dao.addVisitedChapter(visitedChapter)
     }
 
-    override suspend fun getAllDownloads(): Result<Downloads>  {
+    override suspend fun getAllDownloads(): Result<Downloads> {
         return try {
-            val allChapters = dao.getAllDownloadedChapters()
-            //diferenciate by manga
-            if(allChapters.isNotEmpty()){
-                val specificMangaChapters = allChapters.groupBy {  it.mangaId  }//mangaId -> list<DownloadedChapterEntity>
-                val ans  = mutableMapOf<MangaDownloadedDetails,List<DownloadedChapter>>()
+            // First, check the count of downloaded chapters
+            val chapterCount = dao.getDownloadedChaptersCount()
+            Log.d("DownloadRepository", "Total downloaded chapters count: $chapterCount")
 
-                specificMangaChapters.forEach{ mangaIdMap ->
+            val allChapters = dao.getAllDownloadedChapters()
+            Log.d("DownloadRepository", "Total downloaded chapters: ${allChapters.size}")
+
+            if (allChapters.isNotEmpty()) {
+                val specificMangaChapters = allChapters.groupBy { it.mangaId }
+                Log.d("DownloadRepository", "Unique manga count: ${specificMangaChapters.size}")
+
+                val ans = mutableMapOf<MangaDownloadedDetails, List<DownloadedChapter>>()
+
+                specificMangaChapters.forEach { (mangaId, mangaChapters) ->
+                    // Log details for each manga group
+                    Log.d("DownloadRepository", "Manga ID: $mangaId")
+                    Log.d("DownloadRepository", "Manga Name: ${mangaChapters.first().mangaName}")
+                    Log.d("DownloadRepository", "Chapters in this manga: ${mangaChapters.size}")
+
                     val mangaDetail = MangaDownloadedDetails(
-                        id = mangaIdMap.key,
-                        title = mangaIdMap.value.first().mangaName,
-                        totalChaptersDownloaded = mangaIdMap.value.size,
-                        coverImage = mangaIdMap.value.first().coverImage
+                        id = mangaId,
+                        title = mangaChapters.first().mangaName,
+                        totalChaptersDownloaded = mangaChapters.size,
+                        coverImage = mangaChapters.first().coverImage
                     )
-                    val chapterList = mangaIdMap.value.map { it.toDownloadedChapter()} //lis<DownloadeChapter>
+
+                    val chapterList = mangaChapters.map { it.toDownloadedChapter() }
                     ans[mangaDetail] = chapterList
                 }
+
+                Log.d("DownloadRepository", "Final downloads map size: ${ans.size}")
                 return Result.Success(Downloads(downloads = ans))
-            }
-            else{
+            } else {
+                Log.d("DownloadRepository", "No downloaded chapters found")
                 return Result.Success(Downloads())
             }
-        }catch (e:Exception){
+        } catch (e: Exception) {
+            Log.e("DownloadRepository", "Error retrieving downloads", e)
             return Result.Error(AppError.UnknownError(e.message ?: "UnknownError Happened"))
         }
     }

@@ -33,7 +33,7 @@ abstract class MangaDatabase : RoomDatabase(){
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     MangaDatabase::class.java,
-                    "manga_database"
+                    "manga_db"
                 ).build()
                 INSTANCE = instance
                 instance

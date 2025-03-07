@@ -2,6 +2,8 @@ package com.codewithdipesh.mangareader.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.codewithdipesh.mangareader.data.converter.Converters
 
 @Entity(tableName = "downloaded_chapter")
 data class DownloadedChapterEntity(
@@ -13,5 +15,5 @@ data class DownloadedChapterEntity(
     val mangaId : String,
     val mangaName : String,
     val coverImage : String,
-    val content : List<String>
+    @TypeConverters(Converters::class) val content : List<String>
 )

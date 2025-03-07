@@ -14,6 +14,7 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import com.codewithdipesh.mangareader.data.local.MangaDatabase
+import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.DownloadedChapterEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,7 +25,7 @@ import java.net.URL
 
 class DownloadChapterWorker(
     context: Context,
-    workerParams: WorkerParameters,
+    workerParams: WorkerParameters
 ) : CoroutineWorker(context,workerParams) {
     override suspend fun doWork(): Result {
         val chapterId = inputData.getString("chapterId") ?: return Result.failure()
@@ -67,6 +68,8 @@ class DownloadChapterWorker(
             dao.addDownloadedChapter(savedChapter)
 
             Log.d("download", savedChapter.toString())
+            val chapterCount = dao.getDownloadedChaptersCount()
+            Log.d("download", chapterCount.toString())
 
             return Result.success()
         }catch (e:Exception){
