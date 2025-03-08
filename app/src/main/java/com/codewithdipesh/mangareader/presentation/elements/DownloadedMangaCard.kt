@@ -43,13 +43,13 @@ fun DownloadedMangaCard(
      ){
          Row(
              modifier = Modifier.fillMaxWidth()
-                 .padding(vertical = 8.dp),
+                 .padding(vertical = 8.dp, horizontal = 16.dp),
              horizontalArrangement = Arrangement.Start,
              verticalAlignment = Alignment.CenterVertically
          ) {
              //image icon
              Box(modifier = Modifier
-                 .size(150.dp),
+                 .size(100.dp),
                  contentAlignment = Alignment.TopCenter
              ){
                  AsyncImage(
@@ -62,7 +62,7 @@ fun DownloadedMangaCard(
              //details
              Row(modifier = Modifier.fillMaxWidth(),
                  horizontalArrangement = Arrangement.SpaceBetween,
-                 verticalAlignment = Alignment.CenterVertically
+                 verticalAlignment = Alignment.Top
              ){
                  //title ,chapters
                  Column {

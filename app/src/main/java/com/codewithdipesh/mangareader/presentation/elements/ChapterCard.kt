@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.codewithdipesh.mangareader.R
 import com.codewithdipesh.mangareader.domain.model.Chapter
+import com.codewithdipesh.mangareader.domain.model.DownloadedChapter
 import com.codewithdipesh.mangareader.ui.theme.regular
 
 @Composable
@@ -102,6 +103,64 @@ fun ChapterCard(
             thickness = 1.dp
         )
 
+
+
+    }
+
+}
+
+@Composable
+fun ChapterCard(
+    modifier: Modifier = Modifier,
+    chapter : DownloadedChapter,
+    onClick : ()->Unit ={}
+){
+    Column(
+        modifier.fillMaxWidth()
+            .wrapContentHeight()
+            .padding(bottom = 8.dp)
+            .clickable {
+                onClick()
+            }
+    ) {
+        //content
+        Column(modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Center
+        ){
+                Text(
+                    text = "Ch "+chapter.chapterNumber.toString(),
+                    style = TextStyle(
+                        color = Color.Gray,
+                        fontFamily = regular,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp
+                    )
+                )
+                Text(
+                    text =
+                    if(chapter.title.isNullOrEmpty()){
+                        "Chapter " +chapter.chapterNumber.toString()
+                    }else{
+                        chapter.title
+                    },
+                    style = TextStyle(
+                        color = Color.White,
+                        fontFamily = regular,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                )
+        }
+        Spacer(Modifier.height(8.dp))
+        //divider
+        HorizontalDivider(
+            color = Color.DarkGray,
+            thickness = 1.dp
+        )
 
 
     }

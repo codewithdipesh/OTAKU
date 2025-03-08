@@ -21,6 +21,10 @@ class DownloadsViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(DownloadUiState())
     val state = _state.asStateFlow()
+
+    private val _mangaState = MutableStateFlow(DownloadMangaUIState())
+    val mangaState = _mangaState.asStateFlow()
+
     init {
         viewModelScope.launch (Dispatchers.IO){
             getDownloads()
@@ -47,6 +51,18 @@ class DownloadsViewModel @Inject constructor(
     fun enableLoading(){
         _state.value = _state.value.copy(
             isLoading = true
+        )
+    }
+
+    fun getDownloadedManga(mangaId : String){
+        val chapters = _state.value.downloads.downloads
+            .filter { it.key.id == mangaId }
+            .flatMap { it.value }
+
+        _mangaState.value = _mangaState.value.copy(
+            title = chapters[0].title ?: "",
+            id = mangaId,
+            chapters = chapters
         )
     }
 }

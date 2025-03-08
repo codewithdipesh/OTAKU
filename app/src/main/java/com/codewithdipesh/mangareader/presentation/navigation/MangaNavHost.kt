@@ -21,6 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.codewithdipesh.mangareader.presentation.downloads.DownloadScreen
+import com.codewithdipesh.mangareader.presentation.downloads.DownloadedMangaScreen
 import com.codewithdipesh.mangareader.presentation.downloads.DownloadsViewModel
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeScreen
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeViewmodel
@@ -118,6 +119,19 @@ fun MangaNavHost(
                viewModel = downloadViewModel,
                navController = navController
            )
+        }
+        composable(
+            Screen.DownloadedManga.route,
+            arguments = listOf(
+                navArgument("mangaId") { type= NavType.StringType}
+            )
+        ){
+            val mangaId = it.arguments?.getString("mangaId") ?: ""
+            DownloadedMangaScreen(
+                mangaId = mangaId,
+                navController = navController,
+                viewModel = downloadViewModel
+            )
         }
     }
 

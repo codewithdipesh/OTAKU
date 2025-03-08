@@ -48,16 +48,7 @@ fun DownloadScreen(
                 .background(color = colorResource(R.color.dark_gray)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
-        ) {
-            //loading
-            if(state.isLoading){
-                CircularProgressIndicator(
-                    color = colorResource(R.color.yellow),
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(50.dp)
-                )
-            }
-            //UpperRow
+        ) { //UpperRow
             Text(
                 text = stringResource(R.string.downloads),
                 style = TextStyle(
@@ -72,7 +63,17 @@ fun DownloadScreen(
             state.downloads.downloads.forEach{ (manga, chapterList) ->
                 DownloadedMangaCard(
                     mangaDownloadedDetails = manga,
-                    onClick = {}
+                    onClick = {
+                        navController.navigate(Screen.DownloadedManga.createRoute(manga))
+                    }
+                )
+            }
+            //loading
+            if(state.isLoading){
+                CircularProgressIndicator(
+                    color = colorResource(R.color.yellow),
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(50.dp)
                 )
             }
 
