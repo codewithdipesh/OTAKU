@@ -1,6 +1,8 @@
 package com.codewithdipesh.mangareader.presentation.navigation
 
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
@@ -31,6 +33,7 @@ import com.codewithdipesh.mangareader.presentation.mangaDetails.MangaDetailsView
 import com.codewithdipesh.mangareader.presentation.reader.ReaderScreen
 import com.codewithdipesh.mangareader.presentation.reader.ReaderViewModel
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun MangaNavHost(
     modifier: Modifier = Modifier,
@@ -123,14 +126,30 @@ fun MangaNavHost(
         composable(
             Screen.DownloadedManga.route,
             arguments = listOf(
-                navArgument("mangaId") { type= NavType.StringType}
+                navArgument("mangaId") { type= NavType.StringType},
+                navArgument("mangaName") { type= NavType.StringType}
             )
         ){
             val mangaId = it.arguments?.getString("mangaId") ?: ""
+            val mangaName = it.arguments?.getString("mangaName") ?: ""
             DownloadedMangaScreen(
                 mangaId = mangaId,
+                mangaName = mangaName,
                 navController = navController,
                 viewModel = downloadViewModel
+            )
+        }
+        composable(
+            Screen.DownloadedReader.route,
+            arguments = listOf(
+                navArgument("chapterId") { type= NavType.StringType}
+            )
+        ){
+            val chapterId = it.arguments?.getString("chapterId") ?: ""
+            ReaderScreen(
+                downloadedChapterId = chapterId,
+                viewModel = downloadViewModel,
+                navController = navController
             )
         }
     }

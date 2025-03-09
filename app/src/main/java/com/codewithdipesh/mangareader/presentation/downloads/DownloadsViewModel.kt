@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codewithdipesh.mangareader.data.repository.MangaRepositoryImpl
 import com.codewithdipesh.mangareader.domain.model.Downloads
+import com.codewithdipesh.mangareader.domain.model.ReadMode
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +25,9 @@ class DownloadsViewModel @Inject constructor(
 
     private val _mangaState = MutableStateFlow(DownloadMangaUIState())
     val mangaState = _mangaState.asStateFlow()
+
+    private val _chapterState = MutableStateFlow(DownloadedChapterUIState())
+    val chapterState = _chapterState.asStateFlow()
 
     init {
         viewModelScope.launch (Dispatchers.IO){
@@ -47,13 +51,13 @@ class DownloadsViewModel @Inject constructor(
             }
         }
     }
-
     fun enableLoading(){
         _state.value = _state.value.copy(
             isLoading = true
         )
     }
 
+    //for showing chapter for a particular manga
     fun getDownloadedManga(mangaId : String){
         val chapters = _state.value.downloads.downloads
             .filter { it.key.id == mangaId }
@@ -63,6 +67,53 @@ class DownloadsViewModel @Inject constructor(
             title = chapters[0].title ?: "",
             id = mangaId,
             chapters = chapters
+        )
+    }
+
+    //reader screen for downloaded chapter
+    fun getDownloadedChapter(chapterId : String){
+        _chapterState.value = _chapterState.value.copy(
+            isLoading = true
+        )
+        val chapter = _mangaState.value.chapters.find { it.id == chapterId }
+        if(chapter != null){
+            Log.d("downloadViewModel","pages : ${chapter.content}")
+            _chapterState.value = _chapterState.value.copy(
+                chapterId = chapter.id,
+                chapterName = chapter.title ?: "",
+                chapterNumber = chapter.chapterNumber,
+                pages = chapter.content,
+                currentPage = 1,
+                pageSize = chapter.pages,
+                isLoading = false
+            )
+        }
+        _chapterState.value = _chapterState.value.copy(
+            isLoading = false
+        )
+    }
+    fun clearChapterUi(){
+        _chapterState.value = DownloadedChapterUIState()
+    }
+    fun increasePage(){
+        _chapterState.value = _chapterState.value.copy(
+            currentPage = _chapterState.value.currentPage + 1
+        )
+    }
+    fun decreasePage(){
+        _chapterState.value = _chapterState.value.copy(
+            currentPage = _chapterState.value.currentPage - 1
+        )
+    }
+    fun toggleReadMode(){
+        _chapterState.value = _chapterState.value.copy(
+            readMode =
+            if(_chapterState.value.readMode == ReadMode.Vertical){
+                ReadMode.Horizontal
+            }else{
+                ReadMode.Vertical
+            },
+            currentPage = 1
         )
     }
 }

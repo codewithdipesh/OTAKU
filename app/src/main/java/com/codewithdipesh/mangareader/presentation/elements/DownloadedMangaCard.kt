@@ -34,11 +34,11 @@ import java.io.File
 fun DownloadedMangaCard(
     modifier: Modifier = Modifier,
     mangaDownloadedDetails: MangaDownloadedDetails,
-    onClick : (String) ->Unit
+    onClick : (MangaDownloadedDetails) ->Unit
 ) {
      Box(
          modifier = Modifier.fillMaxWidth()
-             .clickable { onClick(mangaDownloadedDetails.id) },
+             .clickable { onClick(mangaDownloadedDetails) },
          contentAlignment = Alignment.Center
      ){
          Row(
@@ -73,7 +73,8 @@ fun DownloadedMangaCard(
                              fontSize = 16.sp,
                              fontFamily = regular,
                              fontWeight = FontWeight.Bold
-                         )
+                         ),
+                         modifier = Modifier.fillMaxWidth(0.85f)
                      )
                      Text(
                          text = "${mangaDownloadedDetails.totalChaptersDownloaded} Chapters",

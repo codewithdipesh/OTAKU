@@ -44,6 +44,7 @@ import com.codewithdipesh.mangareader.ui.theme.regular
 fun DownloadedMangaScreen(
     modifier: Modifier = Modifier,
     mangaId : String,
+    mangaName : String,
     viewModel: DownloadsViewModel,
     navController: NavController,
 ){
@@ -91,7 +92,7 @@ fun DownloadedMangaScreen(
                 Spacer(Modifier.width(20.dp))
                 //manga Name
                 Text(
-                    text = mangaState.title.take(50),
+                    text = mangaName.take(45),
                     style = TextStyle(
                         color = Color.White,
                         fontFamily = regular,
@@ -104,7 +105,7 @@ fun DownloadedMangaScreen(
                 ChapterCard(
                     chapter = it,
                     onClick = {
-                        navController.navigate(Screen.Reader.createRoute(it))
+                        navController.navigate(Screen.DownloadedReader.createRoute(it))
                     }
                 )
             }

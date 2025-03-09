@@ -64,7 +64,7 @@ fun DownloadScreen(
                 DownloadedMangaCard(
                     mangaDownloadedDetails = manga,
                     onClick = {
-                        navController.navigate(Screen.DownloadedManga.createRoute(manga))
+                        navController.navigate(Screen.DownloadedManga.createRoute(it))
                     }
                 )
             }

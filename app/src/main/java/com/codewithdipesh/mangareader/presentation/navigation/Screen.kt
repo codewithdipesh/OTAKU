@@ -14,9 +14,14 @@ sealed class Screen(val route : String){
     object Search : Screen("search")
     object Favourites : Screen("favourites")
     object Downloads : Screen("downloads")
-    object DownloadedManga : Screen("downloadedManga/{mangaId}"){
+    object DownloadedManga : Screen("downloadedManga/{mangaId}/{mangaName}"){
         fun createRoute(manga : MangaDownloadedDetails) : String {
-            return "downloadedManga/${manga.id}"
+            return "downloadedManga/${manga.id}/${manga.title}"
+        }
+    }
+    object DownloadedReader : Screen("downloadedReader/{chapterId}"){
+        fun createRoute(chapter : DownloadedChapter) : String {
+            return "downloadedReader/${chapter.id}"
         }
     }
     object Detail : Screen("detail/{mangaId}/{coverImage}/{title}/{authorId}"){
@@ -26,9 +31,6 @@ sealed class Screen(val route : String){
     }
     object Reader : Screen("reader/{chapterId}"){
         fun createRoute(chapter : Chapter) : String {
-            return "reader/${chapter.id}"
-        }
-        fun createRoute(chapter : DownloadedChapter) : String {
             return "reader/${chapter.id}"
         }
     }
