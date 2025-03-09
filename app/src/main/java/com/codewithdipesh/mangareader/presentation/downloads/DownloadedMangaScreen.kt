@@ -55,21 +55,14 @@ fun DownloadedMangaScreen(
         viewModel.getDownloadedManga(mangaId)
     }
 
-    Box(modifier = Modifier.fillMaxSize()){
+    Box(modifier = Modifier.fillMaxSize()
+        .background(colorResource(R.color.dark_gray))){
         Column(
             modifier = Modifier.fillMaxSize()
                 .background(color = colorResource(R.color.dark_gray)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            //loading
-            if(state.isLoading){
-                CircularProgressIndicator(
-                    color = colorResource(R.color.yellow),
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(50.dp)
-                )
-            }
             //UpperRow
             Row(
                 modifier = Modifier
@@ -98,6 +91,14 @@ fun DownloadedMangaScreen(
                         fontFamily = regular,
                         fontSize = 16.sp
                     )
+                )
+            }
+            //loading
+            if(state.isLoading){
+                CircularProgressIndicator(
+                    color = colorResource(R.color.yellow),
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(50.dp)
                 )
             }
             //chapterList

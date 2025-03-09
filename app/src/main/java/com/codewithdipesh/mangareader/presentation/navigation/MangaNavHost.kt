@@ -47,16 +47,16 @@ fun MangaNavHost(
         navController = navController,
         startDestination = Screen.Home.route,
         enterTransition = {
-            fadeIn(animationSpec = tween(100))
+            fadeIn(animationSpec = tween(50))
         },
         exitTransition = {
-            fadeOut(animationSpec = tween(100))
+            fadeOut(animationSpec = tween(50))
         },
         popEnterTransition = {
-            fadeIn(animationSpec = tween(100))
+            fadeIn(animationSpec = tween(50))
         },
         popExitTransition = {
-            fadeOut(animationSpec = tween(100))
+            fadeOut(animationSpec = tween(50))
         },
     ) {
         composable(Screen.Home.route)

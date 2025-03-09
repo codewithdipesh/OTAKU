@@ -46,6 +46,7 @@ class DownloadChapterWorker(
                 val fileName ="${chapterId}_page_${index + 1}" //ex:- 287482972753257hh3_page_1 ,287482972753257hh3_page_2
                 val imageUrl = "$BASEURL/$hash/${imageName}" //url
                 val savedPath = saveImage(imageUrl,fileName)
+                if(savedPath == null) throw Exception("failed to save chapter")
                 savedPath?.let { savedPages.add(it) }
             }
             //saving coverImage
@@ -93,6 +94,8 @@ class DownloadChapterWorker(
                     return@withContext file.absolutePath  // Image saved successfully
                 }else{
                     Log.d("download", "bitmap is null for URL $imageUrl")
+                    //todo not saving the chapter and send toast
+                    return@withContext null
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
