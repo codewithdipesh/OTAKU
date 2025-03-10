@@ -16,6 +16,7 @@ import coil3.request.allowHardware
 import com.codewithdipesh.mangareader.data.local.MangaDatabase
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.DownloadedChapterEntity
+import com.codewithdipesh.mangareader.domain.model.DownloadStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -39,23 +40,48 @@ class DownloadChapterWorker(
         val hash = inputData.getString("hash") ?: return Result.failure()
         val BASEURL = inputData.getString("BASEURL") ?: return Result.failure()
         Log.d("download","lol trigered work manager")
+        val dao = MangaDatabase.getInstance(applicationContext).mangaDao()
+
         try {
+            //Mark as "Downloading" in Room also adding for seeing it  in Download screen
+            val downloadingChapter = DownloadedChapterEntity(
+                id = chapterId,
+                title = chapterTitle,
+                chapterNumber = chapterNumber,
+                pages = pages,
+                mangaId = mangaId,
+                mangaName = mangaName,
+                coverImage = "",
+                content = emptyList(),
+                downloadStatus = DownloadStatus.Downloading.name  // Status set to downloading
+            )
+            dao.addDownloadedChapter(downloadingChapter)
+
+            //Download Pages
             val savedPages = mutableListOf<String>()
             //saving pages
             for((index,imageName) in pageNames.withIndex()){
                 val fileName ="${chapterId}_page_${index + 1}" //ex:- 287482972753257hh3_page_1 ,287482972753257hh3_page_2
                 val imageUrl = "$BASEURL/$hash/${imageName}" //url
                 val savedPath = saveImage(imageUrl,fileName)
-                if(savedPath == null) throw Exception("failed to save chapter")
+                if(savedPath == null){
+                    //error happened
+                    dao.updateDownloadedChapter(chapterId,DownloadStatus.Error("Error for no internet").name) //changing the status
+                    return Result.failure()//stop retrieving more
+                }
                 savedPath?.let { savedPages.add(it) }
             }
+
             //saving coverImage
             val coverImageFile = "${mangaId}_coverImage"
             val coverImagePath = saveImage(coverImage,coverImageFile)
+            if(coverImagePath == null){
+                //error happened
+                dao.updateDownloadedChapter(chapterId,DownloadStatus.Error("Error for no internet").name) //changing the status
+                return Result.failure()//stop retrieving more
+            }
 
-            //saving in room
-            val dao = MangaDatabase.getInstance(applicationContext).mangaDao()
-
+            //everything is fine lets save it to DB
             val savedChapter = DownloadedChapterEntity(
                 id = chapterId,
                 title = chapterTitle ?: "",
@@ -64,14 +90,10 @@ class DownloadChapterWorker(
                 mangaId = mangaId,
                 mangaName = mangaName,
                 coverImage = coverImagePath ?: "",
-                content = savedPages
+                content = savedPages,
+                downloadStatus = DownloadStatus.Downloaded.name
             )
             dao.addDownloadedChapter(savedChapter)
-
-            Log.d("download", savedChapter.toString())
-            val chapterCount = dao.getDownloadedChaptersCount()
-            Log.d("download", chapterCount.toString())
-
             return Result.success()
         }catch (e:Exception){
             return Result.failure()

@@ -4,6 +4,8 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.LinearEasing
@@ -47,16 +49,16 @@ fun MangaNavHost(
         navController = navController,
         startDestination = Screen.Home.route,
         enterTransition = {
-            fadeIn(animationSpec = tween(50))
+            EnterTransition.None
         },
         exitTransition = {
-            fadeOut(animationSpec = tween(50))
+            ExitTransition.None
         },
         popEnterTransition = {
-            fadeIn(animationSpec = tween(50))
+            EnterTransition.None
         },
         popExitTransition = {
-            fadeOut(animationSpec = tween(50))
+            ExitTransition.None
         },
     ) {
         composable(Screen.Home.route)

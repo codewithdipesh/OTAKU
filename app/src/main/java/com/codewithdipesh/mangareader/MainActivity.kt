@@ -36,10 +36,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             MangaReaderTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val navController = rememberNavController()
-                    MangaNavHost(
-                        navController = navController,
-                        homeViewmodel = viewModel,
+                    MainScreen(
+                        homeViewModel = viewModel,
                         mangaViewModel = mangaViewModel,
                         readerViewModel = readerViewModel,
                         downloadViewModel = downloadViewModel,

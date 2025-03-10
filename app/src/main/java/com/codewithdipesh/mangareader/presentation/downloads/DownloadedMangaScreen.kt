@@ -52,7 +52,7 @@ fun DownloadedMangaScreen(
     val mangaState by viewModel.mangaState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.getDownloadedManga(mangaId)
+        viewModel.getDownloadedManga(mangaId,mangaName)
     }
 
     Box(modifier = Modifier.fillMaxSize()

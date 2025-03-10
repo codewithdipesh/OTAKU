@@ -3,9 +3,11 @@ package com.codewithdipesh.mangareader.domain.repository
 import com.codewithdipesh.mangareader.data.local.entity.VisitedChapter
 import com.codewithdipesh.mangareader.domain.model.Chapter
 import com.codewithdipesh.mangareader.domain.model.ChapterDetails
+import com.codewithdipesh.mangareader.domain.model.DownloadedChapter
 import com.codewithdipesh.mangareader.domain.model.Downloads
 import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.domain.util.Result
+import kotlinx.coroutines.flow.Flow
 
 interface MangaRepository {
    suspend fun getTopMangas() : Result<List<Manga>>
@@ -21,4 +23,6 @@ interface MangaRepository {
    suspend fun getAllVisitedChapters(): Result<List<VisitedChapter>>
    suspend fun addVisitedChapter(chapter: Chapter,coverImage :String)
    suspend fun getAllDownloads():Result<Downloads>
+   suspend fun getDownloadedChapterForManga(mangaId: String): Flow<List<DownloadedChapter>>
+
 }

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.codewithdipesh.mangareader.R
 import com.codewithdipesh.mangareader.domain.model.Chapter
+import com.codewithdipesh.mangareader.domain.model.DownloadStatus
 import com.codewithdipesh.mangareader.domain.model.DownloadedChapter
 import com.codewithdipesh.mangareader.ui.theme.regular
 
@@ -120,7 +121,9 @@ fun ChapterCard(
             .wrapContentHeight()
             .padding(bottom = 8.dp)
             .clickable {
-                onClick()
+                if(chapter.status == DownloadStatus.Downloaded){
+                    onClick()
+                }
             }
     ) {
         //content
@@ -154,6 +157,29 @@ fun ChapterCard(
                         fontSize = 18.sp
                     )
                 )
+                if(chapter.status == DownloadStatus.Error()){
+                    Text(
+                        text = chapter.status.name,
+                        style = TextStyle(
+                            color = Color.Red,
+                            fontFamily = regular,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 12.sp
+                        )
+                    )
+                }
+                if(chapter.status == DownloadStatus.Downloading){
+                    Text(
+                        text = "Downloading...",
+                        style = TextStyle(
+                           color = colorResource(R.color.yellow),
+                           fontFamily = regular,
+                           fontWeight = FontWeight.Normal,
+                           fontSize = 12.sp
+                        )
+                    )
+                }
+
         }
         Spacer(Modifier.height(8.dp))
         //divider

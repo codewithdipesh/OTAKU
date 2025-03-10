@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.codewithdipesh.mangareader.data.converter.Converters
+import com.codewithdipesh.mangareader.domain.model.DownloadStatus
 
 @Entity(tableName = "downloaded_chapter")
 data class DownloadedChapterEntity(
@@ -15,5 +16,6 @@ data class DownloadedChapterEntity(
     val mangaId : String,
     val mangaName : String,
     val coverImage : String,
-    @TypeConverters(Converters::class) val content : List<String>
+    @TypeConverters(Converters::class) val content : List<String>,
+    val downloadStatus : String = DownloadStatus.NotDownloading.name
 )

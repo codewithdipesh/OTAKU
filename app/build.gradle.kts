@@ -81,7 +81,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
 
     //navigation
-    implementation("androidx.navigation:navigation-compose:2.8.6")
+    implementation("androidx.navigation:navigation-compose:2.6.0")
     implementation(libs.androidx.navigation.runtime.android)
 
     //coroutines

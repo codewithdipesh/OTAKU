@@ -7,5 +7,6 @@ data class DownloadedChapter(
     val pages : Int,
     val mangaId : String,
     val coverImage : String,
-    val content : List<String>
+    val content : List<String>,
+    val status: DownloadStatus
 )

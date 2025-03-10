@@ -4,11 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.codewithdipesh.mangareader.data.local.entity.DownloadedChapterEntity
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.MangaEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
 import com.codewithdipesh.mangareader.data.local.entity.VisitedChapter
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MangaDao {
@@ -53,10 +55,13 @@ interface MangaDao {
     suspend fun getAllDownloadedChapters() : List<DownloadedChapterEntity>
 
     @Query("SELECT * FROM downloaded_chapter WHERE mangaId = :mangaId")
-    suspend fun getDownloadedChapterForManga(mangaId: String) : List<DownloadedChapterEntity>
+    fun getDownloadedChapterForManga(mangaId: String) : Flow<List<DownloadedChapterEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addDownloadedChapter(chapter : DownloadedChapterEntity)
+
+    @Query("UPDATE downloaded_chapter SET downloadStatus = :newStatus WHERE id = :chapterId")
+    suspend fun updateDownloadedChapter(chapterId: String, newStatus: String)
 
     @Query("SELECT * FROM downloaded_chapter WHERE id = :chapterId")
     suspend fun getDownloadedChapter(chapterId: String) : DownloadedChapterEntity

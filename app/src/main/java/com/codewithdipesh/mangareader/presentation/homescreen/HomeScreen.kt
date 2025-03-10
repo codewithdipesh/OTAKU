@@ -244,22 +244,7 @@ fun HomeScreen(
 
 
         }
-        //bottomNavBar
-        Box(
-           modifier = Modifier.wrapContentSize()
-               .align(Alignment.BottomCenter)
-               .offset(y = (-46).dp)
-        ){
-            BottomNav(
-                selectedOption = when(navController.currentBackStackEntry?.destination?.route){
-                    Screen.Home.route -> Screen.Home
-                    Screen.Favourites.route -> Screen.Favourites
-                    Screen.Downloads.route -> Screen.Downloads
-                    else ->Screen.Detail //for other screen though no use of thi screen , only using the top 3
-                },
-                onClick = { navController.navigate(it.route) },
-            )
-        }
+
     }
 
 

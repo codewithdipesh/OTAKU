@@ -23,6 +23,10 @@ import com.codewithdipesh.mangareader.domain.model.MangaDownloadedDetails
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.AppError
 import com.codewithdipesh.mangareader.domain.util.Result
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import okio.IOException
 import java.net.UnknownHostException
 import kotlin.random.Random
@@ -394,6 +398,12 @@ class MangaRepositoryImpl(
             Log.e("DownloadRepository", "Error retrieving downloads", e)
             return Result.Error(AppError.UnknownError(e.message ?: "UnknownError Happened"))
         }
+    }
+
+    override suspend fun getDownloadedChapterForManga(mangaId: String): Flow<List<DownloadedChapter>> {
+        return dao.getDownloadedChapterForManga(mangaId)
+            .map { list -> list.map { it.toDownloadedChapter() } }
+            .catch { emit(emptyList()) } // Handle errors within Flow
     }
 
 
