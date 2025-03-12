@@ -18,12 +18,15 @@ data class MangaDetailUi(
     val createdAt: String? = null,
     val isFavourite: Boolean = false,
     val totalChapter:Int = 0,
+
     val istotalChapterNull:Boolean = false,
     val chaptersAsc: List<Chapter> = emptyList(),
     val chaptersDesc: List<Chapter> = emptyList(),
+
     val authorId: String? = null,
     val author: String? = null,
     val coverImage: String? = null,
+
     val isLoading: Boolean = false,  // UI State
     val isChapterLoading: Boolean = false,
     val hasErrorOccured:Boolean = false,

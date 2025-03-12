@@ -6,6 +6,7 @@ import com.codewithdipesh.mangareader.data.cache.MangaCache
 import com.codewithdipesh.mangareader.data.local.MangaDatabase
 import com.codewithdipesh.mangareader.domain.constants.MangaQuotes
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
+import com.codewithdipesh.mangareader.data.local.entity.FavouriteManga
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
 import com.codewithdipesh.mangareader.data.local.entity.VisitedChapter
@@ -26,6 +27,7 @@ import com.codewithdipesh.mangareader.domain.util.Result
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import okio.IOException
 import java.net.UnknownHostException
@@ -404,6 +406,24 @@ class MangaRepositoryImpl(
         return dao.getDownloadedChapterForManga(mangaId)
             .map { list -> list.map { it.toDownloadedChapter() } }
             .catch { emit(emptyList()) } // Handle errors within Flow
+    }
+
+    override suspend fun addFavouriteManga(manga: FavouriteManga) {
+        Log.d("MangaViewmodel", "addToFavourites: called")
+        dao.addFavouriteManga(manga)
+    }
+
+    override suspend fun deleteFavouriteManga(manga: FavouriteManga) {
+        dao.deleteFavouriteManga(manga)
+    }
+
+    override suspend fun getAllFavouriteMangas(): Flow<List<FavouriteManga>> {
+        return try {
+            val mangas = dao.getFavouriteMangas()
+            mangas
+        } catch (e: Exception) {
+            flowOf(emptyList())
+        }
     }
 
 

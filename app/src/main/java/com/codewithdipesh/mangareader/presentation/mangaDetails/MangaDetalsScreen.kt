@@ -265,17 +265,25 @@ fun MangaDetailsScreen(
                                     .background(colorResource(R.color.yellow))
                                     .clickable {
                                         if(state.isInternetAvailable){
-                                            //todo
+                                            //add to favourites
+                                            if(state.isFavourite) viewModel.removeFromFavourites()
+                                            else viewModel.addToFavourites()
                                         }else{
                                             viewModel.sendEvent("No Internet Connection")
                                         }
                                     },
                                 contentAlignment = Alignment.Center
                             ){
-                                Icon(
-                                    painter = painterResource(R.drawable.read_now_icon),
-                                    contentDescription = "Read Now",
-                                    tint = Color.Black
+                                Text(
+                                    text = if(state.isFavourite) "REMOVE FROM FAV" else "ADD TO FAVOURITES",
+                                    style = TextStyle(
+                                        color = Color.Black,
+                                        fontSize = 12.sp,
+                                        fontFamily = regular,
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(8.dp)
                                 )
                             }
                             //publication details

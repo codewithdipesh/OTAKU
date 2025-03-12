@@ -19,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.codewithdipesh.mangareader.presentation.downloads.DownloadsViewModel
 import com.codewithdipesh.mangareader.presentation.elements.BottomNav
+import com.codewithdipesh.mangareader.presentation.favourites.FavouritesViewModel
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeViewmodel
 import com.codewithdipesh.mangareader.presentation.mangaDetails.MangaDetailsViewModel
 import com.codewithdipesh.mangareader.presentation.navigation.MangaNavHost
@@ -33,6 +34,7 @@ fun MainScreen(
     mangaViewModel : MangaDetailsViewModel,
     readerViewModel : ReaderViewModel,
     downloadViewModel : DownloadsViewModel,
+    favouritesViewModel:FavouritesViewModel
 ) {
     val navController = rememberNavController()
 
@@ -54,7 +56,8 @@ fun MainScreen(
             homeViewmodel = homeViewModel,
             mangaViewModel = mangaViewModel,
             readerViewModel = readerViewModel,
-            downloadViewModel = downloadViewModel
+            downloadViewModel = downloadViewModel,
+            favouritesViewModel =favouritesViewModel
         )
 
         //bottom bar

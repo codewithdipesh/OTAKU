@@ -1,6 +1,7 @@
 package com.codewithdipesh.mangareader.presentation.navigation
 
 import android.net.Uri
+import com.codewithdipesh.mangareader.data.local.entity.FavouriteManga
 import com.codewithdipesh.mangareader.domain.model.Chapter
 import com.codewithdipesh.mangareader.domain.model.DownloadedChapter
 import com.codewithdipesh.mangareader.domain.model.Manga
@@ -26,6 +27,9 @@ sealed class Screen(val route : String){
     }
     object Detail : Screen("detail/{mangaId}/{coverImage}/{title}/{authorId}"){
         fun createRoute(manga : Manga) : String {
+            return "detail/${manga.id}/${Uri.encode(manga.coverImage)}/${Uri.encode(manga.title)}/${Uri.encode(manga.authorId)}"
+        }
+        fun createRoute(manga : FavouriteManga) : String {
             return "detail/${manga.id}/${Uri.encode(manga.coverImage)}/${Uri.encode(manga.title)}/${Uri.encode(manga.authorId)}"
         }
     }

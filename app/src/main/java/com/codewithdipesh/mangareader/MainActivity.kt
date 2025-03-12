@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.codewithdipesh.mangareader.presentation.downloads.DownloadsViewModel
+import com.codewithdipesh.mangareader.presentation.favourites.FavouritesViewModel
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeScreen
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeViewmodel
 import com.codewithdipesh.mangareader.presentation.mangaDetails.MangaDetailsViewModel
@@ -33,6 +34,7 @@ class MainActivity : ComponentActivity() {
         val mangaViewModel by viewModels<MangaDetailsViewModel>()
         val readerViewModel by viewModels<ReaderViewModel>()
         val downloadViewModel by viewModels<DownloadsViewModel>()
+        val favouritesViewModel by viewModels<FavouritesViewModel>()
         setContent {
             MangaReaderTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -41,6 +43,7 @@ class MainActivity : ComponentActivity() {
                         mangaViewModel = mangaViewModel,
                         readerViewModel = readerViewModel,
                         downloadViewModel = downloadViewModel,
+                        favouritesViewModel = favouritesViewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

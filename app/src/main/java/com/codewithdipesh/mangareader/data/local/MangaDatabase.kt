@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import com.codewithdipesh.mangareader.data.converter.Converters
 import com.codewithdipesh.mangareader.data.local.dao.MangaDao
 import com.codewithdipesh.mangareader.data.local.entity.DownloadedChapterEntity
+import com.codewithdipesh.mangareader.data.local.entity.FavouriteManga
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.MangaEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
@@ -18,7 +19,8 @@ import com.codewithdipesh.mangareader.data.local.entity.VisitedChapter
     GenreEntity::class,
     ThemeEntity::class ,
     VisitedChapter::class,
-    DownloadedChapterEntity::class],
+    DownloadedChapterEntity::class,
+    FavouriteManga::class],
     version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class MangaDatabase : RoomDatabase(){

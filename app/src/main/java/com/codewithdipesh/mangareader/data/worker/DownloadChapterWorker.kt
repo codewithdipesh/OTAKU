@@ -66,7 +66,7 @@ class DownloadChapterWorker(
                 val savedPath = saveImage(imageUrl,fileName)
                 if(savedPath == null){
                     //error happened
-                    dao.updateDownloadedChapter(chapterId,DownloadStatus.Error("Error for no internet").name) //changing the status
+                    dao.updateDownloadedChapter(chapterId,DownloadStatus.Error.name) //changing the status
                     return Result.failure()//stop retrieving more
                 }
                 savedPath?.let { savedPages.add(it) }
@@ -77,7 +77,7 @@ class DownloadChapterWorker(
             val coverImagePath = saveImage(coverImage,coverImageFile)
             if(coverImagePath == null){
                 //error happened
-                dao.updateDownloadedChapter(chapterId,DownloadStatus.Error("Error for no internet").name) //changing the status
+                dao.updateDownloadedChapter(chapterId,DownloadStatus.Error.name)//changing the status
                 return Result.failure()//stop retrieving more
             }
 

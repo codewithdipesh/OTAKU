@@ -1,5 +1,6 @@
 package com.codewithdipesh.mangareader.domain.repository
 
+import com.codewithdipesh.mangareader.data.local.entity.FavouriteManga
 import com.codewithdipesh.mangareader.data.local.entity.VisitedChapter
 import com.codewithdipesh.mangareader.domain.model.Chapter
 import com.codewithdipesh.mangareader.domain.model.ChapterDetails
@@ -24,5 +25,8 @@ interface MangaRepository {
    suspend fun addVisitedChapter(chapter: Chapter,coverImage :String)
    suspend fun getAllDownloads():Result<Downloads>
    suspend fun getDownloadedChapterForManga(mangaId: String): Flow<List<DownloadedChapter>>
+   suspend fun addFavouriteManga(manga: FavouriteManga)
+   suspend fun deleteFavouriteManga(manga: FavouriteManga)
+   suspend fun getAllFavouriteMangas(): Flow<List<FavouriteManga>>
 
 }

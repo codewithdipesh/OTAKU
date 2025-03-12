@@ -27,6 +27,8 @@ import androidx.navigation.navArgument
 import com.codewithdipesh.mangareader.presentation.downloads.DownloadScreen
 import com.codewithdipesh.mangareader.presentation.downloads.DownloadedMangaScreen
 import com.codewithdipesh.mangareader.presentation.downloads.DownloadsViewModel
+import com.codewithdipesh.mangareader.presentation.favourites.FavouriteScreen
+import com.codewithdipesh.mangareader.presentation.favourites.FavouritesViewModel
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeScreen
 import com.codewithdipesh.mangareader.presentation.homescreen.HomeViewmodel
 import com.codewithdipesh.mangareader.presentation.homescreen.SearchScreen
@@ -43,7 +45,8 @@ fun MangaNavHost(
     homeViewmodel: HomeViewmodel,
     mangaViewModel : MangaDetailsViewModel,
     readerViewModel : ReaderViewModel,
-    downloadViewModel : DownloadsViewModel
+    downloadViewModel : DownloadsViewModel,
+    favouritesViewModel: FavouritesViewModel
 ) {
     NavHost(
         navController = navController,
@@ -117,7 +120,10 @@ fun MangaNavHost(
         }
 
         composable(Screen.Favourites.route){
-
+            FavouriteScreen(
+                viewModel = favouritesViewModel,
+                navController = navController
+            )
         }
         composable(Screen.Downloads.route){
            DownloadScreen(

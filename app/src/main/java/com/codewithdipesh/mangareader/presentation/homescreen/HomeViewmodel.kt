@@ -86,7 +86,11 @@ class HomeViewmodel @Inject constructor(
     private fun refetchData(){
         Log.d("mainscreen","refetched")
         viewModelScope.launch(){
-            launch(Dispatchers.IO){ getTopManga() }
+            launch(Dispatchers.IO){
+                if(_state.value.topMangaList.isEmpty()){
+                    getTopManga()
+                }
+            }
             launch(Dispatchers.IO){ getAllManga() }
         }
 

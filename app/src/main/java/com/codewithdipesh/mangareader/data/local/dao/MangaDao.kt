@@ -1,11 +1,13 @@
 package com.codewithdipesh.mangareader.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.codewithdipesh.mangareader.data.local.entity.DownloadedChapterEntity
+import com.codewithdipesh.mangareader.data.local.entity.FavouriteManga
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
 import com.codewithdipesh.mangareader.data.local.entity.MangaEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
@@ -68,5 +70,14 @@ interface MangaDao {
 
     @Query("SELECT COUNT(*) FROM downloaded_chapter")
     suspend fun getDownloadedChaptersCount(): Int
+
+    @Insert(entity = FavouriteManga::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addFavouriteManga(manga : FavouriteManga)
+
+    @Delete(entity = FavouriteManga::class)
+    suspend fun deleteFavouriteManga(manga : FavouriteManga)
+
+    @Query("SELECT * FROM favourite_manga")
+    fun getFavouriteMangas() : Flow<List<FavouriteManga>>
 
 }

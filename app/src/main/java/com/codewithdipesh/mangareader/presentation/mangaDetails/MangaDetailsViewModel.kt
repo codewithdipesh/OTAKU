@@ -3,6 +3,8 @@ package com.codewithdipesh.mangareader.presentation.mangaDetails
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.codewithdipesh.mangareader.data.local.entity.FavouriteManga
+import com.codewithdipesh.mangareader.data.local.entity.VisitedChapter
 import com.codewithdipesh.mangareader.domain.model.Chapter
 import com.codewithdipesh.mangareader.domain.observer.connectivityObserver
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
@@ -245,6 +247,39 @@ class MangaDetailsViewModel @Inject constructor(
         if(!_state.value.hasToggledOnce){
             _state.value = _state.value.copy(hasToggledOnce = true)
             getChapters(_state.value.id)
+        }
+    }
+
+    fun addToFavourites(){
+        viewModelScope.launch {
+            Log.d("MangaViewmodel", "addToFavourites: called")
+           repository.addFavouriteManga(
+               FavouriteManga(
+                   id = _state.value.id,
+                   authorId = _state.value.authorId ?: "",
+                   coverImage = _state.value.coverImage ?: "",
+                   title = _state.value.title
+               )
+           )
+           _state.value= _state.value.copy(
+               isFavourite = true
+           )
+        }
+    }
+
+    fun removeFromFavourites(){
+        viewModelScope.launch {
+            repository.deleteFavouriteManga(
+                FavouriteManga(
+                    id = _state.value.id,
+                    authorId = _state.value.authorId ?: "",
+                    coverImage = _state.value.coverImage ?: "",
+                    title = _state.value.title
+                )
+            )
+            _state.value = _state.value.copy(
+                isFavourite = false
+            )
         }
     }
 

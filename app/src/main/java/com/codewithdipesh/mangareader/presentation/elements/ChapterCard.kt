@@ -1,5 +1,6 @@
 package com.codewithdipesh.mangareader.presentation.elements
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -157,7 +158,8 @@ fun ChapterCard(
                         fontSize = 18.sp
                     )
                 )
-                if(chapter.status == DownloadStatus.Error()){
+                if(chapter.status == DownloadStatus.Error){
+                    Log.d("mangaError",chapter.status.name)
                     Text(
                         text = chapter.status.name,
                         style = TextStyle(
