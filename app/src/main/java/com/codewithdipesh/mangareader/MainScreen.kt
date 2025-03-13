@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +49,12 @@ fun MainScreen(
         Screen.Favourites.route,
         Screen.Downloads.route
     )
+
+    LaunchedEffect(currentRoute) {
+        if (currentRoute == Screen.Home.route) {
+            homeViewModel.initializeDataIfNeeded()
+        }
+    }
 
     Box(Modifier.fillMaxSize( )
     ){

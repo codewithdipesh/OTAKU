@@ -4,6 +4,7 @@ package com.codewithdipesh.mangareader.presentation.mangaDetails
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,6 +30,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -51,6 +53,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.codewithdipesh.mangareader.domain.model.Rating
 import com.codewithdipesh.mangareader.domain.model.Status
 import com.codewithdipesh.mangareader.presentation.elements.ChapterCard
@@ -79,11 +82,22 @@ fun MangaDetailsScreen(
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     // Initial load effect
     LaunchedEffect(mangaId, coverImage, title) {
         if(mangaId.isNotEmpty() && coverImage.isNotEmpty() && title.isNotEmpty()) {
             viewModel.load(mangaId, coverImage, title, authorId)
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            // Check if we're navigating away from this screen's hierarchy
+            val isLeavingScreenHierarchy = currentRoute?.startsWith("reader") != true
+
+            if (isLeavingScreenHierarchy) {
+                viewModel.clearUi()
+            }
         }
     }
 
@@ -171,7 +185,6 @@ fun MangaDetailsScreen(
                             .background(color = colorResource(R.color.dark_gray))
                             .clickable {
                                 navController.navigateUp()
-                                viewModel.clearUi()
                             },
                         contentAlignment = Alignment.Center
                     ){
@@ -275,10 +288,10 @@ fun MangaDetailsScreen(
                                 contentAlignment = Alignment.Center
                             ){
                                 Text(
-                                    text = if(state.isFavourite) "REMOVE FROM FAV" else "ADD TO FAVOURITES",
+                                    text = if(state.isFavourite) "REMOVE FROM FAV" else "ADD TO FAV",
                                     style = TextStyle(
                                         color = Color.Black,
-                                        fontSize = 12.sp,
+                                        fontSize = 10.sp,
                                         fontFamily = regular,
                                         fontWeight = FontWeight.Bold
                                     ),

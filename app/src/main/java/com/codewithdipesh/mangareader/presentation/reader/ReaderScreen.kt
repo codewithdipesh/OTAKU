@@ -5,6 +5,7 @@ import android.app.Activity
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -113,6 +114,16 @@ fun ReaderScreen(
 
     var brightness by remember { mutableStateOf(0.8f) }
     val activity = context as? Activity
+
+
+    BackHandler {
+        //back navigate
+        scope.launch {
+            navController.navigateUp()
+            viewModel.clearUi()
+            resetToSystemBrightness(activity)
+        }
+    }
 
     LaunchedEffect(Unit){
         scope.launch {

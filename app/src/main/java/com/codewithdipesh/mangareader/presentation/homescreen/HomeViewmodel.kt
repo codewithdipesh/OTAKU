@@ -32,6 +32,8 @@ class HomeViewmodel @Inject constructor(
     private val _state = MutableStateFlow(HomeUiState())
     val state = _state.asStateFlow()
 
+    private var isDataInitialized = false
+
     private var lastEmitted = ""
 
     private val _uiEvent = Channel<String>(Channel.BUFFERED) // Buffered so it doesn't block
@@ -40,12 +42,19 @@ class HomeViewmodel @Inject constructor(
     private var searchJob: Job? = null
     private var clearJob : Job? = null //its for clearing lastEmitted error
 
+
     init {
         viewModelScope.launch(Dispatchers.IO){
             loadhistory()
         }
-        refetchData()
         observeConnectivity()
+    }
+
+    fun initializeDataIfNeeded() {
+        if (!isDataInitialized) {
+            refetchData()
+            isDataInitialized = true
+        }
     }
 
     fun observeConnectivity(){
@@ -83,17 +92,17 @@ class HomeViewmodel @Inject constructor(
         )
     }
 
-    private fun refetchData(){
-        Log.d("mainscreen","refetched")
-        viewModelScope.launch(){
-            launch(Dispatchers.IO){
-                if(_state.value.topMangaList.isEmpty()){
-                    getTopManga()
-                }
+    private fun refetchData() {
+        Log.d("mainscreen", "refetched")
+        // Separate launch calls for better concurrency
+        if (_state.value.topMangaList.isEmpty()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                getTopManga()
             }
-            launch(Dispatchers.IO){ getAllManga() }
         }
-
+        viewModelScope.launch(Dispatchers.IO) {
+            getAllManga()
+        }
     }
 
     suspend fun getTopManga(){
