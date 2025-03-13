@@ -253,7 +253,7 @@ fun ReaderScreen(
                             Modifier
                                 .size(40.dp) // Fixed size
                                 .fillMaxHeight()
-                                .background(color = colorResource(R.color.medium_gray))
+                                .background(color = colorResource(R.color.medium_gray).copy(0.6f))
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = rememberRipple(
@@ -262,20 +262,26 @@ fun ReaderScreen(
                                     )
                                 ){
                                     //todo download
-                                    viewModel.startDownloadChapter(
-                                        context,
-                                        state.chapter!!,
-                                        detailState.title,
-                                        state.lowQualityImageList,
-                                        detailState.coverImage!!
-                                    )
+                                   if(!state.isDownloaded && !state.isDownloading){
+                                       viewModel.startDownloadChapter(
+                                           context,
+                                           state.chapter!!,
+                                           detailState.title,
+                                           state.lowQualityImageList,
+                                           detailState.coverImage!!
+                                       )
+                                   }else{
+                                       scope.launch {
+                                           Toast.makeText(context,"Check Download Section",Toast.LENGTH_SHORT).show()
+                                       }
+                                   }
                                 },
                             contentAlignment = Alignment.Center,
                             ){
                             Icon(
                                 painter = painterResource(R.drawable.downloads_icon),
                                 contentDescription = "download",
-                                tint = Color.White
+                                tint = if(state.isDownloaded) Color.LightGray else Color.White
                             )
                         }
                         //settings button

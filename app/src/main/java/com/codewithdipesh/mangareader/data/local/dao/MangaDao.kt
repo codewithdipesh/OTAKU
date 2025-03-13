@@ -71,6 +71,9 @@ interface MangaDao {
     @Query("SELECT COUNT(*) FROM downloaded_chapter")
     suspend fun getDownloadedChaptersCount(): Int
 
+    @Query("SELECT EXISTS(SELECT 1 FROM downloaded_chapter WHERE id = :chapterId)")
+    fun isDownloaded(chapterId: String) : Boolean
+
     @Insert(entity = FavouriteManga::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun addFavouriteManga(manga : FavouriteManga)
 

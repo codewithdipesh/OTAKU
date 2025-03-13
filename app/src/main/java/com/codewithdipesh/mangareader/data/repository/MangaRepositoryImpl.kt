@@ -407,6 +407,10 @@ class MangaRepositoryImpl(
         }
     }
 
+    override suspend fun isDownloaded(chapteId: String): Boolean {
+        return dao.isDownloaded(chapteId)
+    }
+
     override suspend fun getDownloadedChapterForManga(mangaId: String): Flow<List<DownloadedChapter>> {
         return dao.getDownloadedChapterForManga(mangaId)
             .map { list -> list.map { it.toDownloadedChapter() } }

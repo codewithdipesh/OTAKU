@@ -126,10 +126,12 @@ class ReaderViewModel @Inject constructor(
         val result = repository.getChapterById(chapterId)
         when(result){
             is Result.Success ->{
+                val isDownloaded = repository.isDownloaded(chapterId)
                 _state.value = _state.value.copy(
                     chapter = result.data,
                     currentPage = 1,
-                    pageSize = result.data.pages
+                    pageSize = result.data.pages,
+                    isDownloaded = isDownloaded
                 )
             }
             is Result.Error -> {
