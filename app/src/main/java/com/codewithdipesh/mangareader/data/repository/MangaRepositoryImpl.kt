@@ -235,11 +235,12 @@ class MangaRepositoryImpl(
     override suspend fun getMangaById(mangaId: String): Result<Manga> {
 
         //in memory cache(RAM) -> disk cache -> api
+        val isFavourite = dao.isFavourite(mangaId)
         val memoryCachedManga = MangaCache.get(mangaId)
         Log.d("cache", "RAM ${memoryCachedManga} ->")
         if(memoryCachedManga != null){
             Log.d("cache", "got RAM ->")
-            return Result.Success(memoryCachedManga)
+            return Result.Success(memoryCachedManga.copy(isFavourite=isFavourite))
         }
         //no cache available in RAM
           //search in disk Room db
@@ -249,7 +250,10 @@ class MangaRepositoryImpl(
             Log.e("Chapter Size", "repo (cached) -> ${diskCachedManga.first().chapters}")
             val genres = dao.getGenresForManga(mangaId)
             val themes = dao.getThemesForManga(mangaId)
-            val result = diskCachedManga.first().toManga(genres, themes)
+            var result = diskCachedManga.first().toManga(genres, themes)
+            result = result.copy(
+                isFavourite = isFavourite
+            )
             //save in in memory cache
             MangaCache.put(result.id,result)
             return Result.Success(result)
@@ -259,7 +263,8 @@ class MangaRepositoryImpl(
                 if (response.isSuccessful) {
                     if (response.body() != null && response.body()?.data != null) {
                         Log.d("MangaRepository", "manga japanese title:  ${response.body()!!.data.attributes.altTitles[0].ja}")
-                        val updatedManga = response.body()!!.data.toManga("")
+                        var updatedManga = response.body()!!.data.toManga("")
+                        updatedManga = updatedManga.copy(isFavourite=isFavourite)
                         Log.e("Chapter Size", "repo(api)-> toManga() -> in repo after mapping ${updatedManga.chapters}")
                         //put in RAM first
                         MangaCache.put(updatedManga.id,updatedManga)
@@ -409,7 +414,7 @@ class MangaRepositoryImpl(
     }
 
     override suspend fun addFavouriteManga(manga: FavouriteManga) {
-        Log.d("MangaViewmodel", "addToFavourites: called")
+        Log.d("MangaRepo", "addToFavourites: called")
         dao.addFavouriteManga(manga)
     }
 

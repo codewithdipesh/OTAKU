@@ -3,7 +3,7 @@ package com.codewithdipesh.mangareader.domain.model
 sealed class DownloadStatus(val name : String){
     object Downloading : DownloadStatus("Downloading")
     object Downloaded : DownloadStatus("Downloaded")
-    object Error : DownloadStatus("Error Occured")
+    object Error : DownloadStatus("Error Occurred")
     object NotDownloading : DownloadStatus("NotDownloading")
 
     companion object {

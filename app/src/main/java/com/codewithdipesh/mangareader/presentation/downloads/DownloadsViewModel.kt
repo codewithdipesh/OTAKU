@@ -1,10 +1,17 @@
 package com.codewithdipesh.mangareader.presentation.downloads
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.codewithdipesh.mangareader.data.repository.MangaRepositoryImpl
+import com.codewithdipesh.mangareader.data.worker.DownloadChapterWorker
+import com.codewithdipesh.mangareader.domain.model.Chapter
+import com.codewithdipesh.mangareader.domain.model.DownloadedChapter
 import com.codewithdipesh.mangareader.domain.model.Downloads
 import com.codewithdipesh.mangareader.domain.model.ReadMode
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository

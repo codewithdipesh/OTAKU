@@ -31,8 +31,8 @@ class FavouritesViewModel @Inject constructor(
         repository.deleteFavouriteManga(manga)
     }
     suspend fun getFavourites(){
-        repository.getAllFavouriteMangas().onEach {
-            _state.value += it
+        repository.getAllFavouriteMangas().collect{
+            _state.value = it
         }
     }
 

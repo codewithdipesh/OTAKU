@@ -80,4 +80,7 @@ interface MangaDao {
     @Query("SELECT * FROM favourite_manga")
     fun getFavouriteMangas() : Flow<List<FavouriteManga>>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM favourite_manga WHERE id = :mangaId)")
+    fun isFavourite(mangaId: String) : Boolean
+
 }
