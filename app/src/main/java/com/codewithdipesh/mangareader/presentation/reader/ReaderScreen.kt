@@ -274,12 +274,13 @@ fun ReaderScreen(
                                 ){
                                     //todo download
                                    if(!state.isDownloaded && !state.isDownloading){
+                                       Log.d("download","downloading: ${detailState}")
                                        viewModel.startDownloadChapter(
                                            context,
                                            state.chapter!!,
                                            detailState.title,
                                            state.lowQualityImageList,
-                                           detailState.coverImage!!
+                                           detailState.coverImage ?: ""
                                        )
                                    }else{
                                        scope.launch {

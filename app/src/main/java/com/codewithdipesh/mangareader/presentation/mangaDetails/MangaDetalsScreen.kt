@@ -34,7 +34,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -63,6 +66,7 @@ import com.codewithdipesh.mangareader.presentation.elements.TinyCard
 import com.codewithdipesh.mangareader.presentation.elements.ToggleContent
 import com.codewithdipesh.mangareader.presentation.navigation.Screen
 import com.codewithdipesh.mangareader.ui.theme.regular
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -82,20 +86,20 @@ fun MangaDetailsScreen(
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    var needToClearUi by remember { mutableStateOf(false) }
     // Initial load effect
     LaunchedEffect(mangaId, coverImage, title) {
         if(mangaId.isNotEmpty() && coverImage.isNotEmpty() && title.isNotEmpty()) {
             viewModel.load(mangaId, coverImage, title, authorId)
         }
     }
-
+    BackHandler {
+        navController.navigateUp()
+        needToClearUi = true
+    }
     DisposableEffect(Unit) {
         onDispose {
-            // Check if we're navigating away from this screen's hierarchy
-            val isLeavingScreenHierarchy = currentRoute?.startsWith("reader") != true
-
-            if (isLeavingScreenHierarchy) {
+            if (needToClearUi) {
                 viewModel.clearUi()
             }
         }
@@ -185,6 +189,7 @@ fun MangaDetailsScreen(
                             .background(color = colorResource(R.color.dark_gray))
                             .clickable {
                                 navController.navigateUp()
+                                needToClearUi = true
                             },
                         contentAlignment = Alignment.Center
                     ){
