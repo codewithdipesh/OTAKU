@@ -44,7 +44,7 @@ fun BottomNav(
            .height(heightSingleOption.dp)
            .clip(CustomButtonShape())
    ){
-
+           //home
            Box(
                modifier = Modifier
                    .size(widthSingleOption.dp,heightSingleOption.dp)
