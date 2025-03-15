@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="https://res.cloudinary.com/daw9ly1fj/image/upload/v1742068672/app_logo_png_elx6ty.png" width="100px"/>
+
 # **Otaku**
 
 Otaku a free manga reading app that brings your favorite titles to your fingertips. With a sleek interface and comprehensive features, users can easily browse, read, and download manga for offline enjoyment. The app's responsive design ensures a smooth reading experience across both phones and tablets.
