@@ -15,21 +15,20 @@ Otaku a free manga reading app that brings your favorite titles to your fingerti
     
 </p>
 
-## 🚀 Features
+## ✨ Features
 
--  **Explore Mangas**
-- **Interactive Card swiping UI in home screen**
--  **Search history**
-- **Managa Details including author,genre,status**
--  **See chapter list both ascending and descending order**
--  **Manga Facts UI loading Screen**
--  **Read Both vertically(scrolling) & horizontally(button)**
--  **Controll Screen brightness & page Image quality**
--  **Download any chapter for offline access**
-- **Smooth Animations**
--  **Add favourite manga for future read**
--  **3 level caching for fast response in UI**
--  **Proper Internet connectivity observer**
+- 📚 **Extensive Manga Library** - Browse through a vast collection of manga titles
+- 🎴 **Interactive Card Swipe** - Discover top manga suggestions with smooth card-swipe behavior
+- 🔍 **Smart Search** - Find manga quickly with intelligent search and search history tracking
+- ⬇️ **Offline Reading** - Download chapters for reading without internet connection
+- ⭐ **Favorites System** - Bookmark your favorite manga for future reading
+- 📱 **Responsive Design** - Optimized for both phone and tablet experiences
+- 📖 **Reading Preferences** - Choose between vertical and horizontal reading orientations
+- 🌙 **Brightness Control** - Adjust screen brightness within the app for comfortable reading
+- 🖼️ **Image Quality Toggle** - Switch between high and low quality images to save data
+- ⏳ **Elegant Loading UI** - Enjoy random manga facts during chapter loading
+- 📑 **Chapter Sorting** - Sort chapters in ascending or descending order
+- 🏷️ **Detailed Manga Info** - View titles, descriptions, authors, status, and genres
 
 <br>
 
