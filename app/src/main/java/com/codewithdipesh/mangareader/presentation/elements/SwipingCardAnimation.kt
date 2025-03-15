@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -71,7 +73,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SwipingCardAnimation(
     mangaList : List<Manga>,
-    onClick : (Manga)->Unit,
+     onClick : (Manga)->Unit,
     onSuccessLoading : () -> Unit = {}
 ) {
     var cards by remember{ mutableStateOf(mangaList.toList()) }
@@ -91,7 +93,7 @@ fun SwipingCardAnimation(
             //swipe cards
             cards.reversed().forEachIndexed{ index, card ->
                 Card(
-                    shape = RectangleShape,
+                    shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .size(200.dp, 300.dp)
                         .graphicsLayer(
@@ -143,6 +145,7 @@ fun SwipingCardAnimation(
                 ) {
                     Box(modifier = Modifier
                         .wrapContentSize()
+                        .clip(RoundedCornerShape(16.dp))
                         .clickable {
                             onClick(card)
                         },

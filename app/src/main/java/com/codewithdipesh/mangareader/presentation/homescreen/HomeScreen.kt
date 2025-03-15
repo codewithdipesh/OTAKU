@@ -217,7 +217,7 @@ fun HomeScreen(
                     .padding(horizontal = 16.dp),
                 maxItemsInEachRow = 6,
                 overflow = FlowRowOverflow.Clip,
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceAround,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ){
                 //skeleton

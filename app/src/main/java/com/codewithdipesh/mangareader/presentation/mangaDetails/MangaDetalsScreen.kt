@@ -213,6 +213,7 @@ fun MangaDetailsScreen(
                             modifier = modifier
                                 .width(180.dp)
                                 .height(270.dp) //height and weight is in  2:3 ratio
+                                .clip(RoundedCornerShape(16.dp))
                         ){
                             if (coverImage != "") {
                                 AsyncImage(

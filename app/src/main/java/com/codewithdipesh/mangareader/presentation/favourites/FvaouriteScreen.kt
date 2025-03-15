@@ -11,6 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.codewithdipesh.mangareader.R
+import com.codewithdipesh.mangareader.domain.util.DisplayUtils
 import com.codewithdipesh.mangareader.presentation.elements.DownloadedMangaCard
 import com.codewithdipesh.mangareader.presentation.elements.MangaCard
 import com.codewithdipesh.mangareader.presentation.navigation.Screen
@@ -44,6 +50,7 @@ fun FavouriteScreen(
 ){
     val mangaList by viewModel.mangaList.collectAsState()
     val scope = rememberCoroutineScope()
+    val scrollstate = rememberScrollState()
 
     LaunchedEffect(Unit){
         viewModel.getFavourites()
@@ -68,16 +75,15 @@ fun FavouriteScreen(
             )
 
             //manga list
-            FlowRow (
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(DisplayUtils.calculateGridColumns()),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                maxItemsInEachRow = 6,
-                overflow = FlowRowOverflow.Clip,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ){
-                mangaList.forEach { manga ->
+                items(mangaList){ manga ->
                     MangaCard(
                         manga = manga,
                         onClick = {

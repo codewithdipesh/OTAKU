@@ -10,14 +10,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.FlowRowOverflow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -45,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.codewithdipesh.mangareader.R
+import com.codewithdipesh.mangareader.domain.util.DisplayUtils
 import com.codewithdipesh.mangareader.presentation.elements.TinyCard
 import com.codewithdipesh.mangareader.presentation.elements.MangaCard
 import com.codewithdipesh.mangareader.presentation.elements.SearchBar
@@ -214,25 +220,25 @@ fun SearchScreen(
             }
         }
         if(state.searchResult.isNotEmpty()){
-            FlowRow (
-                modifier =Modifier
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(DisplayUtils.calculateGridColumns()),
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .verticalScroll(scrollState),
-                maxItemsInEachRow = 4,
-                overflow = FlowRowOverflow.Clip,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ){
-                state.searchResult.forEach {
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(state.searchResult) { manga ->
                     MangaCard(
-                        manga = it,
-                        modifier = Modifier.padding(4.dp),
+                        manga = manga,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
                         onClick = {
                             keyboard?.hide()
-                            if(state.isInternetAvailable){
-                                navController.navigate(Screen.Detail.createRoute(it))
-                            }else{
+                            if(state.isInternetAvailable) {
+                                navController.navigate(Screen.Detail.createRoute(manga))
+                            } else {
                                 viewmodel.sendEvent("No Internet ")
                             }
                         }

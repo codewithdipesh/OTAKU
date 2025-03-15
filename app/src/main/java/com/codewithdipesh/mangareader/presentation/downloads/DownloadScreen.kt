@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +40,7 @@ fun DownloadScreen(
     navController: NavController
 ) {
     val state by viewModel.state.collectAsState()
+    val scrollstate = rememberScrollState()
 
     LaunchedEffect(Unit){
         viewModel.getDownloads()
@@ -60,13 +64,18 @@ fun DownloadScreen(
                     .padding(top = 50.dp, bottom = 32.dp)
             )
             //downloadList If have
-            state.downloads.downloads.forEach{ (manga, chapterList) ->
-                DownloadedMangaCard(
-                    mangaDownloadedDetails = manga,
-                    onClick = {
-                        navController.navigate(Screen.DownloadedManga.createRoute(it))
-                    }
-                )
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .verticalScroll(scrollstate)
+            ){
+                state.downloads.downloads.forEach{ (manga, chapterList) ->
+                    DownloadedMangaCard(
+                        mangaDownloadedDetails = manga,
+                        onClick = {
+                            navController.navigate(Screen.DownloadedManga.createRoute(it))
+                        }
+                    )
+                }
             }
             //loading
             if(state.isLoading){
