@@ -38,6 +38,13 @@ Otaku a free manga reading app that brings your favorite titles to your fingerti
 
 ![Banner](https://res.cloudinary.com/daw9ly1fj/image/upload/v1741979556/apmarzo30kp3btorm6ma.jpg)]
 
+
+## Overview
+
+[![Watch the video]([https://img.youtube.com/vi/VIDEO_ID](https://www.youtube.com/shorts/0OO8T0iPp38)/maxresdefault.jpg)]([https://youtu.be/VIDEO_ID](https://www.youtube.com/shorts/0OO8T0iPp38))
+
+
+
 ## Getting Started
 
 To get started with Otaku , simply download the app from the download folder or download the source code and build it yourself.
