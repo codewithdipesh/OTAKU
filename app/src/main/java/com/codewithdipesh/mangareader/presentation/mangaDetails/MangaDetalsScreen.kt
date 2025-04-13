@@ -6,6 +6,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -70,16 +77,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
-fun MangaDetailsScreen(
+fun SharedTransitionScope.MangaDetailsScreen(
     mangaId : String,
     coverImage : String,
     title : String,
     authorId : String,
     viewModel: MangaDetailsViewModel,
     navController : NavController,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
@@ -214,6 +222,13 @@ fun MangaDetailsScreen(
                                 .width(180.dp)
                                 .height(270.dp) //height and weight is in  2:3 ratio
                                 .clip(RoundedCornerShape(16.dp))
+                                .sharedElement(
+                                    sharedContentState = rememberSharedContentState(key = "mangaImage/$coverImage" ),
+                                    animatedVisibilityScope = animatedVisibilityScope,
+                                    boundsTransform = {_,_ ->
+                                        tween(durationMillis = 200)
+                                    }
+                                )
                         ){
                             if (coverImage != "") {
                                 AsyncImage(
@@ -222,6 +237,7 @@ fun MangaDetailsScreen(
                                     contentScale = ContentScale.Crop,
                                     placeholder = painterResource(R.drawable.defaultmangacover),
                                     error = painterResource(R.drawable.defaultmangacover),
+                                    modifier = Modifier.clip(RoundedCornerShape(16.dp))
                                 )
                             }
                         }

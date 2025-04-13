@@ -2,6 +2,9 @@ package com.codewithdipesh.mangareader.presentation.homescreen
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -76,12 +79,13 @@ import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun HomeScreen(
+fun SharedTransitionScope.HomeScreen(
     viewmodel: HomeViewmodel,
     modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     val state by viewmodel.state.collectAsState()
     val context = LocalContext.current
@@ -179,7 +183,8 @@ fun HomeScreen(
                     mangaList = state.topMangaList,
                     onClick = {
                         navController.navigate(Screen.Detail.createRoute(it))
-                    }
+                    },
+                    animatedVisibilityScope = animatedVisibilityScope
                 )
             }
 

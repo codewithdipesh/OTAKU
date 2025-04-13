@@ -123,6 +123,7 @@ dependencies {
     //workmanager
     implementation("androidx.work:work-runtime-ktx:2.10.0")
 
-
+    //animation
+    implementation("androidx.compose.animation:animation:1.7.8")
 
 }

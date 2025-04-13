@@ -4,8 +4,12 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.LinearEasing
@@ -37,6 +41,7 @@ import com.codewithdipesh.mangareader.presentation.mangaDetails.MangaDetailsView
 import com.codewithdipesh.mangareader.presentation.reader.ReaderScreen
 import com.codewithdipesh.mangareader.presentation.reader.ReaderViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun MangaNavHost(
@@ -47,118 +52,123 @@ fun MangaNavHost(
     readerViewModel : ReaderViewModel,
     downloadViewModel : DownloadsViewModel,
     favouritesViewModel: FavouritesViewModel
+
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.Home.route,
-        enterTransition = {
-            EnterTransition.None
-        },
-        exitTransition = {
-            ExitTransition.None
-        },
-        popEnterTransition = {
-            EnterTransition.None
-        },
-        popExitTransition = {
-            ExitTransition.None
-        },
-    ) {
-        composable(Screen.Home.route)
-        {
-            HomeScreen(
-                viewmodel = homeViewmodel,
-                navController =  navController
-            )
-        }
-        composable(
-            Screen.Search.route
-        ){
-            SearchScreen(
-                viewmodel = homeViewmodel,
-                navController =  navController
-            )
-        }
-        composable(
-            Screen.Detail.route,
-            arguments = listOf(
-                navArgument("mangaId") { type = NavType.StringType },
-                navArgument("coverImage") { type = NavType.StringType },
-                navArgument("title") { type = NavType.StringType },
-                navArgument("authorId") { type = NavType.StringType }
-            )
-        ) { entry ->
-            val mangaId = entry.arguments?.getString("mangaId") ?: ""
-            val coverImage = entry.arguments?.getString("coverImage")?.let { Uri.decode(it) } ?: ""
-            val title = entry.arguments?.getString("title")?.let { Uri.decode(it) } ?: ""
-            val authorId = entry.arguments?.getString("authorId")?.let { Uri.decode(it) } ?: ""
+    SharedTransitionLayout {
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.route,
+            enterTransition = {
+                EnterTransition.None
+            },
+            exitTransition = {
+                ExitTransition.None
+            },
+            popEnterTransition = {
+                EnterTransition.None
+            },
+            popExitTransition = {
+                ExitTransition.None
+            },
+        ) {
+            composable(Screen.Home.route)
+            {
+                HomeScreen(
+                    viewmodel = homeViewmodel,
+                    navController =  navController,
+                    animatedVisibilityScope = this
+                )
+            }
+            composable(
+                Screen.Search.route
+            ){
+                SearchScreen(
+                    viewmodel = homeViewmodel,
+                    navController =  navController
+                )
+            }
+            composable(
+                Screen.Detail.route,
+                arguments = listOf(
+                    navArgument("mangaId") { type = NavType.StringType },
+                    navArgument("coverImage") { type = NavType.StringType },
+                    navArgument("title") { type = NavType.StringType },
+                    navArgument("authorId") { type = NavType.StringType }
+                )
+            ) { entry ->
+                val mangaId = entry.arguments?.getString("mangaId") ?: ""
+                val coverImage = entry.arguments?.getString("coverImage")?.let { Uri.decode(it) } ?: ""
+                val title = entry.arguments?.getString("title")?.let { Uri.decode(it) } ?: ""
+                val authorId = entry.arguments?.getString("authorId")?.let { Uri.decode(it) } ?: ""
 
-            MangaDetailsScreen(
-                 navController = navController,
-                 viewModel = mangaViewModel,
-                 mangaId = mangaId,
-                 coverImage = coverImage,
-                 title = title,
-                 authorId = authorId
-             )
+                MangaDetailsScreen(
+                    navController = navController,
+                    viewModel = mangaViewModel,
+                    mangaId = mangaId,
+                    coverImage = coverImage,
+                    title = title,
+                    authorId = authorId,
+                    animatedVisibilityScope =this
+                )
 
-        }
-        composable(
-            Screen.Reader.route,
-            arguments = listOf(
-                navArgument("chapterId") { type= NavType.StringType}
-            )
-        ){entry->
-            val chapterId = entry.arguments?.getString("chapterId") ?: ""
+            }
+            composable(
+                Screen.Reader.route,
+                arguments = listOf(
+                    navArgument("chapterId") { type= NavType.StringType}
+                )
+            ){entry->
+                val chapterId = entry.arguments?.getString("chapterId") ?: ""
 
-            ReaderScreen(
-                chapterId = chapterId,
-                viewModel = readerViewModel,
-                navController = navController,
-                detailsViewModel = mangaViewModel
-            )
-        }
+                ReaderScreen(
+                    chapterId = chapterId,
+                    viewModel = readerViewModel,
+                    navController = navController,
+                    detailsViewModel = mangaViewModel
+                )
+            }
 
-        composable(Screen.Favourites.route){
-            FavouriteScreen(
-                viewModel = favouritesViewModel,
-                navController = navController
-            )
-        }
-        composable(Screen.Downloads.route){
-           DownloadScreen(
-               viewModel = downloadViewModel,
-               navController = navController
-           )
-        }
-        composable(
-            Screen.DownloadedManga.route,
-            arguments = listOf(
-                navArgument("mangaId") { type= NavType.StringType},
-                navArgument("mangaName") { type= NavType.StringType}
-            )
-        ){
-            val mangaId = it.arguments?.getString("mangaId") ?: ""
-            val mangaName = it.arguments?.getString("mangaName") ?: ""
-            DownloadedMangaScreen(
-                mangaId = mangaId,
-                mangaName = mangaName,
-                navController = navController,
-                viewModel = downloadViewModel
-            )
-        }
-        composable(
-            Screen.DownloadedReader.route,
-            arguments = listOf(
-                navArgument("chapterId") { type= NavType.StringType}
-            )
-        ){
-            val chapterId = it.arguments?.getString("chapterId") ?: ""
-            ReaderScreen(
-                downloadedChapterId = chapterId,
-                viewModel = downloadViewModel,
-                navController = navController
-            )
+            composable(Screen.Favourites.route){
+                FavouriteScreen(
+                    viewModel = favouritesViewModel,
+                    navController = navController
+                )
+            }
+            composable(Screen.Downloads.route){
+                DownloadScreen(
+                    viewModel = downloadViewModel,
+                    navController = navController
+                )
+            }
+            composable(
+                Screen.DownloadedManga.route,
+                arguments = listOf(
+                    navArgument("mangaId") { type= NavType.StringType},
+                    navArgument("mangaName") { type= NavType.StringType}
+                )
+            ){
+                val mangaId = it.arguments?.getString("mangaId") ?: ""
+                val mangaName = it.arguments?.getString("mangaName") ?: ""
+                DownloadedMangaScreen(
+                    mangaId = mangaId,
+                    mangaName = mangaName,
+                    navController = navController,
+                    viewModel = downloadViewModel
+                )
+            }
+            composable(
+                Screen.DownloadedReader.route,
+                arguments = listOf(
+                    navArgument("chapterId") { type= NavType.StringType}
+                )
+            ){
+                val chapterId = it.arguments?.getString("chapterId") ?: ""
+                ReaderScreen(
+                    downloadedChapterId = chapterId,
+                    viewModel = downloadViewModel,
+                    navController = navController
+                )
+            }
         }
     }
 

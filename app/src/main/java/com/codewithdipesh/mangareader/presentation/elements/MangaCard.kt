@@ -1,7 +1,5 @@
 package com.codewithdipesh.mangareader.presentation.elements
 
-import android.icu.text.ListFormatter.Width
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

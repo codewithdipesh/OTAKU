@@ -3,7 +3,7 @@ package com.codewithdipesh.mangareader
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -27,6 +27,7 @@ import com.codewithdipesh.mangareader.presentation.navigation.MangaNavHost
 import com.codewithdipesh.mangareader.presentation.navigation.Screen
 import com.codewithdipesh.mangareader.presentation.reader.ReaderViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun MainScreen(
@@ -59,13 +60,14 @@ fun MainScreen(
     Box(Modifier.fillMaxSize( )
     ){
         MangaNavHost(
-            navController = navController,
-            homeViewmodel = homeViewModel,
-            mangaViewModel = mangaViewModel,
-            readerViewModel = readerViewModel,
-            downloadViewModel = downloadViewModel,
-            favouritesViewModel =favouritesViewModel
-        )
+                navController = navController,
+                homeViewmodel = homeViewModel,
+                mangaViewModel = mangaViewModel,
+                readerViewModel = readerViewModel,
+                downloadViewModel = downloadViewModel,
+                favouritesViewModel =favouritesViewModel
+         )
+
 
         //bottom bar
         if(showBottomBar){
