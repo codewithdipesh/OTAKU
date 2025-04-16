@@ -184,7 +184,8 @@ fun SharedTransitionScope.HomeScreen(
                     onClick = {
                         navController.navigate(Screen.Detail.createRoute(it))
                     },
-                    animatedVisibilityScope = animatedVisibilityScope
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    onSuccessSwipe = { viewmodel.updateTopMangaList(it)}
                 )
             }
 

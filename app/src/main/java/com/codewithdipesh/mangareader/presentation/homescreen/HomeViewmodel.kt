@@ -4,6 +4,7 @@ import android.net.ConnectivityManager
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.domain.observer.connectivityObserver
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.AppError
@@ -214,6 +215,12 @@ class HomeViewmodel @Inject constructor(
                 lastEmitted =""
             }
         }
+    }
+
+    fun updateTopMangaList(newList : List<Manga>){
+        _state.value = _state.value.copy(
+            topMangaList = newList
+        )
     }
 
 

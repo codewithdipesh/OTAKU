@@ -6,15 +6,29 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Down
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Up
 import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.BoundsTransform
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,7 +91,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class,
+    ExperimentalAnimationApi::class
+)
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun SharedTransitionScope.MangaDetailsScreen(
@@ -91,7 +107,7 @@ fun SharedTransitionScope.MangaDetailsScreen(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
-    val scrollState = rememberScrollState()
+    var scrollState = rememberScrollState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var needToClearUi by remember { mutableStateOf(false) }
@@ -222,11 +238,14 @@ fun SharedTransitionScope.MangaDetailsScreen(
                                 .width(180.dp)
                                 .height(270.dp) //height and weight is in  2:3 ratio
                                 .clip(RoundedCornerShape(16.dp))
-                                .sharedElement(
-                                    sharedContentState = rememberSharedContentState(key = "mangaImage/$coverImage" ),
+                                .sharedBounds(
+                                    rememberSharedContentState(key = "mangaImage/${coverImage}"),
                                     animatedVisibilityScope = animatedVisibilityScope,
-                                    boundsTransform = {_,_ ->
-                                        tween(durationMillis = 200)
+                                    enter = fadeIn(),
+                                    exit = ExitTransition.None,
+                                    resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds(),
+                                    boundsTransform = BoundsTransform { _, _ ->
+                                        tween(durationMillis = 150)
                                     }
                                 )
                         ){
@@ -392,166 +411,182 @@ fun SharedTransitionScope.MangaDetailsScreen(
             ),
             state = state,
             onClick = {
-                viewModel.changeSelectedContent(it)
+                scope.launch {
+                    viewModel.changeSelectedContent(it)
+                    scrollState.animateScrollTo(0)
+                }
             }
         )
         Spacer(Modifier.height(8.dp))
         //desc
         //and if title is longer add here
-        if(state.selectedContent == MangaContent.Details){
-            Spacer(Modifier.height(16.dp))
-            if(state.isLoading){
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CircularProgressIndicator(
-                        color = colorResource(R.color.yellow),
-                        strokeWidth = 2.dp,
-                        modifier = Modifier
-                            .size(50.dp)
-                    )
-                }
-            }
-            if(state.title.length > 30){
-                Text(
-                    text =state.title,
-                    style = TextStyle(
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontFamily = regular,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
+        AnimatedContent(
+            targetState = state.selectedContent
+        ) {targetState->
+            when(targetState){
+                //chapters
+                MangaContent.Chapter -> {
+                    Column(
 
-                )
-                //Spacer
-                Spacer(Modifier.height(16.dp))
-            }
-            //desc
-            Text(
-                text =
-                    if(state.title.length > 30){
-                       val desc = state.description ?: ""
-                       state.title + "\n" + desc
-                    }else{
-                        state.description ?: ""
-                    },
-                color = Color.White,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 80.dp),
-                textAlign = TextAlign.Start
-            )
-        }
-
-        //chapters
-        else if (state.selectedContent == MangaContent.Chapter){
-            //sort by
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                Text(
-                    text="Sort Order",
-                    style = TextStyle(
-                        color = Color.White,
-                        fontFamily = regular,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                )
-                Spacer(Modifier.width(8.dp))
-                OrderChooser(
-                    orderType = state.selectedSortOrder,
-                    onToggle = {
-                        scope.launch {
-                            viewModel.toggleSortOrder()
+                    ){
+                        //sort by
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Text(
+                                text="Sort Order",
+                                style = TextStyle(
+                                    color = Color.White,
+                                    fontFamily = regular,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            OrderChooser(
+                                orderType = state.selectedSortOrder,
+                                onToggle = {
+                                    scope.launch {
+                                        viewModel.toggleSortOrder()
+                                    }
+                                }
+                            )
                         }
+                        Spacer(Modifier.height(8.dp))
+                        if(state.selectedSortOrder == "asc"){
+                            if(!state.isChapterLoading && state.chaptersAsc.isEmpty() ){
+                                Text(
+                                    text = "No Chapter Found",
+                                    style = TextStyle(
+                                        color = Color.LightGray,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = regular,
+                                        fontSize = 14.sp
+                                    ),
+                                    modifier = Modifier.padding()
+
+                                )
+                            }
+                            state.chaptersAsc.forEach {
+                                ChapterCard(
+                                    chapter = it,
+                                    onClick = {
+                                        if(state.isInternetAvailable){
+                                            navController.navigate(Screen.Reader.createRoute(it))
+                                        }else{
+                                            viewModel.sendEvent("No Internet Connection")
+                                        }
+                                    }
+                                )
+                            }
+                        }else{
+                            if(!state.isChapterLoading && state.chaptersDesc.isEmpty() ){
+                                Text(
+                                    text = "No Chapter Found",
+                                    style = TextStyle(
+                                        color = Color.LightGray,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = regular,
+                                        fontSize = 14.sp
+                                    ),
+                                    modifier = Modifier.padding()
+
+                                )
+                            }
+                            state.chaptersDesc.forEach {
+                                ChapterCard(
+                                    chapter = it,
+                                    onClick = {
+                                        if(state.isInternetAvailable){
+                                            navController.navigate(Screen.Reader.createRoute(it))
+                                        }else{
+                                            viewModel.sendEvent("No Internet Connection")
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        //chapter loading
+                        if(state.isChapterLoading){
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(
+                                    color = colorResource(R.color.yellow),
+                                    strokeWidth = 2.dp,
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                )
+                            }
+                        }
+                        //Spacer
+                        Spacer(Modifier.height(60.dp))
+                     }
+                }
+                //details
+                MangaContent.Details -> {
+                    Column(
+
+                    ){
+                        Spacer(Modifier.height(16.dp))
+                        if(state.isLoading){
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(
+                                    color = colorResource(R.color.yellow),
+                                    strokeWidth = 2.dp,
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                )
+                            }
+                        }
+                        if(state.title.length > 30){
+                            Text(
+                                text =state.title,
+                                style = TextStyle(
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    fontFamily = regular,
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+
+                            )
+                            //Spacer
+                            Spacer(Modifier.height(16.dp))
+                        }
+                        //desc
+                        Text(
+                            text =
+                                if(state.title.length > 30){
+                                    val desc = state.description ?: ""
+                                    state.title + "\n" + desc
+                                }else{
+                                    state.description ?: ""
+                                },
+                            color = Color.White,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 80.dp),
+                            textAlign = TextAlign.Start
+                        )
                     }
-                )
+                }
+                MangaContent.Similar -> TODO()
             }
-            Spacer(Modifier.height(8.dp))
-            if(state.selectedSortOrder == "asc"){
-                if(!state.isChapterLoading && state.chaptersAsc.isEmpty() ){
-                    Text(
-                        text = "No Chapter Found",
-                        style = TextStyle(
-                            color = Color.LightGray,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = regular,
-                            fontSize = 14.sp
-                        ),
-                        modifier = Modifier.padding()
-
-                    )
-                }
-                state.chaptersAsc.forEach {
-                    ChapterCard(
-                        chapter = it,
-                        onClick = {
-                            if(state.isInternetAvailable){
-                                navController.navigate(Screen.Reader.createRoute(it))
-                            }else{
-                                viewModel.sendEvent("No Internet Connection")
-                            }
-                        }
-                    )
-                }
-            }else{
-                if(!state.isChapterLoading && state.chaptersDesc.isEmpty() ){
-                    Text(
-                        text = "No Chapter Found",
-                        style = TextStyle(
-                            color = Color.LightGray,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = regular,
-                            fontSize = 14.sp
-                        ),
-                        modifier = Modifier.padding()
-
-                    )
-                }
-                state.chaptersDesc.forEach {
-                    ChapterCard(
-                        chapter = it,
-                        onClick = {
-                            if(state.isInternetAvailable){
-                                navController.navigate(Screen.Reader.createRoute(it))
-                            }else{
-                                viewModel.sendEvent("No Internet Connection")
-                            }
-                        }
-                    )
-                }
-            }
-            //chapter loading
-            if(state.isChapterLoading){
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CircularProgressIndicator(
-                        color = colorResource(R.color.yellow),
-                        strokeWidth = 2.dp,
-                        modifier = Modifier
-                            .size(50.dp)
-                    )
-                }
-            }
-            //Spacer
-            Spacer(Modifier.height(60.dp))
-
-
         }
 
 

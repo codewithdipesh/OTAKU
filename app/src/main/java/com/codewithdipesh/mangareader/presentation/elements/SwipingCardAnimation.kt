@@ -17,6 +17,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -84,6 +85,7 @@ fun SharedTransitionScope.SwipingCardAnimation(
     mangaList : List<Manga>,
      onClick : (Manga)->Unit,
     animatedVisibilityScope : AnimatedVisibilityScope,
+    onSuccessSwipe : (List<Manga>) -> Unit = {},
     onSuccessLoading : () -> Unit = {}
 ) {
     var cards by remember{ mutableStateOf(mangaList.toList()) }
@@ -131,11 +133,13 @@ fun SharedTransitionScope.SwipingCardAnimation(
                                                     val lastCard = removeAt(lastIndex)
                                                     add(0,lastCard)
                                                 }
+                                                onSuccessSwipe(cards)
                                                 animatedOffsetX.snapTo(0f)
                                             }
                                             animatedOffsetX.value < -200f -> {
                                                 // Swipe right(first card to last)
                                                 cards = cards.drop(1) + cards.first()
+                                                onSuccessSwipe(cards)
                                                 animatedOffsetX.snapTo(0f)
                                             }
                                             else -> {
