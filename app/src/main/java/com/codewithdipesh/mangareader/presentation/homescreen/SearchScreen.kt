@@ -2,6 +2,12 @@ package com.codewithdipesh.mangareader.presentation.homescreen
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -81,51 +87,66 @@ fun SearchScreen(
         }
     }
 
-    Column(
-        modifier=modifier
-            .fillMaxSize()
-            .background(
-            brush = Brush.verticalGradient(
-                colors = listOf(
-                    Color.Black.copy(alpha = 1f),
-                    Color.Black.copy(alpha = 0.8f),
-                    Color.Black.copy(alpha = 0.5f),
-                    Color.Black.copy(alpha = 0.3f),
-                    Color.Black.copy(alpha = 0.2f),
-                    Color.Black.copy(alpha = 0.1f),
+    Box(modifier =Modifier.fillMaxSize()){
+        AnimatedVisibility(
+            visible = true,
+            enter = slideInVertically(
+                initialOffsetY = { it }, // from bottom
+                animationSpec = spring(
+                    stiffness = Spring.StiffnessLow
                 )
-            )
-
-        )
-            .padding(top = 50.dp, bottom = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .wrapContentHeight()
-                .padding(start = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ){
+            ),
+            exit = ExitTransition.None
+        ) {
             Box(
                 modifier = Modifier
-                    .size(50.dp)
-                    .background(color = colorResource(R.color.medium_gray)),
-                contentAlignment = Alignment.Center
-            ){
-                IconButton(
-                    modifier = Modifier.fillMaxSize(),
-                    onClick = {navController.navigateUp()}
-                ){
-                    Icon(
-                        painter = painterResource(R.drawable.close_icon),
-                        contentDescription = "close search bar",
-                        tint = Color.White
+                    .fillMaxSize()
+                    .background(color = colorResource(R.color.dark_gray))
+                    .background(brush = Brush.verticalGradient(
+                        colors = listOf(
+                            colorResource(R.color.deep_yellow).copy(alpha = 0.5f),
+                            colorResource(R.color.deep_yellow).copy(alpha = 0.3f),
+                            colorResource(R.color.deep_yellow).copy(alpha = 0.2f),
+                            Color.Transparent,
+                            Color.Transparent,
+                            Color.Transparent
+                        )
+                        )
                     )
+            )
+        }
+        Column(
+            modifier=modifier
+                .fillMaxSize()
+                .padding(top = 50.dp, bottom = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(start = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                Box(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .background(color = colorResource(R.color.medium_gray)),
+                    contentAlignment = Alignment.Center
+                ){
+                    IconButton(
+                        modifier = Modifier.fillMaxSize(),
+                        onClick = {navController.navigateUp()}
+                    ){
+                        Icon(
+                            painter = painterResource(R.drawable.close_icon),
+                            contentDescription = "close search bar",
+                            tint = Color.White
+                        )
+                    }
                 }
-            }
-            SearchBar(
+                SearchBar(
                     value = state.searchValue,
                     onValueChange = {
                         viewmodel.onChangeSearchValue(it)
@@ -150,104 +171,105 @@ fun SearchScreen(
                     modifier = Modifier.weight(1f)
                 )
 
-        }
-        Spacer(Modifier.height(16.dp))
-        //history
-        if(state.searchResult.isEmpty() && state.history.isNotEmpty() && !state.isloading){
-            Log.d("search","got the history cards ${state.history}")
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                Text(
-                    text = stringResource(R.string.history),
-                    style = TextStyle(
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontFamily = regular
-                    )
-                )
-
-                Icon(
-                    painter = painterResource(R.drawable.history_icon),
-                    contentDescription = "history",
-                    tint = Color.White
-                )
-
             }
-
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                state.history.forEach {
-                    TinyCard(
-                        text = it,
-                        onClick = {
-                            viewmodel.onChangeSearchValue(it)
-                            viewmodel.clearResultValue()
-                            keyboard?.hide()
-                            scope.launch(Dispatchers.IO) {
-                                viewmodel.searchManga()
-                            }
-                        }
-                    )
-                }
-            }
-
-        }
-        //results
-        if(state.isloading){
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CircularProgressIndicator(
-                    color = colorResource(R.color.yellow),
-                    strokeWidth = 2.dp,
+            Spacer(Modifier.height(16.dp))
+            //history
+            if(state.searchResult.isEmpty() && state.history.isNotEmpty() && !state.isloading){
+                Log.d("search","got the history cards ${state.history}")
+                Row (
                     modifier = Modifier
-                        .padding(80.dp)
-                        .size(60.dp)
-                )
-            }
-        }
-        if(state.searchResult.isNotEmpty()){
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(DisplayUtils.calculateGridColumns()),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(state.searchResult) { manga ->
-                    MangaCard(
-                        manga = manga,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        onClick = {
-                            keyboard?.hide()
-                            if(state.isInternetAvailable) {
-                                navController.navigate(Screen.Detail.createRoute(manga))
-                            } else {
-                                viewmodel.sendEvent("No Internet ")
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(
+                        text = stringResource(R.string.history),
+                        style = TextStyle(
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontFamily = regular
+                        )
+                    )
+
+                    Icon(
+                        painter = painterResource(R.drawable.history_icon),
+                        contentDescription = "history",
+                        tint = Color.White
+                    )
+
+                }
+
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    state.history.forEach {
+                        TinyCard(
+                            text = it,
+                            onClick = {
+                                viewmodel.onChangeSearchValue(it)
+                                viewmodel.clearResultValue()
+                                keyboard?.hide()
+                                scope.launch(Dispatchers.IO) {
+                                    viewmodel.searchManga()
+                                }
                             }
-                        }
+                        )
+                    }
+                }
+
+            }
+            //results
+            if(state.isloading){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(
+                        color = colorResource(R.color.yellow),
+                        strokeWidth = 2.dp,
+                        modifier = Modifier
+                            .padding(80.dp)
+                            .size(60.dp)
                     )
                 }
             }
-        }
+            if(state.searchResult.isNotEmpty()){
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(DisplayUtils.calculateGridColumns()),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(state.searchResult) { manga ->
+                        MangaCard(
+                            manga = manga,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            onClick = {
+                                keyboard?.hide()
+                                if(state.isInternetAvailable) {
+                                    navController.navigate(Screen.Detail.createRoute(manga))
+                                } else {
+                                    viewmodel.sendEvent("No Internet ")
+                                }
+                            }
+                        )
+                    }
+                }
+            }
 
+
+        }
 
     }
-
 }

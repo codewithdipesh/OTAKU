@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -130,7 +131,17 @@ fun SharedTransitionScope.HomeScreen(
         Column(
             modifier= Modifier
                 .fillMaxSize()
-                .dottedBackground()
+                .background(color = colorResource(R.color.dark_gray))
+                .background(brush = Brush.verticalGradient(
+                    colors = listOf(
+                        colorResource(R.color.deep_yellow).copy(alpha = 0.5f),
+                        colorResource(R.color.deep_yellow).copy(alpha = 0.3f),
+                        colorResource(R.color.deep_yellow).copy(alpha = 0.2f),
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Transparent
+                    )
+                ))
                 .padding(top = 50.dp, bottom = 32.dp)
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -199,7 +210,7 @@ fun SharedTransitionScope.HomeScreen(
             ){
                 Text(
                     text = stringResource(R.string.all_manga),
-                    color = Color.Black,
+                    color = Color.White,
                     fontSize = 20.sp,
                     fontFamily = japanese
                 )

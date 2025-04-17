@@ -38,14 +38,13 @@ import com.codewithdipesh.mangareader.ui.theme.regular
 fun MangaCard(
     modifier: Modifier = Modifier,
     manga:Manga?,
-    cardWidth: Int = 130,
-    cardHeight: Int = 195,
+    cardWidth: Int = 150,
+    cardHeight: Int = 225,
     onClick :()->Unit = {}
 ) {
     Box(
         modifier = modifier
-            .width(cardWidth.dp + 20.dp)
-            .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
+            .width(cardWidth.dp)
             .clip(RoundedCornerShape(16.dp))
             .wrapContentHeight()
             .clickable { onClick() },
@@ -53,8 +52,7 @@ fun MangaCard(
     ){
         Column(
             modifier = Modifier
-                .wrapContentSize()
-                .padding(top = 6.dp),
+                .wrapContentSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -78,15 +76,15 @@ fun MangaCard(
             if (manga != null) {
                 Text(
                     text = manga.title?.take(30) ?: "",
-                    modifier = Modifier.padding(6.dp)
+                    modifier = Modifier.padding(4.dp)
                         .padding(horizontal = 4.dp)
                         .fillMaxWidth(),
                     textAlign =TextAlign.Start,
                     style = TextStyle(
-                        fontSize = 18.sp,
+                        fontSize = 16.sp,
                         fontFamily = regular,
                         fontWeight = FontWeight.Bold ,
-                        color = Color.White
+                        color = colorResource(R.color.white)
                     ),
                     maxLines = 2,
 

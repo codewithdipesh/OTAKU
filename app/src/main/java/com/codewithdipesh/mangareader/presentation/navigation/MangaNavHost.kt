@@ -12,6 +12,7 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -79,9 +80,7 @@ fun MangaNavHost(
                     animatedVisibilityScope = this
                 )
             }
-            composable(
-                Screen.Search.route
-            ){
+            composable(Screen.Search.route,){
                 SearchScreen(
                     viewmodel = homeViewmodel,
                     navController =  navController
