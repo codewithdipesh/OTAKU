@@ -103,19 +103,18 @@ fun MangaCard(
 fun MangaCard(
     modifier: Modifier = Modifier,
     manga:FavouriteManga,
-    cardWidth: Int = 130,
-    cardHeight: Int = 195,
+    cardWidth: Int = 150,
+    cardHeight: Int = 225,
     onClick :()->Unit = {},
     onFavouriteToggle : ()->Unit = {}
 ) {
     Box(
         modifier = modifier
-            .width(cardWidth.dp + 20.dp)
-            .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
+            .width(cardWidth.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.DarkGray)
             .wrapContentHeight()
-            .clickable { onClick() }
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
     ){
         Column(
             modifier = Modifier
@@ -123,13 +122,11 @@ fun MangaCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Spacer(Modifier.height(8.dp))
             Box(
                 modifier = modifier
                     .width(cardWidth.dp)
                     .height(cardHeight.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
+                    .clip(RoundedCornerShape(12.dp))
             ){
                 if (manga != null) {
                     AsyncImage(
@@ -139,33 +136,33 @@ fun MangaCard(
                         placeholder = painterResource(R.drawable.defaultmangacover),
                         error = painterResource(R.drawable.defaultmangacover),
                     )
-                    Icon(
-                        painter = painterResource(R.drawable.favourite_small_icon),
-                        contentDescription = "favourite",
-                        tint = colorResource(R.color.yellow),
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(4.dp)
-                            .clickable {
-                                onFavouriteToggle()
-                            }
-                    )
                 }
+                Icon(
+                    painter = painterResource(R.drawable.favourite_small_icon),
+                    contentDescription = "favourite",
+                    tint = colorResource(R.color.yellow),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .clickable {
+                            onFavouriteToggle()
+                        }
+                )
             }
 
             if (manga != null) {
                 Text(
                     text = manga.title?.take(30) ?: "",
-                    modifier = Modifier.padding(6.dp)
-                        .padding(horizontal = 8.dp)
+                    modifier = Modifier.padding(4.dp)
+                        .padding(horizontal = 4.dp)
                         .fillMaxWidth(),
+                    textAlign =TextAlign.Start,
                     style = TextStyle(
-                        fontSize = 18.sp,
+                        fontSize = 16.sp,
                         fontFamily = regular,
                         fontWeight = FontWeight.Bold ,
-                        color = Color.White
+                        color = colorResource(R.color.white)
                     ),
-                    textAlign = TextAlign.Start,
                     maxLines = 2,
 
                     )
