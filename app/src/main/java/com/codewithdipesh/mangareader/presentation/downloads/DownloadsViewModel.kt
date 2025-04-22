@@ -125,4 +125,40 @@ class DownloadsViewModel @Inject constructor(
             currentPage = 1
         )
     }
+
+    fun toggleSelectionForDelete(chapter: DownloadedChapter) {
+        val updatedList = _mangaState.value.selectedChapterForDelete.toMutableList().apply {
+            if (contains(chapter)) remove(chapter) else add(chapter)
+        }
+
+        _mangaState.value = _mangaState.value.copy(
+            selectedChapterForDelete = updatedList,
+            isDeleteFormat = updatedList.isNotEmpty()
+        )
+    }
+
+
+    fun turnOnDeleteMode(){
+        _mangaState.value = _mangaState.value.copy(
+            isDeleteFormat = true
+        )
+    }
+    fun turnOffDeleteMode(){
+        _mangaState.value = _mangaState.value.copy(
+            isDeleteFormat = false,
+            selectedChapterForDelete = emptyList()
+        )
+    }
+
+    suspend fun deleteChapters(){
+        if(_mangaState.value.selectedChapterForDelete.isNotEmpty()){
+            repository.deleteDownloadedChapters(_mangaState.value.selectedChapterForDelete.map { it.id })
+        }
+    }
+
+    suspend fun deleteDownloadedManga(){
+        _state.value = _state.value.copy(
+            downloads = _state.value.downloads
+        )
+    }
 }

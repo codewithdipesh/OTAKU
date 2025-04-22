@@ -16,3 +16,4 @@ fun DownloadedChapterEntity.toDownloadedChapter(): DownloadedChapter{
         status = DownloadStatus.fromString(downloadStatus)
     )
 }
+

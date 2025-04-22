@@ -7,5 +7,7 @@ import com.codewithdipesh.mangareader.domain.model.DownloadedChapter
 data class DownloadMangaUIState(
     val title : String ="",
     val id : String = "",
-    val chapters : List<DownloadedChapter> = emptyList()
+    val chapters : List<DownloadedChapter> = emptyList(),
+    val isDeleteFormat : Boolean = false,
+    val selectedChapterForDelete : List<DownloadedChapter> = emptyList(),
 )

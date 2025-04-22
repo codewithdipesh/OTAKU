@@ -65,6 +65,9 @@ interface MangaDao {
     @Query("UPDATE downloaded_chapter SET downloadStatus = :newStatus WHERE id = :chapterId")
     suspend fun updateDownloadedChapter(chapterId: String, newStatus: String)
 
+    @Query("DELETE FROM downloaded_chapter WHERE id = :chapterId")
+    suspend fun deleteDownloadedChapter(chapterId: String)
+
     @Query("SELECT * FROM downloaded_chapter WHERE id = :chapterId")
     suspend fun getDownloadedChapter(chapterId: String) : DownloadedChapterEntity
 

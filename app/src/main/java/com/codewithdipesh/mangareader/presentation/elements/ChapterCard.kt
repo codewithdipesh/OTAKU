@@ -3,6 +3,7 @@ package com.codewithdipesh.mangareader.presentation.elements
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -115,17 +116,27 @@ fun ChapterCard(
 fun ChapterCard(
     modifier: Modifier = Modifier,
     chapter : DownloadedChapter,
-    onClick : ()->Unit ={}
+    isSelectedForDelete : Boolean = false,
+    onClick : ()->Unit ={},
+    onHold : ()->Unit ={}
 ){
     Column(
         modifier.fillMaxWidth()
             .wrapContentHeight()
+            .background(
+                color = if(isSelectedForDelete) colorResource(R.color.deep_yellow).copy(alpha = 0.3f) else Color.Transparent
+            )
             .padding(bottom = 8.dp)
-            .clickable {
-                if(chapter.status == DownloadStatus.Downloaded){
-                    onClick()
+            .combinedClickable(
+                onLongClick = {
+                    if(chapter.status == DownloadStatus.Downloaded) onHold()
+                },
+                onClick = {
+                    if(chapter.status == DownloadStatus.Downloaded){
+                        onClick()
+                    }
                 }
-            }
+            )
     ) {
         //content
         Column(modifier = Modifier

@@ -1,5 +1,6 @@
 package com.codewithdipesh.mangareader.presentation.elements
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,82 +38,77 @@ fun BottomNav(
     selectedOption : Screen,
     onClick : (Screen)->Unit
 ) {
-   Box(
-       modifier = modifier
+    Box(
+           modifier = modifier
            .offset(x=14.dp)
            .width((widthSingleOption*3).dp)
            .height(heightSingleOption.dp)
            .clip(CustomButtonShape())
-   ){
-           //home
-           Box(
-               modifier = Modifier
-                   .size(widthSingleOption.dp,heightSingleOption.dp)
-                   .clip(CustomButtonShape())
-                   .background(
-                       if(selectedOption == Screen.Home || (selectedOption != Screen.Favourites && selectedOption != Screen.Downloads)) Color.Black
-                       else colorResource(R.color.light_yellow).copy(0.7f)
-                   )
-                   .align(Alignment.CenterStart)
-                   .clickable {
-                       onClick(Screen.Home)
-                   },
-               contentAlignment = Alignment.Center
-           ){
-               Icon(
-                   painter = painterResource(R.drawable.home_icon),
-                   contentDescription = "home",
-                   tint = if(selectedOption == Screen.Home || (selectedOption != Screen.Favourites && selectedOption != Screen.Downloads))
-                           Color.White
-                          else colorResource(R.color.medium_gray)
-               )
-           }
-           //favourites
-           Box(
-               modifier = Modifier
-                   .offset(x=(-14.dp))
-                   .size(widthSingleOption.dp,heightSingleOption.dp)
-                   .clip(CustomButtonShape())
-                   .background(
-                       if(selectedOption == Screen.Favourites) Color.Black
-                       else colorResource(R.color.light_yellow).copy(0.7f)
-                   )
-                   .align(Alignment.Center)
-                   .clickable {
-                       onClick(Screen.Favourites)
-                   },
-               contentAlignment = Alignment.Center
-           ){
-               Icon(
-                   painter = painterResource(R.drawable.favourite_icon),
-                   contentDescription = "home",
-                   tint = if(selectedOption == Screen.Favourites) Color.White
-                   else colorResource(R.color.medium_gray)
-               )
-           }
-           //downloads
-           Box(
-               modifier = Modifier
-                   .offset(x=(-28.dp))
-                   .size(widthSingleOption.dp,heightSingleOption.dp)
-                   .clip(CustomButtonShape())
-                   .background(
-                       if(selectedOption == Screen.Downloads) Color.Black
-                       else colorResource(R.color.light_yellow).copy(0.7f)
-                   )
-                   .align(Alignment.CenterEnd)
-                   .clickable {
-                       onClick(Screen.Downloads)
-                   },
-               contentAlignment = Alignment.Center
-           ){
-               Icon(
-                   painter = painterResource(R.drawable.downloads_icon),
-                   contentDescription = "home",
-                   tint = if(selectedOption == Screen.Downloads) Color.White
-                   else colorResource(R.color.medium_gray)
-               )
-           }
-
+       ) {
+          //home
+          Box(
+              modifier = Modifier
+                  .size(widthSingleOption.dp, heightSingleOption.dp)
+                  .clip(CustomButtonShape())
+                  .background(
+                      if (selectedOption == Screen.Home || (selectedOption != Screen.Favourites && selectedOption != Screen.Downloads)) Color.Black
+                      else colorResource(R.color.deep_yellow).copy(0.7f)
+                  )
+                  .align(Alignment.CenterStart)
+                  .clickable {
+                      onClick(Screen.Home)
+                  },
+              contentAlignment = Alignment.Center
+          ) {
+              Icon(
+                  painter = painterResource(R.drawable.home_icon),
+                  contentDescription = "home",
+                  tint = Color.White
+              )
+          }
+          //favourites
+          Box(
+              modifier = Modifier
+                  .offset(x = (-14.dp))
+                  .size(widthSingleOption.dp, heightSingleOption.dp)
+                  .clip(CustomButtonShape())
+                  .background(
+                      if (selectedOption == Screen.Favourites) Color.Black
+                      else colorResource(R.color.deep_yellow).copy(0.7f)
+                  )
+                  .align(Alignment.Center)
+                  .clickable {
+                      onClick(Screen.Favourites)
+                  },
+              contentAlignment = Alignment.Center
+          ) {
+              Icon(
+                  painter = painterResource(R.drawable.favourite_icon),
+                  contentDescription = "home",
+                  tint = Color.White
+              )
+          }
+          //downloads
+          Box(
+              modifier = Modifier
+                  .offset(x = (-28.dp))
+                  .size(widthSingleOption.dp, heightSingleOption.dp)
+                  .clip(CustomButtonShape())
+                  .background(
+                      if (selectedOption == Screen.Downloads) Color.Black
+                      else colorResource(R.color.deep_yellow).copy(0.7f)
+                  )
+                  .align(Alignment.CenterEnd)
+                  .clickable {
+                      onClick(Screen.Downloads)
+                  },
+              contentAlignment = Alignment.Center
+          ) {
+              Icon(
+                  painter = painterResource(R.drawable.downloads_icon),
+                  contentDescription = "home",
+                  tint = Color.White
+              )
+          }
    }
 }

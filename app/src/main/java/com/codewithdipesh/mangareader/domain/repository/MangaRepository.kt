@@ -26,6 +26,7 @@ interface MangaRepository {
    suspend fun getAllDownloads():Result<Downloads>
    suspend fun isDownloaded(chapteId: String):Boolean
    suspend fun getDownloadedChapterForManga(mangaId: String): Flow<List<DownloadedChapter>>
+   suspend fun deleteDownloadedChapters(downloadedChapters: List<String>)
    suspend fun addFavouriteManga(manga: FavouriteManga)
    suspend fun deleteFavouriteManga(manga: FavouriteManga)
    suspend fun getAllFavouriteMangas(): Flow<List<FavouriteManga>>

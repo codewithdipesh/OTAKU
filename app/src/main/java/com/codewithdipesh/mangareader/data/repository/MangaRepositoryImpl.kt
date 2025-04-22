@@ -417,6 +417,12 @@ class MangaRepositoryImpl(
             .catch { emit(emptyList()) } // Handle errors within Flow
     }
 
+    override suspend fun deleteDownloadedChapters(downloadedChapterIds: List<String>) {
+        downloadedChapterIds.forEach {
+            dao.deleteDownloadedChapter(it)
+        }
+    }
+
     override suspend fun addFavouriteManga(manga: FavouriteManga) {
         Log.d("MangaRepo", "addToFavourites: called")
         dao.addFavouriteManga(manga)
