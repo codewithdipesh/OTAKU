@@ -11,5 +11,6 @@ data class DownloadedChapterUIState(
     val currentPage : Int = 1,
     val pageSize : Int = 1,
     val readMode : ReadMode = ReadMode.Vertical,
+    val isAutoScroll : Boolean = false,
     val isLoading : Boolean = false
 )

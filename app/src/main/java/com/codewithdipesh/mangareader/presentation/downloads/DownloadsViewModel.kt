@@ -161,4 +161,10 @@ class DownloadsViewModel @Inject constructor(
             downloads = _state.value.downloads
         )
     }
+
+    fun toggleAutoScroll(){
+        _chapterState.value = _chapterState.value.copy(
+            isAutoScroll = !(_chapterState.value.isAutoScroll)
+        )
+    }
 }

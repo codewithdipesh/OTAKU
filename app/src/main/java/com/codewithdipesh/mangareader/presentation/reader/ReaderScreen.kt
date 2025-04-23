@@ -115,6 +115,8 @@ fun ReaderScreen(
     var brightness by remember { mutableStateOf(0.8f) }
     val activity = context as? Activity
 
+    //auto scroll
+    var isAutoScrollEnabled by remember { mutableStateOf(state.isAutomatedScroll) }
 
     BackHandler {
         //back navigate
@@ -370,6 +372,22 @@ fun ReaderScreen(
                         }
                     }
 
+
+                    LaunchedEffect(isAutoScrollEnabled) {
+                        if (isAutoScrollEnabled) {
+                            while (true) {
+                                delay(6000)
+                                val nextIndex = lazylistState.firstVisibleItemIndex + 1
+                                if (nextIndex < lazylistState.layoutInfo.totalItemsCount) {
+                                    lazylistState.animateScrollToItem(nextIndex)
+                                } else {
+                                    break
+                                }
+                            }
+                        }
+                    }
+
+
                     LazyColumn(
                         state = lazylistState,
                         modifier = Modifier.fillMaxSize()
@@ -547,6 +565,31 @@ fun ReaderScreen(
                             )
                         }
 
+                        //AutoScroll
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Text(
+                                text = "Automatic Scroll",
+                                style = TextStyle(
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    fontFamily = regular
+                                )
+                            )
+                            SlidingButton(
+                                isSelected = state.isAutomatedScroll,
+                                onToggle = {
+                                    viewModel.toggleAutoScroll()
+                                    isAutoScrollEnabled = !isAutoScrollEnabled
+                                }
+                            )
+                        }
+
                         //brightness
                         Text(
                             text = "Brightness",
@@ -646,6 +689,9 @@ fun ReaderScreen(
     }else{
         null
     }
+
+    //auto scroll
+    var isAutoScrollEnabled by remember { mutableStateOf(state.isAutoScroll) }
 
     Box(
         Modifier
@@ -788,6 +834,24 @@ fun ReaderScreen(
                             }
                     }
 
+                    LaunchedEffect(isAutoScrollEnabled) {
+                        if (isAutoScrollEnabled) {
+                            while (true) {
+                                delay(9000)
+                                Log.d("auroScroll","ya ya ")
+                                val nextIndex = lazylistState.firstVisibleItemIndex + 1
+                                if (nextIndex < lazylistState.layoutInfo.totalItemsCount) {
+                                    lazylistState.animateScrollToItem(nextIndex)
+                                } else {
+                                    scope.launch {
+                                        Toast.makeText(context,"End of chapter",Toast.LENGTH_SHORT).show()
+                                    }
+                                    break
+                                }
+                            }
+                        }
+                    }
+
                     LazyColumn(
                         state = lazylistState,
                         modifier = Modifier.fillMaxSize()
@@ -919,6 +983,32 @@ fun ReaderScreen(
                                 onToggle = { viewModel.toggleReadMode() }
                             )
                         }
+
+                        //AutoScroll
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Text(
+                                text = "Automatic Scroll",
+                                style = TextStyle(
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    fontFamily = regular
+                                )
+                            )
+                            SlidingButton(
+                                isSelected = state.isAutoScroll,
+                                onToggle = {
+                                    viewModel.toggleAutoScroll()
+                                    isAutoScrollEnabled = !isAutoScrollEnabled
+                                }
+                            )
+                        }
+
                         //brightness
                         Text(
                             text = "Brightness",

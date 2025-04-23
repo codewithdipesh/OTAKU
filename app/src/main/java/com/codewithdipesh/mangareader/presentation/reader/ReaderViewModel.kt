@@ -199,4 +199,10 @@ class ReaderViewModel @Inject constructor(
         WorkManager.getInstance(context).enqueue(workRequest)
 
     }
+
+    fun toggleAutoScroll(){
+        _state.value = _state.value.copy(
+            isAutomatedScroll = !(_state.value.isAutomatedScroll)
+        )
+    }
 }
