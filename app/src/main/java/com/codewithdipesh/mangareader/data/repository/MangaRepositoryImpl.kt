@@ -89,14 +89,29 @@ class MangaRepositoryImpl(
                             GenreEntity(id = id,mangaId = it.id, name = name)
                         }
                     })
+                    for(i in 0..4){
+                        val genres = dao.getGenresForManga(resultMangaList[i].id)
+                        Log.d("repositoryGenre", "genre for manga : ${resultMangaList[i].title} : $genres")
+                    }
                     dao.insertTheme(resultMangaList.flatMap {
                         it.themes.map { themeMap ->
                             val (id, name) = themeMap.entries.first()
                             ThemeEntity(id = id,mangaId = it.id, name = name)
                         }
                     })
+                    // Re-fetch genres and themes to attach to final result
+                    val updatedMangaList = resultMangaList.map { manga ->
+                        val genres = dao.getGenresForManga(manga.id)
+                        Log.d("repositoryGenre", genres.toString())
+                        val genresMap = genres.map { mapOf(it.id to it.name) }
+                        Log.d("repositoryGenre", genresMap.toString())
+                        val themes = dao.getThemesForManga(manga.id)
+                        val themesMap = themes.map { mapOf(it.id to it.name) }
 
-                    return Result.Success(resultMangaList)
+                        manga.copy(genres = genresMap, themes = themesMap)
+                    }
+
+                    return Result.Success(updatedMangaList)
                 } else {
                     Result.Error(AppError.ServerError("Empty Response from server"))
                 }
@@ -156,6 +171,10 @@ class MangaRepositoryImpl(
                                 GenreEntity(id = entry.key, mangaId = it.id, name = entry.value)
                             }
                         }
+                    }
+                    for(i in 0..4){
+                        val genres = dao.getGenresForManga(resultMangaList[i].id)
+                        Log.d("repositoryGenre", "genre for manga : ${resultMangaList[i].title} : $genres")
                     }
                     Log.d("repository", "Genres to insert: $genreEntities")
                     dao.insertGenre(genreEntities)
@@ -263,6 +282,7 @@ class MangaRepositoryImpl(
             Log.d("cache", "got in disk  ->")
             Log.e("Chapter Size", "repo (cached) -> ${diskCachedManga.first().chapters}")
             val genres = dao.getGenresForManga(mangaId)
+            Log.d("repositoryGenre","Genre - $genres")
             val genresMap = genres.map { mapOf(it.id to it.name) }
             val themes = dao.getThemesForManga(mangaId)
             val themesMap = themes.map { mapOf(it.id to it.name) }

@@ -133,9 +133,6 @@ fun DownloadedMangaScreen(
                                 viewModel.deleteChapters()
                                 viewModel.turnOffDeleteMode()
                                 Toast.makeText(context,"Successfully deleted chapters",Toast.LENGTH_SHORT).show()
-                                if(mangaState.chapters.isEmpty()){
-                                    //todo delete the manga and return back
-                                }
                             }
                         }
                     ) {

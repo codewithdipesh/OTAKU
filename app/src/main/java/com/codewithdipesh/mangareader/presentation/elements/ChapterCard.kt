@@ -129,10 +129,10 @@ fun ChapterCard(
             .padding(bottom = 8.dp)
             .combinedClickable(
                 onLongClick = {
-                    if(chapter.status == DownloadStatus.Downloaded) onHold()
+                    if(chapter.status == DownloadStatus.Downloaded || chapter.status == DownloadStatus.Error) onHold()
                 },
                 onClick = {
-                    if(chapter.status == DownloadStatus.Downloaded){
+                    if(chapter.status == DownloadStatus.Downloaded || chapter.status == DownloadStatus.Error){
                         onClick()
                     }
                 }

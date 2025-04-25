@@ -28,11 +28,11 @@ interface MangaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTheme(themes: List<ThemeEntity>)
 
-    @Query("SELECT id,name FROM genre WHERE mangaId = :mangaId")
-    suspend fun getGenresForManga(mangaId: String): List<GenreIdName>
+    @Query("SELECT * FROM genre WHERE mangaId = :mangaId")
+    suspend fun getGenresForManga(mangaId: String): List<GenreEntity>
 
-    @Query("SELECT id,name FROM theme WHERE mangaId = :mangaId")
-    suspend fun getThemesForManga(mangaId: String): List<ThemeIdName>
+    @Query("SELECT * FROM theme WHERE mangaId = :mangaId")
+    suspend fun getThemesForManga(mangaId: String): List<GenreEntity>
 
     @Query("SELECT * FROM manga WHERE topManga = 1")
     suspend fun getCachedTopMangas(): List<MangaEntity>

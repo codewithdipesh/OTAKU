@@ -388,28 +388,29 @@ fun SharedTransitionScope.MangaDetailsScreen(
         }
         Spacer(Modifier.height(6.dp))
         //showing the attribute list
-        if(state.genres.isNotEmpty()){
-            FlowRow(
-                maxItemsInEachRow = 8,
-                modifier = Modifier
-                    .fillMaxWidth().padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.Start
-            ){
-                //contentRating
-                TinyCard(
-                    text = if (state.contentRating == Rating.Pornographic) "18+"
-                    else state.contentRating.name,
-                    bgColor = if (state.contentRating == Rating.Pornographic) Color.Red
-                    else if(state.contentRating == Rating.Erotica) colorResource(R.color.orange)
-                    else Color.DarkGray,
-                    textSize = 14
+        FlowRow(
+            maxItemsInEachRow = 8,
+            modifier = Modifier
+                .fillMaxWidth().padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.Start
+        ){
+            //contentRating
+            TinyCard(
+                text = if (state.contentRating == Rating.Pornographic) "18+"
+                else state.contentRating.name,
+                bgColor = if (state.contentRating == Rating.Pornographic) Color.Red
+                else if(state.contentRating == Rating.Erotica) colorResource(R.color.orange)
+                else Color.DarkGray,
+                textSize = 14
 
-                )
+            )
+            if(state.genres.isNotEmpty()){
                 //list of genres
                 state.genres.take(7).forEach {
                     TinyCard(text = it.entries.first().value,textSize = 14)//id->name so value will be the name
                 }
             }
+
         }
         Spacer(Modifier.height(16.dp))
 
