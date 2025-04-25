@@ -671,6 +671,14 @@ fun ReaderScreen(
     LaunchedEffect(Unit){
         viewModel.getDownloadedChapter(downloadedChapterId)
     }
+    BackHandler {
+        //back navigate
+        scope.launch {
+            navController.navigateUp()
+            viewModel.clearChapterUi()
+            resetToSystemBrightness(activity)
+        }
+    }
 
     val imageFile = remember(state.currentPage) {
         if (state.pages.isNotEmpty() && state.currentPage - 1 in state.pages.indices) {
