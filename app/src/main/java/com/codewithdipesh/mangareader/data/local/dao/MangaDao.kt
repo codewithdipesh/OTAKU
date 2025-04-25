@@ -9,10 +9,8 @@ import androidx.room.Update
 import com.codewithdipesh.mangareader.data.local.entity.DownloadedChapterEntity
 import com.codewithdipesh.mangareader.data.local.entity.FavouriteManga
 import com.codewithdipesh.mangareader.data.local.entity.GenreEntity
-import com.codewithdipesh.mangareader.data.local.entity.GenreIdName
 import com.codewithdipesh.mangareader.data.local.entity.MangaEntity
 import com.codewithdipesh.mangareader.data.local.entity.ThemeEntity
-import com.codewithdipesh.mangareader.data.local.entity.ThemeIdName
 import com.codewithdipesh.mangareader.data.local.entity.VisitedChapter
 import kotlinx.coroutines.flow.Flow
 

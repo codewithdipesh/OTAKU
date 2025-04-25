@@ -63,6 +63,12 @@ fun DownloadedMangaScreen(
     LaunchedEffect(Unit) {
         viewModel.getDownloadedManga(mangaId,mangaName)
     }
+    LaunchedEffect(mangaState.chapters) {
+        if(mangaState.chapters.isEmpty()){
+            navController.navigateUp()
+            viewModel.turnOffDeleteMode()
+        }
+    }
 
     BackHandler {
         if(!mangaState.isDeleteFormat){
