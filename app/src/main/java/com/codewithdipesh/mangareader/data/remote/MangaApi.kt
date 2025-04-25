@@ -8,6 +8,7 @@ import com.codewithdipesh.mangareader.data.remote.dto.MangaByIdResponse
 import com.codewithdipesh.mangareader.data.remote.dto.MangaResponse
 import com.codewithdipesh.mangareader.data.remote.dto.chapterResult
 import com.codewithdipesh.mangareader.data.remote.dto.coverImageResponse
+import com.codewithdipesh.mangareader.domain.model.Rating
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -21,7 +22,7 @@ interface MangaApi {
 
     @GET("manga")
     suspend fun getAllManga(
-        @Query("offset") offset: Int = 5,
+        @Query("offset") offset: Int = 10,
         @Query("limit") limit: Int = 20
     ): Response<MangaResponse>
 
@@ -68,7 +69,12 @@ interface MangaApi {
         @Path("chapterId") chapterId : String
     ) : Response<ChapterPageResult>
 
-
+    @GET("manga")
+    suspend fun getSimilarManga(
+        @Query("includedTags[]") tags : List<String> = emptyList(),
+        @Query("contentRating[]") rating : String = Rating.Safe.name,
+        @Query("limit") offset: Int = 7,
+    ): Response<MangaResponse>
 
 
 

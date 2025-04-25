@@ -86,12 +86,14 @@ class MangaDetailsViewModel @Inject constructor(
     }
     private fun setErrorState(){
         _state.value = _state.value.copy(
-            hasErrorOccured = true
+            hasErrorOccured = true,
+            isLoading = false
         )
     }
     private fun setNoErrorState(){
         _state.value = _state.value.copy(
-            hasErrorOccured = false
+            hasErrorOccured = false,
+            isLoading = false
         )
     }
 
@@ -116,11 +118,15 @@ class MangaDetailsViewModel @Inject constructor(
                         themes = manga.themes,
                         createdAt = manga.createdAt,
                         isFavourite = manga.isFavourite,
-                        isLoading = false,
                         altTitle = manga.altTitle,
                         totalChapter = manga.chapters,
                         isChapterLoading = manga.chapters == 0
                     )
+                    Log.d("MangaDetails",manga.genres.toString())
+                    if(!_state.value.isSimilarMangaFetched) {
+                        Log.d("SimilarManga", "called similar manga")
+                        getSimilarMangas()
+                    }
                 }
                 is Result.Error -> {
                     _uiEvent.send(result.error.message)
@@ -149,7 +155,8 @@ class MangaDetailsViewModel @Inject constructor(
             is Result.Success ->{
                 val name = result.data
                 _state.value = _state.value.copy(
-                    author = name
+                    author = name,
+                    isAuthorFetched = true
                 )
             }
             is Result.Error -> {
@@ -307,6 +314,27 @@ class MangaDetailsViewModel @Inject constructor(
                 chapter =chapter,
                 coverImage= _state.value.coverImage ?: ""
             )
+        }
+    }
+
+    suspend fun getSimilarMangas() {
+        val tags: List<String> = (_state.value.genres + _state.value.themes)
+            .flatMap { it.keys }
+
+        Log.d("SimilarManga", "getSimilarMangas: tags $tags")
+        val result = repository.getSimilarMangas(tags, _state.value.contentRating)
+        when(result){
+            is Result.Success ->{
+                _state.value = _state.value.copy(
+                    similarMangas = result.data.filter { it.id != _state.value.id }.take(6),
+                    isSimilarMangaFetched = true,
+                    isLoading = false
+                )
+            }
+            is Result.Error ->{
+                Log.d("MangaViewmodel", "getSimilarMangas: Error ${result.error}")
+                setErrorState()
+            }
         }
     }
 

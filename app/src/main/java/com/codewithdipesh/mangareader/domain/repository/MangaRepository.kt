@@ -7,6 +7,7 @@ import com.codewithdipesh.mangareader.domain.model.ChapterDetails
 import com.codewithdipesh.mangareader.domain.model.DownloadedChapter
 import com.codewithdipesh.mangareader.domain.model.Downloads
 import com.codewithdipesh.mangareader.domain.model.Manga
+import com.codewithdipesh.mangareader.domain.model.Rating
 import com.codewithdipesh.mangareader.domain.util.Result
 import kotlinx.coroutines.flow.Flow
 
@@ -30,5 +31,6 @@ interface MangaRepository {
    suspend fun addFavouriteManga(manga: FavouriteManga)
    suspend fun deleteFavouriteManga(manga: FavouriteManga)
    suspend fun getAllFavouriteMangas(): Flow<List<FavouriteManga>>
+   suspend fun getSimilarMangas(tags : List<String>,contentRating: Rating): Result<List<Manga>>
 
 }

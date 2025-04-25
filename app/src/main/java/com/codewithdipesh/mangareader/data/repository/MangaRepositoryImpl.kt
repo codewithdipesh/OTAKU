@@ -21,6 +21,7 @@ import com.codewithdipesh.mangareader.domain.model.DownloadedChapter
 import com.codewithdipesh.mangareader.domain.model.Downloads
 import com.codewithdipesh.mangareader.domain.model.Manga
 import com.codewithdipesh.mangareader.domain.model.MangaDownloadedDetails
+import com.codewithdipesh.mangareader.domain.model.Rating
 import com.codewithdipesh.mangareader.domain.repository.MangaRepository
 import com.codewithdipesh.mangareader.domain.util.AppError
 import com.codewithdipesh.mangareader.domain.util.Result
@@ -49,8 +50,10 @@ class MangaRepositoryImpl(
         return if(isCacheValid){
             val mangaList = cachedMangas.map {
                 val genres = dao.getGenresForManga(it.id)
+                val genresMap = genres.map { mapOf(it.id to it.name) }
                 val themes = dao.getThemesForManga(it.id)
-                it.toManga(genres,themes)
+                val themesMap = themes.map { mapOf(it.id to it.name) }
+                it.toManga(genresMap,themesMap)
             }
             Result.Success(mangaList)
         }else{
@@ -81,13 +84,15 @@ class MangaRepositoryImpl(
                     Log.d("repository", "Saving manga: lastUpdated = ${System.currentTimeMillis()}")
                     dao.insertMangas(resultMangaList.map { it.toEntity(isTopManga = true) })
                     dao.insertGenre(resultMangaList.flatMap {
-                        it.genres.map { genre ->
-                            GenreEntity(mangaId = it.id, name = genre)
+                        it.genres.map { genreMap ->
+                            val (id, name) = genreMap.entries.first()
+                            GenreEntity(id = id,mangaId = it.id, name = name)
                         }
                     })
                     dao.insertTheme(resultMangaList.flatMap {
-                        it.themes.map { theme ->
-                            ThemeEntity(mangaId = it.id, name = theme)
+                        it.themes.map { themeMap ->
+                            val (id, name) = themeMap.entries.first()
+                            ThemeEntity(id = id,mangaId = it.id, name = name)
                         }
                     })
 
@@ -113,8 +118,10 @@ class MangaRepositoryImpl(
         return if(isCacheValid){
             val mangaList = cachedMangas.map {
                 val genres = dao.getGenresForManga(it.id)
+                val genresMap = genres.map { mapOf(it.id to it.name) }
                 val themes = dao.getThemesForManga(it.id)
-                it.toManga(genres,themes)
+                val themesMap = themes.map { mapOf(it.id to it.name) }
+                it.toManga(genresMap,themesMap)
             }
             Result.Success(mangaList)
 
@@ -140,16 +147,23 @@ class MangaRepositoryImpl(
                         }
                         mangaData.toManga(coverImage)
                     }
+
                     //add manga theme and genre to locally then return
                     dao.insertMangas(resultMangaList.map { it.toEntity(isTopManga = false) })
-                    dao.insertGenre(resultMangaList.flatMap {
-                        it.genres.map { genre ->
-                            GenreEntity(mangaId = it.id, name = genre)
+                    val genreEntities = resultMangaList.flatMap {
+                        it.genres.mapNotNull { genreMap ->
+                            genreMap.entries.firstOrNull()?.let { entry ->
+                                GenreEntity(id = entry.key, mangaId = it.id, name = entry.value)
+                            }
                         }
-                    })
+                    }
+                    Log.d("repository", "Genres to insert: $genreEntities")
+                    dao.insertGenre(genreEntities)
+
                     dao.insertTheme(resultMangaList.flatMap {
-                        it.themes.map { theme ->
-                            ThemeEntity(mangaId = it.id, name = theme)
+                        it.themes.map { themeMap ->
+                            val (id, name) = themeMap.entries.first()
+                            ThemeEntity(id = id,mangaId = it.id, name = name)
                         }
                     })
 
@@ -249,8 +263,10 @@ class MangaRepositoryImpl(
             Log.d("cache", "got in disk  ->")
             Log.e("Chapter Size", "repo (cached) -> ${diskCachedManga.first().chapters}")
             val genres = dao.getGenresForManga(mangaId)
+            val genresMap = genres.map { mapOf(it.id to it.name) }
             val themes = dao.getThemesForManga(mangaId)
-            var result = diskCachedManga.first().toManga(genres, themes)
+            val themesMap = themes.map { mapOf(it.id to it.name) }
+            var result = diskCachedManga.first().toManga(genresMap, themesMap)
             result = result.copy(
                 isFavourite = isFavourite
             )
@@ -438,6 +454,44 @@ class MangaRepositoryImpl(
             mangas
         } catch (e: Exception) {
             flowOf(emptyList())
+        }
+    }
+
+    override suspend fun getSimilarMangas(tags: List<String>,contentRating: Rating): Result<List<Manga>> {
+        return try {
+            val response = api.getSimilarManga(tags=tags,rating = contentRating.name)
+            Log.d("SimilarManga", response.toString())
+            if (response.isSuccessful) {
+                val mangaList = response.body()?.data ?: emptyList()
+                if (mangaList.isEmpty()) {
+                    return Result.Error(AppError.ServerError("No Manga Found"))
+                }
+                val resultMangaList = mangaList.map { mangaData ->
+                    val coverImage = try {
+                        val coverResponse = api.getCoverImage(mangaData.id)
+                        val coverData = coverResponse.body()?.data
+                        if (coverResponse.isSuccessful) {
+                            coverData?.firstOrNull()?.attributes?.fileName ?: ""
+                        } else {
+                            ""
+                        }
+                    } catch (e: Exception) {
+                        Log.e("MangaRepository", "searchManga: Error fetching cover", e)
+                        ""
+                    }
+                    mangaData.toManga(coverImage)
+                }
+                Log.d("repository", "${resultMangaList.first().chapters}")
+
+                return Result.Success(resultMangaList)
+            }
+            else{
+                Result.Error(AppError.ServerError("Empty Response from server"))
+        }
+        }catch (e:IOException){
+            Result.Error(AppError.NetworkError())
+        }catch (e:Exception){
+            Result.Error(AppError.UnknownError())
         }
     }
 

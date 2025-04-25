@@ -8,8 +8,8 @@ import com.codewithdipesh.mangareader.domain.model.Rating
 import com.codewithdipesh.mangareader.domain.model.Status
 
 fun MangaEntity.toManga(
-    genres : List<String>,
-    themes : List<String>
+    genres : List<Map<String,String>>,
+    themes : List<Map<String,String>>
 ) : Manga{
 
     return Manga(

@@ -45,7 +45,9 @@ object MangaModule {
             context = context,
             klass = MangaDatabase::class.java,
             name = "manga_db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
 
     @Provides

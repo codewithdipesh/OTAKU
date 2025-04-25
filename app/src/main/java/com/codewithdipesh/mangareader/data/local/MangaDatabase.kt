@@ -21,7 +21,7 @@ import com.codewithdipesh.mangareader.data.local.entity.VisitedChapter
     VisitedChapter::class,
     DownloadedChapterEntity::class,
     FavouriteManga::class],
-    version = 1, exportSchema = false)
+    version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class MangaDatabase : RoomDatabase(){
     abstract fun mangaDao() : MangaDao
@@ -36,7 +36,9 @@ abstract class MangaDatabase : RoomDatabase(){
                     context.applicationContext,
                     MangaDatabase::class.java,
                     "manga_db"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

@@ -8,13 +8,17 @@ import com.codewithdipesh.mangareader.domain.model.Rating
 import com.codewithdipesh.mangareader.domain.model.Status
 
 fun Data.toManga(coverImage : String):Manga{
-    val genres : List<String> = attributes.tags
+    val genres : List<Map<String,String>> = attributes.tags
         .filter{ it.attributes.group == "genre"}
-        .map { it.attributes.name.en ?: "Unknown"}
+        .map { tag ->
+            mapOf(tag.id to (tag.attributes.name.en ?: "Unknown"))
+        }
 
-    val themes : List<String> = attributes.tags
+    val themes : List<Map<String,String>> = attributes.tags
         .filter{ it.attributes.group == "theme"}
-        .map { it.attributes.name.en ?: "Unknown"}
+        .map {tag ->
+            mapOf(tag.id to (tag.attributes.name.en ?: "Unknown"))
+        }
 
     val titles = attributes.altTitles.firstOrNull()
     val japaneseTitle : String? = titles?.ja ?: titles?.ja_ro ?: titles?.ko?:

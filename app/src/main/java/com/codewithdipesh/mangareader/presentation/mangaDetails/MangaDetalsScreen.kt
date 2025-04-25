@@ -44,6 +44,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -80,7 +83,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.codewithdipesh.mangareader.domain.model.Rating
 import com.codewithdipesh.mangareader.domain.model.Status
+import com.codewithdipesh.mangareader.domain.util.DisplayUtils
 import com.codewithdipesh.mangareader.presentation.elements.ChapterCard
+import com.codewithdipesh.mangareader.presentation.elements.MangaCard
 import com.codewithdipesh.mangareader.presentation.elements.MangaContent
 import com.codewithdipesh.mangareader.presentation.elements.OrderChooser
 import com.codewithdipesh.mangareader.presentation.elements.TinyCard
@@ -118,7 +123,10 @@ fun SharedTransitionScope.MangaDetailsScreen(
         }
     }
     BackHandler {
-        navController.navigateUp()
+        navController.navigate(Screen.Home.route) {
+            popUpTo(0)
+            launchSingleTop = true
+        }
         needToClearUi = true
     }
     DisposableEffect(Unit) {
@@ -212,7 +220,10 @@ fun SharedTransitionScope.MangaDetailsScreen(
                             .offset(x=24.dp)
                             .background(color = colorResource(R.color.dark_gray))
                             .clickable {
-                                navController.navigateUp()
+                                navController.navigate(Screen.Home.route) {
+                                    popUpTo(0)
+                                    launchSingleTop = true
+                                }
                                 needToClearUi = true
                             },
                         contentAlignment = Alignment.Center
@@ -396,7 +407,7 @@ fun SharedTransitionScope.MangaDetailsScreen(
                 )
                 //list of genres
                 state.genres.take(7).forEach {
-                    TinyCard(text = it,textSize = 14)
+                    TinyCard(text = it.entries.first().value,textSize = 14)//id->name so value will be the name
                 }
             }
         }
@@ -585,7 +596,70 @@ fun SharedTransitionScope.MangaDetailsScreen(
                         )
                     }
                 }
-                MangaContent.Similar -> TODO()
+                MangaContent.Similar -> {
+                    Spacer(Modifier.height(16.dp))
+                    if(state.similarMangas.isEmpty() && !state.isLoading){
+                        Text(
+                            text = "No Manga Found",
+                            style = TextStyle(
+                                color = Color.LightGray,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = regular,
+                                fontSize = 14.sp
+                            ),
+                            modifier = Modifier.padding()
+
+                        )
+                    }else if (state.similarMangas.isNotEmpty()){
+                        val columns = DisplayUtils.calculateGridColumns()
+                        val chunkedMangaList = state.similarMangas.chunked(columns)
+
+                        Column(
+
+                        ) { Spacer(Modifier.height(16.dp))
+                            chunkedMangaList.forEach { rowMangas ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceAround
+                                ) {
+                                    rowMangas.forEach { manga ->
+                                        Log.d("SimilarManga", manga.coverImage.toString())
+                                        MangaCard(
+                                            manga = manga,
+                                            onClick = {
+                                                if (state.isInternetAvailable) {
+                                                    viewModel.clearUi()
+                                                    navController.navigate(Screen.Detail.createRoute(manga))
+
+                                                } else {
+                                                    viewModel.sendEvent("No Internet ")
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }else{
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CircularProgressIndicator(
+                                color = colorResource(R.color.yellow),
+                                strokeWidth = 2.dp,
+                                modifier = Modifier
+                                    .size(50.dp)
+                            )
+                        }
+
+                    }
+
+                }
             }
         }
 

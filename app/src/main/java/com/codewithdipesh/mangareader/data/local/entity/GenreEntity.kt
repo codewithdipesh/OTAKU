@@ -7,8 +7,8 @@ import com.codewithdipesh.mangareader.domain.model.Status
 
 @Entity(tableName = "genre")
 data class GenreEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id : Int = 0,
+    @PrimaryKey
+    val id : String ,
     val mangaId:String,
     val name :String
 )

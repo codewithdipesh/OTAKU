@@ -10,8 +10,8 @@ data class Manga(
     val status : Status,
     val year : Int,
     val contentRating : Rating,
-    val genres : List<String>,
-    val themes : List<String>,
+    val genres : List<Map<String,String>>,//id,name
+    val themes : List<Map<String,String>>,
     val createdAt : String,
     val isFavourite : Boolean,
     val coverImage : String?,
