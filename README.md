@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://res.cloudinary.com/daw9ly1fj/image/upload/v1742068672/app_logo_png_elx6ty.png" width="100px"/>
+<img src="https://res.cloudinary.com/daw9ly1fj/image/upload/v1745687394/otaku_new_logo_png_snnbur.svg" width="100px"/>
 
 # **Otaku**
 
@@ -26,6 +26,7 @@ Otaku a free manga reading app that brings your favorite titles to your fingerti
 - ⭐ **Favorites System** - Bookmark your favorite manga for future reading
 - 📱 **Responsive Design** - Optimized for both phone and tablet experiences
 - 📖 **Reading Preferences** - Choose between vertical and horizontal reading orientations
+- ⏳ **Automatic Scrolling (One hand Usage)** - Enabling the option will make the page ,scrolling automatically 
 - 🌙 **Brightness Control** - Adjust screen brightness within the app for comfortable reading
 - 🖼️ **Image Quality Toggle** - Switch between high and low quality images to save data
 - ⏳ **Elegant Loading UI** - Enjoy random manga facts during chapter loading
@@ -36,10 +37,10 @@ Otaku a free manga reading app that brings your favorite titles to your fingerti
 
 ## Screenshots 
 
-![Banner](https://res.cloudinary.com/daw9ly1fj/image/upload/v1741979556/apmarzo30kp3btorm6ma.jpg)]
+![Banner](https://res.cloudinary.com/daw9ly1fj/image/upload/v1745687385/OtakuBannerwithMockup_new_uat1pd.png)]
 
 ## Preview
-[![Watch the video](https://img.youtube.com/vi/0OO8T0iPp38/maxresdefault.jpg)](https://www.youtube.com/shorts/0OO8T0iPp38)
+[Watch the yt demo video](https://youtube.com/shorts/tFb9IUlMxwA?feature=share)
 
 ## Getting Started
 
